@@ -62,6 +62,7 @@ pub struct State<'a> {
     compute_bind_group_0: wgpu::BindGroup,
     compute_bind_group_1: wgpu::BindGroup,
     frame_count: u64,
+    uniform_bind_group: wgpu::BindGroup,
 }
 
 impl<'a> State<'a> {
@@ -127,11 +128,24 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
-        let mut rng = rand::thread_rng();
         let cells_width = 256;
+
+        let size_array = [cells_width as u32, cells_width as u32];
+        let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("size_buffer"),
+            contents: unsafe {
+                std::slice::from_raw_parts(size_array.as_ptr() as *const u8, size_array.len() * 4)
+            },
+            usage: wgpu::BufferUsages::STORAGE
+                | wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::VERTEX,
+        });
+
+        let mut rng = rand::thread_rng();
         let mut cells_vec = vec![0_u32; cells_width * cells_width];
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.05 {
+            if rng.gen::<f32>() < 0.20 {
                 *cell = 1;
             }
         }
@@ -151,8 +165,20 @@ impl<'a> State<'a> {
             mapped_at_creation: false,
         });
 
-        let compute_shader =
-            device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
+        let compute_shader = device.create_shader_module(
+            // Using the macro:
+            // wgpu::include_wgsl!("game-of-life.compute.wgsl"));
+            // does not allow string replacement, which we need to do until wgpu
+            // supports override.
+            wgpu::ShaderModuleDescriptor {
+                label: Some("compute_shader"),
+                source: wgpu::ShaderSource::Wgsl(
+                    include_str!("game-of-life.compute.wgsl")
+                        .replace("__CELL_WIDTH__", &format!("{}", cells_width))
+                        .into(),
+                ),
+            },
+        );
 
         let compute_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -172,6 +198,16 @@ impl<'a> State<'a> {
                         visibility: wgpu::ShaderStages::COMPUTE,
                         ty: wgpu::BindingType::Buffer {
                             ty: wgpu::BufferBindingType::Storage { read_only: false },
+                            has_dynamic_offset: false,
+                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                        },
+                        count: None,
+                    },
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 2,
+                        visibility: wgpu::ShaderStages::COMPUTE,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Storage { read_only: true },
                             has_dynamic_offset: false,
                             min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
                         },
@@ -201,6 +237,14 @@ impl<'a> State<'a> {
                             size: None,
                         }),
                     },
+                    wgpu::BindGroupEntry {
+                        binding: 2,
+                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                            buffer: &size_buffer,
+                            offset: 0,
+                            size: None,
+                        }),
+                    },
                 ],
                 label: Some("compute_bind_group_0"),
             }
@@ -225,6 +269,14 @@ impl<'a> State<'a> {
                             size: None,
                         }),
                     },
+                    wgpu::BindGroupEntry {
+                        binding: 2,
+                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                            buffer: &size_buffer,
+                            offset: 0,
+                            size: None,
+                        }),
+                    },
                 ],
                 label: Some("compute_bind_group_1"),
             }
@@ -243,6 +295,21 @@ impl<'a> State<'a> {
             module: &compute_shader,
             entry_point: "main",
         });
+
+        let bind_group_layout_render =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                    },
+                    count: None,
+                }],
+                label: Some("bind_group_layout_render"),
+            });
 
         let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
         let square_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -279,9 +346,26 @@ impl<'a> State<'a> {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[], // &render_bind_group_layout],
+                bind_group_layouts: &[&bind_group_layout_render],
                 push_constant_ranges: &[],
             });
+
+        let uniform_bind_group = device.create_bind_group({
+            {
+                &wgpu::BindGroupDescriptor {
+                    layout: &bind_group_layout_render,
+                    entries: &[wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                            buffer: &size_buffer,
+                            offset: 0,
+                            size: None,
+                        }),
+                    }],
+                    label: Some("compute_bind_group_1"),
+                }
+            }
+        });
 
         let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.render.wgsl"));
         let render_pipeline = render_pipeline_from_shader(
@@ -320,6 +404,7 @@ impl<'a> State<'a> {
             cells_buffer_0,
             cells_buffer_1,
             square_buffer,
+            uniform_bind_group,
         }
     }
 
@@ -338,6 +423,7 @@ impl<'a> State<'a> {
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.frame_count += 1;
+        let is_even = self.frame_count % 2 == 0;
         //println!("render: {}", self.frame_count);
 
         // Note: About recreating the below objects each time:
@@ -364,7 +450,7 @@ impl<'a> State<'a> {
         pass_encoder.set_pipeline(&self.compute_pipeline);
         pass_encoder.set_bind_group(
             0,
-            if self.frame_count % 2 == 0 {
+            if is_even {
                 &self.compute_bind_group_1
             } else {
                 &self.compute_bind_group_0
@@ -397,13 +483,14 @@ impl<'a> State<'a> {
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_vertex_buffer(
             0,
-            if self.frame_count % 2 == 0 {
+            if is_even {
                 self.cells_buffer_0.slice(..)
             } else {
-                self.cells_buffer_0.slice(..)
+                self.cells_buffer_1.slice(..)
             },
         );
         render_pass.set_vertex_buffer(1, self.square_buffer.slice(..));
+        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
         render_pass.draw(0..4, 0..(self.cells_width * self.cells_width));
         drop(render_pass);
 
@@ -447,13 +534,10 @@ fn render_pipeline_from_shader(
         primitive: wgpu::PrimitiveState {
             topology: wgpu::PrimitiveTopology::TriangleStrip,
             strip_index_format: None,
-            front_face: wgpu::FrontFace::Ccw, // 2.
-            cull_mode: None,                  // Some(wgpu::Face::Back),
-            // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
+            front_face: wgpu::FrontFace::Cw,
+            cull_mode: Some(wgpu::Face::Back),
             polygon_mode: wgpu::PolygonMode::Fill,
-            // Requires Features::DEPTH_CLIP_CONTROL
             unclipped_depth: false,
-            // Requires Features::CONSERVATIVE_RASTERIZATION
             conservative: false,
         },
         depth_stencil: None,

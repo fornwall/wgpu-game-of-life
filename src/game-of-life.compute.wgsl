@@ -1,9 +1,10 @@
 @binding(0) @group(0) var<storage, read> current: array<u32>;
 @binding(1) @group(0) var<storage, read_write> next: array<u32>;
+@binding(2) @group(0) var<storage, read> size: vec2<u32>;
 
 fn getIndex(x: i32, y: i32) -> u32 {
-    let h = 256; // TODO: Should come from override, must mach lib.rs
-    let w = 256; // TODO: Should come from override, must match lib.rs
+    let h = i32(size.x); // TODO: Should come from override, must mach lib.rs
+    let w = i32(size.y); // TODO: Should come from override, must match lib.rs
 
     return u32((y % h) * w + (x % w));
 }
