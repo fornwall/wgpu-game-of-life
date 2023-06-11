@@ -1,0 +1,23 @@
+[package]
+name = "wgpu-game-of-life"
+version = "0.1.0"
+edition = "2021"
+description = "Wgpu game of life"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+env_logger = "*"
+log = "*"
+wgpu = "*"
+pollster = "*"
+bytemuck = { version = "*", features = ["derive"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "*"
+console_log = "*"
+wgpu = { version = "*" }
+wasm-bindgen = "*"
+wasm-bindgen-futures = "*"
+web-sys = { version = "*", features = ["Document", "Element", "Window"] }

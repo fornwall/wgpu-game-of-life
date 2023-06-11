@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn WGPU</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        html, body { width:100%; height:100%; }
+        canvas { display:block; height: 100vh; width: 100vw; }
+        canvas:focus { outline: none !important; }
+    </style>
+</head>
+
+<body id="wasm-example">
+  <script type="module" src="resize.js"></script>
+  <script type="module">
+      import { resizeCanvasToDisplaySize } from "./resize.js";
+      import init from "./generated/wgpu_start.js";
+      init().then(() => {
+        console.log("WASM Loaded");
+        const canvas = document.getElementById("webgpu-canvas");
+        setTimeout(() => resizeCanvasToDisplaySize(canvas), 0);
+      });
+  </script>
+</body>
+
+</html>
+
