@@ -3,12 +3,10 @@ struct Out {
   @location(0) cell: f32,
 }
 
-@binding(0) @group(0) var<uniform> size: vec2<u32>;
-
 @vertex
 fn vertex_main(@builtin(instance_index) i: u32, @location(0) cell: u32, @location(1) pos: vec2<u32>) -> Out {
-    let w = size.x;
-    let h = size.y;
+    let w = 256u; // size.x;
+    let h = 256u; // size.y;
     let x = (f32(i % w + pos.x) / f32(w) - 0.5) * 2. * f32(w) / f32(max(w, h));
     let y = (f32((i - (i % w)) / w + pos.y) / f32(h) - 0.5) * 2. * f32(h) / f32(max(w, h));
 

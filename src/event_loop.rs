@@ -70,9 +70,7 @@ pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut
             // and #2087.
             // If you encounter problems, you should try doing your initialization inside
             // Event::NewEvents(StartCause::Init)."
-            state
-                .window
-                .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+            //state .window .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
             //state.window.focus_window();
         }
         Event::MainEventsCleared => {

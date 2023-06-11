@@ -47,13 +47,20 @@ pub struct State<'a> {
     current_pipeline_idx: u8,
     clear_color: wgpu::Color,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
-    command_encoder: wgpu::CommandEncoderDescriptor<'a>,
+    command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'a>,
     // Window
     surface: wgpu::Surface,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
     render_pipeline: wgpu::RenderPipeline,
+    compute_pipeline: wgpu::ComputePipeline,
+    cells_buffer_0: wgpu::Buffer,
+    cells_buffer_1: wgpu::Buffer,
+    square_buffer: wgpu::Buffer,
+    compute_bind_group_0: wgpu::BindGroup,
+    compute_bind_group_1: wgpu::BindGroup,
+    frame_count: u64,
 }
 
 impl<'a> State<'a> {
@@ -123,7 +130,7 @@ impl<'a> State<'a> {
         let cells_width = 256;
         let mut cells_vec = vec![0_u32; cells_width * cells_width];
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.25 {
+            if rng.gen::<f32>() < 0.05 {
                 *cell = 1;
             }
         }
@@ -143,7 +150,8 @@ impl<'a> State<'a> {
             mapped_at_creation: false,
         });
 
-        let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
+        let compute_shader =
+            device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
 
         let compute_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -211,7 +219,7 @@ impl<'a> State<'a> {
                     wgpu::BindGroupEntry {
                         binding: 1,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &cells_buffer_1,
+                            buffer: &cells_buffer_0,
                             offset: 0,
                             size: None,
                         }),
@@ -231,26 +239,33 @@ impl<'a> State<'a> {
         let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
             label: Some("compute_pipeline"),
             layout: Some(&compute_pipeline_layout),
-            module: &shader,
+            module: &compute_shader,
             entry_point: "main",
         });
 
-        let render_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
-                    },
-                    count: None,
-                }],
-                label: Some("render_bind_group_layout"),
-            });
+        let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
+        let square_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("square_buffer"),
+            contents: unsafe {
+                std::slice::from_raw_parts(
+                    square_vertices.as_ptr() as *const u8,
+                    square_vertices.len() * 4,
+                )
+            },
+            usage: wgpu::BufferUsages::VERTEX,
+        });
 
-        let vertex_buffer_layout = wgpu::VertexBufferLayout {
+        let square_stride = wgpu::VertexBufferLayout {
+            array_stride: 2 * (u32::BITS / 8) as u64,
+            step_mode: wgpu::VertexStepMode::Vertex,
+            attributes: &[wgpu::VertexAttribute {
+                shader_location: 1,
+                offset: 0,
+                format: wgpu::VertexFormat::Uint32x2,
+            }],
+        };
+
+        let cells_stride = wgpu::VertexBufferLayout {
             array_stride: (u32::BITS / 8) as u64,
             step_mode: wgpu::VertexStepMode::Instance,
             attributes: &[wgpu::VertexAttribute {
@@ -263,52 +278,46 @@ impl<'a> State<'a> {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[&render_bind_group_layout],
+                bind_group_layouts: &[], // &render_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
         let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.render.wgsl"));
-        let render_pipeline =
-            render_pipeline_from_shader(&device, &render_pipeline_layout, shader, &config);
-
-        let mut command_encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("TestCommandEncoder"),
-        });
-
-        let mut pass_encoder =
-            command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
-        pass_encoder.set_pipeline(&compute_pipeline);
-        pass_encoder.set_bind_group(0, &compute_bind_group_0, &[]);
-        let workgroup_width = 8;
-        let workgroup_count_x = cells_width / workgroup_width;
-        let workgroup_count_y = cells_width / workgroup_width;
-        let workgroup_count_z = cells_width / workgroup_width;
-        pass_encoder.dispatch_workgroups(
-            workgroup_count_x as u32,
-            workgroup_count_y as u32,
-            workgroup_count_z as u32,
+        let render_pipeline = render_pipeline_from_shader(
+            &device,
+            &render_pipeline_layout,
+            shader,
+            &config,
+            cells_stride,
+            square_stride,
         );
-        drop(pass_encoder);
 
         Self {
+            frame_count: 0,
             device,
             queue,
             current_pipeline_idx: 0,
             clear_color: wgpu::Color {
-                r: 0.1,
-                g: 0.2,
-                b: 0.3,
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
                 a: 1.0,
             },
             texture_view_descriptor: wgpu::TextureViewDescriptor::default(),
-            command_encoder: wgpu::CommandEncoderDescriptor {
-                label: Some("TestCommandEncoder"),
+            command_encoder_descriptor: wgpu::CommandEncoderDescriptor {
+                label: Some("command_encoder_descriptor"),
             },
             window,
             config,
             size,
             surface,
+            compute_pipeline,
             render_pipeline,
+            compute_bind_group_0,
+            compute_bind_group_1,
+            cells_buffer_0,
+            cells_buffer_1,
+            square_buffer,
         }
     }
 
@@ -326,6 +335,9 @@ impl<'a> State<'a> {
     }
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+        self.frame_count += 1;
+        //println!("render: {}", self.frame_count);
+
         // Note: About recreating the below objects each time:
         // https://stackoverflow.com/questions/70489849/in-webgpu-can-you-reuse-the-same-render-pass-in-multiple-frames
         // "As answered below, a render pass (or more specifically: a GPURenderPassEncoder) cannot be reused. However,
@@ -342,7 +354,32 @@ impl<'a> State<'a> {
         // "We also need to create a CommandEncoder to create the actual commands to send to the gpu.
         // Most modern graphics frameworks expect commands to be stored in a command buffer before being sent to the gpu.
         // The encoder builds a command buffer that we can then send to the gpu."
-        let mut encoder = self.device.create_command_encoder(&self.command_encoder);
+        let mut encoder = self
+            .device
+            .create_command_encoder(&self.command_encoder_descriptor);
+
+        let mut pass_encoder = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
+        pass_encoder.set_pipeline(&self.compute_pipeline);
+        pass_encoder.set_bind_group(
+            0,
+            if self.frame_count % 2 == 0 {
+                &self.compute_bind_group_1
+            } else {
+                &self.compute_bind_group_0
+            },
+            &[],
+        );
+        let workgroup_width = 8;
+        let cells_width = 256;
+        let workgroup_count_x = cells_width / workgroup_width;
+        let workgroup_count_y = cells_width / workgroup_width;
+        let workgroup_count_z = 1;
+        pass_encoder.dispatch_workgroups(
+            workgroup_count_x as u32,
+            workgroup_count_y as u32,
+            workgroup_count_z as u32,
+        );
+        drop(pass_encoder);
 
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("render_pass"),
@@ -356,10 +393,17 @@ impl<'a> State<'a> {
             })],
             depth_stencil_attachment: None,
         });
-
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.draw(0..3, 0..1); // 3.
-
+        render_pass.set_vertex_buffer(
+            0,
+            if self.frame_count % 2 == 0 {
+                self.cells_buffer_0.slice(..)
+            } else {
+                self.cells_buffer_0.slice(..)
+            },
+        );
+        render_pass.set_vertex_buffer(1, self.square_buffer.slice(..));
+        render_pass.draw(0..4, 0..(256 * 256));
         drop(render_pass);
 
         // submit will accept anything that implements IntoIter
@@ -369,7 +413,7 @@ impl<'a> State<'a> {
         Ok(())
     }
 
-    fn input(&mut self, event: &WindowEvent) -> bool {
+    fn input(&mut self, _event: &WindowEvent) -> bool {
         false
     }
 }
@@ -379,6 +423,8 @@ fn render_pipeline_from_shader(
     render_pipeline_layout: &wgpu::PipelineLayout,
     shader: wgpu::ShaderModule,
     config: &wgpu::SurfaceConfiguration,
+    cells_stride: wgpu::VertexBufferLayout,
+    square_stride: wgpu::VertexBufferLayout,
 ) -> wgpu::RenderPipeline {
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("render_pipeline"),
@@ -386,24 +432,22 @@ fn render_pipeline_from_shader(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vertex_main",
-            buffers: &[],
+            buffers: &[cells_stride, square_stride],
         },
         fragment: Some(wgpu::FragmentState {
-            // 3.
             module: &shader,
             entry_point: "fragment_main",
             targets: &[Some(wgpu::ColorTargetState {
-                // 4.
                 format: config.format,
                 blend: Some(wgpu::BlendState::REPLACE),
                 write_mask: wgpu::ColorWrites::ALL,
             })],
         }),
         primitive: wgpu::PrimitiveState {
-            topology: wgpu::PrimitiveTopology::TriangleList, // 1.
+            topology: wgpu::PrimitiveTopology::TriangleStrip,
             strip_index_format: None,
             front_face: wgpu::FrontFace::Ccw, // 2.
-            cull_mode: Some(wgpu::Face::Back),
+            cull_mode: None,                  // Some(wgpu::Face::Back),
             // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
             polygon_mode: wgpu::PolygonMode::Fill,
             // Requires Features::DEPTH_CLIP_CONTROL
@@ -411,12 +455,12 @@ fn render_pipeline_from_shader(
             // Requires Features::CONSERVATIVE_RASTERIZATION
             conservative: false,
         },
-        depth_stencil: None, // 1.
+        depth_stencil: None,
         multisample: wgpu::MultisampleState {
-            count: 1,                         // 2.
-            mask: !0,                         // 3.
-            alpha_to_coverage_enabled: false, // 4.
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
         },
-        multiview: None, // 5.
+        multiview: None,
     })
 }
