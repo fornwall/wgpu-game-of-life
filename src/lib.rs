@@ -1,4 +1,4 @@
-use std::num::NonZeroU64;
+use rand::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -63,129 +63,97 @@ impl<'a> State<'a> {
             .await
             .unwrap();
 
-        let gpu_write_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let mut rng = rand::thread_rng();
+        let cells_width = 256;
+        let mut cells_vec = vec![0_u32; cells_width * cells_width];
+        for cell in cells_vec.iter_mut() {
+            if rng.gen::<f32>() < 0.25 {
+                *cell = 1;
+            }
+        }
+
+        let cells_buffer_0 = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
-            contents: {
-                let data = [11_u32, 23];
-                unsafe { std::slice::from_raw_parts(data.as_ptr() as *const u8, data.len() * 4) }
+            contents: unsafe {
+                std::slice::from_raw_parts(cells_vec.as_ptr() as *const u8, cells_vec.len() * 4)
             },
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
         });
-        /*
-        let gpu_write_buffer_slice = gpu_write_buffer.slice(..);
-        let data: wgpu::BufferViewMut = gpu_write_buffer_slice.get_mapped_range_mut();
-        let data_u32: &mut [u32] =
-            unsafe { std::slice::from_raw_parts_mut(data.as_ptr() as *mut u32, 2) };
-        data_u32[0] = 11;
-        data_u32[1] = 23;
-        drop(data);
-        gpu_write_buffer.unmap();
-        */
-
-        let gpu_result_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+        let cells_buffer_1 = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
+            size: (cells_vec.len() * 4) as u64,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
             mapped_at_creation: false,
-            size: 8,
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
         });
 
-        let shader = device.create_shader_module(wgpu::include_wgsl!("compute_shader.wgsl"));
+        let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
 
-        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::COMPUTE,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Storage { read_only: true },
-                        has_dynamic_offset: false,
-                        min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+        let compute_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::COMPUTE,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Storage { read_only: true },
+                            has_dynamic_offset: false,
+                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                        },
+                        count: None,
                     },
-                    //count: NonZeroU32::new(4),
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::COMPUTE,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Storage { read_only: false },
-                        has_dynamic_offset: false,
-                        min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStages::COMPUTE,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Storage { read_only: false },
+                            has_dynamic_offset: false,
+                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                        },
+                        count: None,
                     },
-                    //count: NonZeroU32::new(4),
-                    count: None,
-                },
-            ],
-            label: Some("texture_bind_group_layout"),
-        });
+                ],
+                label: Some("compute_bind_group_layout"),
+            });
 
-        let bind_group = device.create_bind_group({
+        let compute_bind_group = device.create_bind_group({
             &wgpu::BindGroupDescriptor {
-                layout: &bind_group_layout,
+                layout: &compute_bind_group_layout,
                 entries: &[
                     wgpu::BindGroupEntry {
                         binding: 0,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &gpu_write_buffer,
+                            buffer: &cells_buffer_0,
                             offset: 0,
-                            size: NonZeroU64::new(8),
+                            size: None,
                         }),
                     },
                     wgpu::BindGroupEntry {
                         binding: 1,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &gpu_result_buffer,
+                            buffer: &cells_buffer_1,
                             offset: 0,
-                            size: NonZeroU64::new(8),
+                            size: None,
                         }),
                     },
                 ],
-                label: Some("diffuse_bind_group"),
+                label: Some("compute_bind_group"),
             }
         });
 
-        let reverse_bind_group = device.create_bind_group({
-            &wgpu::BindGroupDescriptor {
-                layout: &bind_group_layout,
-                entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &gpu_write_buffer,
-                            offset: 0,
-                            size: NonZeroU64::new(8),
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &gpu_result_buffer,
-                            offset: 0,
-                            size: NonZeroU64::new(8),
-                        }),
-                    },
-                ],
-                label: Some("Reverse bind group"),
-            }
-        });
-
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Compute Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
+        let compute_pipeline_layout =
+            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("compute_pipeline_layout"),
+                bind_group_layouts: &[&compute_bind_group_layout],
+                push_constant_ranges: &[],
+            });
 
         let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label: Some("Compute Pipeline"),
-            layout: Some(&pipeline_layout),
+            label: Some("compute_pipeline"),
+            layout: Some(&compute_pipeline_layout),
             module: &shader,
             entry_point: "main",
         });
 
-        // In WebGPU, the GPU command encoder returned by device.createCommandEncoder()
-        // is the JavaScript object that builds a batch of "buffered" commands that will
-        // be sent to the GPU at some point. The methods on GPUBuffer, on the other hand,
-        // are "unbuffered", meaning they execute atomically at the time they are called.
         let mut command_encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("TestCommandEncoder"),
         });
@@ -193,58 +161,17 @@ impl<'a> State<'a> {
         let mut pass_encoder =
             command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
         pass_encoder.set_pipeline(&compute_pipeline);
-        pass_encoder.set_bind_group(0, &bind_group, &[]);
-        let workgroup_count_x = 2;
-        let workgroup_count_y = 1;
-        let workgroup_count_z = 1;
-        pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
+        pass_encoder.set_bind_group(0, &compute_bind_group, &[]);
+        let workgroup_width = 8;
+        let workgroup_count_x = cells_width / workgroup_width;
+        let workgroup_count_y = cells_width / workgroup_width;
+        let workgroup_count_z = cells_width / workgroup_width;
+        pass_encoder.dispatch_workgroups(
+            workgroup_count_x as u32,
+            workgroup_count_y as u32,
+            workgroup_count_z as u32,
+        );
         drop(pass_encoder);
-
-        let mut pass_encoder =
-            command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
-        pass_encoder.set_pipeline(&compute_pipeline);
-        pass_encoder.set_bind_group(0, &reverse_bind_group, &[]);
-        let workgroup_count_x = 2;
-        let workgroup_count_y = 1;
-        let workgroup_count_z = 1;
-        pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
-        drop(pass_encoder);
-
-        let mut pass_encoder =
-            command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
-        pass_encoder.set_pipeline(&compute_pipeline);
-        pass_encoder.set_bind_group(0, &bind_group, &[]);
-        let workgroup_count_x = 2;
-        let workgroup_count_y = 1;
-        let workgroup_count_z = 1;
-        pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
-        drop(pass_encoder);
-
-        // To end the compute pass encoder, call passEncoder.end(). Then, create a GPU buffer to use as
-        // a destination to copy the result matrix buffer with copyBufferToBuffer. Finally, finish encoding
-        // commands with copyEncoder.finish() and submit those to the GPU device queue by calling
-        // device.queue.submit() with the GPU commands.
-        let gpu_read_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: None,
-            mapped_at_creation: false,
-            size: 8,
-            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
-        });
-        // Add to command queue for later execution:
-        command_encoder.copy_buffer_to_buffer(&gpu_result_buffer, 0, &gpu_read_buffer, 0, 8);
-        // Submit copy commands.
-        let commands = command_encoder.finish();
-        queue.submit(std::iter::once(commands));
-
-        let gpu_read_buffer_slice = gpu_read_buffer.slice(..);
-        gpu_read_buffer_slice.map_async(wgpu::MapMode::Read, |result| {
-            result.unwrap();
-        });
-        instance.poll_all(true);
-        let gpu_read_buffer_range = gpu_read_buffer_slice.get_mapped_range();
-        let gg: &[u32] =
-            unsafe { std::slice::from_raw_parts(gpu_read_buffer_range.as_ptr() as *const u32, 2) };
-        println!("read buffer: {}, {}", gg[0], gg[1]);
 
         Self {
             device,

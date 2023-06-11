@@ -8,11 +8,12 @@ description = "Wgpu game of life"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+bytemuck = { version = "*", features = ["derive"] }
 env_logger = "*"
 log = "*"
-wgpu = "*"
 pollster = "*"
-bytemuck = { version = "*", features = ["derive"] }
+rand = "*"
+wgpu = "*"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "*"
