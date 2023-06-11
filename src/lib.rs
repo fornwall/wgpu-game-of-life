@@ -53,16 +53,13 @@ pub struct State<'a> {
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
-    render_pipeline: wgpu::RenderPipeline,
     compute_pipeline: wgpu::ComputePipeline,
-    cells_buffer_0: wgpu::Buffer,
-    cells_buffer_1: wgpu::Buffer,
     cells_width: u32,
-    square_buffer: wgpu::Buffer,
     compute_bind_group_0: wgpu::BindGroup,
     compute_bind_group_1: wgpu::BindGroup,
     frame_count: u64,
-    uniform_bind_group: wgpu::BindGroup,
+    render_bundle_0: wgpu::RenderBundle,
+    render_bundle_1: wgpu::RenderBundle,
 }
 
 impl<'a> State<'a> {
@@ -377,7 +374,26 @@ impl<'a> State<'a> {
             square_stride,
         );
 
+        let create_render_bundle = |cells_buffer: &wgpu::Buffer| {
+            let mut render_bundle_encoder =
+                device.create_render_bundle_encoder(&wgpu::RenderBundleEncoderDescriptor {
+                    sample_count: 1,
+                    color_formats: &[Some(config.format)],
+                    ..Default::default()
+                });
+            render_bundle_encoder.set_pipeline(&render_pipeline);
+            render_bundle_encoder.set_vertex_buffer(0, cells_buffer.slice(..));
+            render_bundle_encoder.set_vertex_buffer(1, square_buffer.slice(..));
+            render_bundle_encoder.set_bind_group(0, &uniform_bind_group, &[]);
+            render_bundle_encoder.draw(0..4, 0..((cells_width * cells_width) as u32));
+            render_bundle_encoder.finish(&wgpu::RenderBundleDescriptor::default())
+        };
+        let render_bundle_0 = create_render_bundle(&cells_buffer_0);
+        let render_bundle_1 = create_render_bundle(&cells_buffer_1);
+
         Self {
+            render_bundle_0,
+            render_bundle_1,
             frame_count: 0,
             device,
             queue,
@@ -397,14 +413,9 @@ impl<'a> State<'a> {
             size,
             surface,
             compute_pipeline,
-            render_pipeline,
             compute_bind_group_0,
             compute_bind_group_1,
             cells_width: cells_width as u32,
-            cells_buffer_0,
-            cells_buffer_1,
-            square_buffer,
-            uniform_bind_group,
         }
     }
 
@@ -461,11 +472,7 @@ impl<'a> State<'a> {
         let workgroup_count_x = self.cells_width / workgroup_width;
         let workgroup_count_y = self.cells_width / workgroup_width;
         let workgroup_count_z = 1;
-        pass_encoder.dispatch_workgroups(
-            workgroup_count_x as u32,
-            workgroup_count_y as u32,
-            workgroup_count_z as u32,
-        );
+        pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
         drop(pass_encoder);
 
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -480,18 +487,11 @@ impl<'a> State<'a> {
             })],
             depth_stencil_attachment: None,
         });
-        render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_vertex_buffer(
-            0,
-            if is_even {
-                self.cells_buffer_0.slice(..)
-            } else {
-                self.cells_buffer_1.slice(..)
-            },
-        );
-        render_pass.set_vertex_buffer(1, self.square_buffer.slice(..));
-        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
-        render_pass.draw(0..4, 0..(self.cells_width * self.cells_width));
+        render_pass.execute_bundles(std::iter::once(if is_even {
+            &self.render_bundle_0
+        } else {
+            &self.render_bundle_1
+        }));
         drop(render_pass);
 
         // submit will accept anything that implements IntoIter
