@@ -57,6 +57,7 @@ pub struct State<'a> {
     compute_pipeline: wgpu::ComputePipeline,
     cells_buffer_0: wgpu::Buffer,
     cells_buffer_1: wgpu::Buffer,
+    cells_width: u32,
     square_buffer: wgpu::Buffer,
     compute_bind_group_0: wgpu::BindGroup,
     compute_bind_group_1: wgpu::BindGroup,
@@ -315,6 +316,7 @@ impl<'a> State<'a> {
             render_pipeline,
             compute_bind_group_0,
             compute_bind_group_1,
+            cells_width: cells_width as u32,
             cells_buffer_0,
             cells_buffer_1,
             square_buffer,
@@ -370,9 +372,8 @@ impl<'a> State<'a> {
             &[],
         );
         let workgroup_width = 8;
-        let cells_width = 256;
-        let workgroup_count_x = cells_width / workgroup_width;
-        let workgroup_count_y = cells_width / workgroup_width;
+        let workgroup_count_x = self.cells_width / workgroup_width;
+        let workgroup_count_y = self.cells_width / workgroup_width;
         let workgroup_count_z = 1;
         pass_encoder.dispatch_workgroups(
             workgroup_count_x as u32,
@@ -403,7 +404,7 @@ impl<'a> State<'a> {
             },
         );
         render_pass.set_vertex_buffer(1, self.square_buffer.slice(..));
-        render_pass.draw(0..4, 0..(256 * 256));
+        render_pass.draw(0..4, 0..(self.cells_width * self.cells_width));
         drop(render_pass);
 
         // submit will accept anything that implements IntoIter
