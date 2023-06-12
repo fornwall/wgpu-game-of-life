@@ -48,11 +48,11 @@ pub async fn run() {
     init_logging();
 
     let event_loop = EventLoop::new();
-    let mut window = WindowBuilder::new()
-        //.with_title("WGPU Start")
-        //.with_fullscreen(Some(winit::window::Fullscreen::Borderless(None)))
-        .build(&event_loop)
-        .unwrap();
+
+    #[cfg(target_arch = "wasm32")]
+    let mut window = WindowBuilder::new().build(&event_loop).unwrap();
+    #[cfg(not(target_arch = "wasm32"))]
+    let window = WindowBuilder::new().build(&event_loop).unwrap();
 
     #[cfg(target_arch = "wasm32")]
     setup_html_canvas(&mut window);
@@ -185,20 +185,8 @@ impl<'a> State<'a> {
             mapped_at_creation: false,
         });
 
-        let compute_shader = device.create_shader_module(
-            // Using the macro:
-            // wgpu::include_wgsl!("game-of-life.compute.wgsl"));
-            // does not allow string replacement, which we need to do until wgpu
-            // supports override.
-            wgpu::ShaderModuleDescriptor {
-                label: Some("compute_shader"),
-                source: wgpu::ShaderSource::Wgsl(
-                    include_str!("game-of-life.compute.wgsl")
-                        .replace("__CELL_WIDTH__", &format!("{}", cells_width))
-                        .into(),
-                ),
-            },
-        );
+        let compute_shader =
+            device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
 
         let compute_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
