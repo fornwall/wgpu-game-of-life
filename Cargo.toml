@@ -19,7 +19,21 @@ winit = "*"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "*"
 console_log = "*"
-wgpu = { version = "*" }
+getrandom = { version = "*", features = ["js"] }
 wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
 web-sys = { version = "*", features = ["Document", "Element", "Window"] }
+wgpu = { version = "*" }
+
+[package.metadata.bundle]
+name = "Game of Life"
+identifier = "net.fornwall.wgpugameoflife"
+version = "1.0.0"
+resources = ["assets", "images/**/*.png"]
+copyright = "Copyright (c) Fredrik Fornwall 2023. All rights reserved."
+category = "Developer Tool"
+short_description = "An example wgpu application."
+long_description = """
+An example wgpu application running game of life.
+Se https://github.com/fornwall/wgpu-game-of-life.
+"""

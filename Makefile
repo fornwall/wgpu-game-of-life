@@ -12,9 +12,10 @@ else
 endif
 
 macos-app:
-	@cargo bundle --release &> /dev/null
-	@cd target/release/bundle/osx && zip -r $(APP_NAME).zip $(APP_NAME).app &> /dev/null
-	@echo target/release/bundle/osx/$(APP_NAME).zip
+	cargo install cargo-bundle
+	cargo bundle --release
+	cd target/release/bundle/osx && zip -r $(APP_NAME).zip $(APP_NAME).app &> /dev/null
+	echo target/release/bundle/osx/$(APP_NAME).zip
 
 run-app:
 	@cargo bundle --release &> /dev/null
@@ -23,8 +24,9 @@ run-app:
 wasm:
 	# --cfg=web_sys_unstable_apis is necessary for webgpu:
 	# https://rustwasm.github.io/wasm-bindgen/api/web_sys/enum.GpuTextureFormat.html
-	RUSTFLAGS="--cfg=web_sys_unstable_apis -C target-feature=$(WASM_TARGET_FEATURES)" cargo build $(WASM_BUILD_PROFILE) --target wasm32-unknown-unknown
+	RUSTFLAGS="--cfg=web_sys_unstable_apis -C target-feature=$(WASM_TARGET_FEATURES)" \
+		cargo build $(WASM_BUILD_PROFILE) --target wasm32-unknown-unknown
 	rm -Rf site/generated
-	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_start.wasm
-	$(WASM_OPT) -o site/generated/wgpu_start_bg.wasm site/generated/wgpu_start_bg.wasm
+	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_game_of_life.wasm
+	$(WASM_OPT) -o site/generated/wgpu_game_of_life_bg.wasm site/generated/wgpu_game_of_life_bg.wasm
 	(sleep 1 && open http://localhost:8888) & cd site && python3 -m http.server 8888
