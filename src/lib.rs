@@ -6,7 +6,7 @@ use rand::prelude::*;
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
-    event::WindowEvent,
+    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
@@ -35,7 +35,7 @@ fn setup_html_canvas(window: &mut Window) {
         .and_then(|win| win.document())
         .and_then(|doc| {
             let dst = doc.get_element_by_id("wasm-example")?;
-            let mut canvas = web_sys::Element::from(window.canvas());
+            let canvas = web_sys::Element::from(window.canvas());
             canvas.set_id("webgpu-canvas");
             dst.append_child(&canvas).ok()?;
             Some(())
@@ -67,7 +67,6 @@ pub async fn run() {
 pub struct State<'a> {
     device: wgpu::Device,
     queue: wgpu::Queue,
-    current_pipeline_idx: u8,
     clear_color: wgpu::Color,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
     command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'a>,
@@ -165,7 +164,7 @@ impl<'a> State<'a> {
         let mut rng = rand::thread_rng();
         let mut cells_vec = vec![0_u32; cells_width * cells_width];
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.20 {
+            if rng.gen::<f32>() < 0.30 {
                 *cell = 1;
             }
         }
@@ -408,7 +407,6 @@ impl<'a> State<'a> {
             frame_count: 0,
             device,
             queue,
-            current_pipeline_idx: 0,
             clear_color: wgpu::Color {
                 r: 0.0,
                 g: 0.0,
@@ -512,8 +510,61 @@ impl<'a> State<'a> {
         Ok(())
     }
 
-    fn input(&mut self, _event: &WindowEvent) -> bool {
-        false
+    fn input(&mut self, event: &WindowEvent) -> bool {
+        match event {
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::NumpadAdd),
+                        ..
+                    },
+                ..
+            } => {
+                self.window.set_title("plus");
+                true
+            }
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::Minus),
+                        ..
+                    },
+                ..
+            } => {
+                self.window.set_title("minus");
+                true
+            }
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::Up),
+                        ..
+                    },
+                ..
+            } => {
+                self.window.set_title("up");
+                true
+            }
+            WindowEvent::ReceivedCharacter(c) => {
+                self.window.set_title(&format!("char: {}", c));
+                true
+            }
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                println!("key = {:?}", event);
+                true
+            }
+            _ => false,
+        }
     }
 }
 

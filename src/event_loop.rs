@@ -33,17 +33,12 @@ pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut
                         ..
                     } => {
                         println!("Space press");
-                        state.current_pipeline_idx = if state.current_pipeline_idx == 1 {
-                            0
-                        } else {
-                            1
-                        };
+                        state.window.set_title("SPACE");
                     }
                     WindowEvent::Resized(physical_size) => {
                         state.resize(*physical_size);
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                        // new_inner_size is &&mut so we have to dereference it twice
                         state.resize(**new_inner_size);
                     }
                     _ => {}
@@ -74,8 +69,6 @@ pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut
             //state.window.focus_window();
         }
         Event::MainEventsCleared => {
-            // RedrawRequested will only trigger once, unless we manually
-            // request it.
             state.window.request_redraw();
         }
         _ => {}
