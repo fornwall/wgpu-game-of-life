@@ -1,14 +1,14 @@
 use winit::{
-    event::{ElementState, Event, KeyboardInput, StartCause, VirtualKeyCode, WindowEvent},
+    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::ControlFlow,
 };
 
 use crate::State;
 
-pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
+pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
     // *control_flow = ControlFlow::WaitUntil(Instant::now().add(Duration::from_millis(1000)));
     match event {
-        Event::WindowEvent {
+        &Event::WindowEvent {
             ref event,
             window_id,
         } if window_id == state.window.id() => {
@@ -47,7 +47,7 @@ pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut
             }
         }
 
-        Event::RedrawRequested(window_id) if window_id == state.window.id() => {
+        &Event::RedrawRequested(window_id) if window_id == state.window.id() => {
             state.update();
             match state.render() {
                 Ok(_) => {}
@@ -59,16 +59,16 @@ pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut
                 Err(e) => eprintln!("{:?}", e),
             }
         }
-        Event::NewEvents(StartCause::Init) => {
-            // From the winit README:
-            // "A lot of functionality expects the application to be ready before you start doing anything;
-            // this includes creating windows, fetching monitors, drawing, and so on, see issues #2238, #2051
-            // and #2087.
-            // If you encounter problems, you should try doing your initialization inside
-            // Event::NewEvents(StartCause::Init)."
-            //state .window .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
-            //state.window.focus_window();
-        }
+        //Event::NewEvents(StartCause::Init) => {
+        // From the winit README:
+        // "A lot of functionality expects the application to be ready before you start doing anything;
+        // this includes creating windows, fetching monitors, drawing, and so on, see issues #2238, #2051
+        // and #2087.
+        // If you encounter problems, you should try doing your initialization inside
+        // Event::NewEvents(StartCause::Init)."
+        //state .window .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+        //state.window.focus_window();
+        //}
         Event::MainEventsCleared => {
             state.window.request_redraw();
         }

@@ -60,7 +60,7 @@ pub async fn run() {
     let mut state = State::new(window).await;
 
     event_loop.run(move |event, _, control_flow| {
-        event_loop::handle_event_loop(event, &mut state, control_flow)
+        event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
 }
 
@@ -119,7 +119,7 @@ impl<'a> State<'a> {
             .formats
             .iter()
             .copied()
-            .find(|f| f.is_srgb())
+            .find(wgpu::TextureFormat::is_srgb)
             .unwrap_or(surface_caps.formats[0]);
 
         let config = wgpu::SurfaceConfiguration {
@@ -369,7 +369,7 @@ impl<'a> State<'a> {
         let render_pipeline = render_pipeline_from_shader(
             &device,
             &render_pipeline_layout,
-            shader,
+            &shader,
             &config,
             cells_stride,
             square_stride,
@@ -562,7 +562,7 @@ impl<'a> State<'a> {
 fn render_pipeline_from_shader(
     device: &wgpu::Device,
     render_pipeline_layout: &wgpu::PipelineLayout,
-    shader: wgpu::ShaderModule,
+    shader: &wgpu::ShaderModule,
     config: &wgpu::SurfaceConfiguration,
     cells_stride: wgpu::VertexBufferLayout,
     square_stride: wgpu::VertexBufferLayout,
@@ -571,12 +571,12 @@ fn render_pipeline_from_shader(
         label: Some("render_pipeline"),
         layout: Some(render_pipeline_layout),
         vertex: wgpu::VertexState {
-            module: &shader,
+            module: shader,
             entry_point: "vertex_main",
             buffers: &[cells_stride, square_stride],
         },
         fragment: Some(wgpu::FragmentState {
-            module: &shader,
+            module: shader,
             entry_point: "fragment_main",
             targets: &[Some(wgpu::ColorTargetState {
                 format: config.format,

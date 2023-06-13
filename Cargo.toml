@@ -3,6 +3,10 @@ name = "wgpu-game-of-life"
 version = "0.1.0"
 edition = "2021"
 description = "Wgpu game of life"
+license = "MIT"
+repository = "https://github.com/fornwall/wgpu-game-of-life"
+keywords = ["advent-of-code"]
+categories = ["graphics"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
