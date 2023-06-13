@@ -18,6 +18,12 @@ jobs:
   deploy-site:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # Permissions necessary for ${{ secrets.GITHUB_TOKEN }}
+    # to allow cloudflare/pages-action to create deployment:
+    # https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
+    permissions:
+      contents: read
+      deployments: write
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
