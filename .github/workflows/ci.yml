@@ -37,7 +37,7 @@ jobs:
       run: brew update && brew install binaryen
     - uses: jetli/wasm-bindgen-action@v0.2.0
     - run: make WASM_RELEASE=1 generate-wasm
-    - run: npm run webpack -- --mode=production
+    - run: npm i && npm run webpack -- --mode=production
       working-directory: site
     - name: Publish
       uses: cloudflare/pages-action@1
