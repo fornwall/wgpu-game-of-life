@@ -59,6 +59,13 @@ pub async fn run() {
 
     let mut state = State::new(window).await;
 
+    #[cfg(target_arch = "wasm32")]
+    use winit::platform::web::EventLoopExtWebSys;
+    #[cfg(target_arch = "wasm32")]
+    event_loop.spawn(move |event, _, control_flow| {
+        event_loop::handle_event_loop(&event, &mut state, control_flow);
+    });
+    #[cfg(not(target_arch = "wasm32"))]
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });

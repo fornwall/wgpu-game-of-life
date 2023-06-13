@@ -60,7 +60,13 @@ generate-wasm:
 	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_game_of_life.wasm
 	$(WASM_OPT) -o site/generated/wgpu_game_of_life_bg.wasm site/generated/wgpu_game_of_life_bg.wasm
 
-serve-wasm: generate-wasm
-	cd site && npm run webpack serve -- --mode=development
+--run-devserver:
+	cd site && npm run webpack serve -- --mode=development --open
+
+--watch-and-build-wasm:
+	cargo watch --ignore crates/wasm/site --shell '$(MAKE) generate-wasm'
+
+serve-site: --run-devserver --watch-and-build-wasm ;
+
 
 .PHONY: check macos-app run-app generate-wasm serve-wasm
