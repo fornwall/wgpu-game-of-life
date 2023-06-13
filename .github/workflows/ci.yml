@@ -35,7 +35,7 @@ jobs:
     - uses: Homebrew/actions/setup-homebrew@master
     - name: Install wasm-opt
       run: brew update && brew install binaryen
-    - run: cargo install wasm-bindgen-cli
+    - uses: jetli/wasm-bindgen-action@v0.2.0
     - run: make WASM_RELEASE=1 generate-wasm
     - name: Publish
       uses: cloudflare/pages-action@1
