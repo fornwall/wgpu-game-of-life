@@ -147,7 +147,7 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
-        let cells_width = 256;
+        let cells_width = 1024;
 
         let size_array = [cells_width as u32, cells_width as u32];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
