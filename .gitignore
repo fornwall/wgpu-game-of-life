@@ -13,3 +13,8 @@ target/
 .idea/
 
 site/generated/
+dist/
+node_modules/
+
+*.swp
+*.swo

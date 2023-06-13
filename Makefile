@@ -61,6 +61,6 @@ generate-wasm:
 	$(WASM_OPT) -o site/generated/wgpu_game_of_life_bg.wasm site/generated/wgpu_game_of_life_bg.wasm
 
 serve-wasm: generate-wasm
-	(sleep 1 && open http://localhost:8888) & cd site && python3 -m http.server 8888
+	cd site && npm run webpack serve -- --mode=development
 
 .PHONY: check macos-app run-app generate-wasm serve-wasm
