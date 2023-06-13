@@ -35,7 +35,7 @@ CLIPPY_PARAMS = --all-targets -- \
 	-W clippy::unnested_or_patterns \
 	-A clippy::wildcard_dependencies
 
-CARGO_COMMAND = cargo +nightly
+CARGO_COMMAND = cargo
 
 check:
 	$(CARGO_COMMAND) fmt --all
