@@ -147,14 +147,12 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
-        let cells_width = 1024;
+        let cells_width = 256;
 
         let size_array = [cells_width as u32, cells_width as u32];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("size_buffer"),
-            contents: unsafe {
-                std::slice::from_raw_parts(size_array.as_ptr() as *const u8, size_array.len() * 4)
-            },
+            contents: bytemuck::cast_slice(&size_array),
             usage: wgpu::BufferUsages::STORAGE
                 | wgpu::BufferUsages::UNIFORM
                 | wgpu::BufferUsages::COPY_DST
@@ -164,16 +162,14 @@ impl<'a> State<'a> {
         let mut rng = rand::thread_rng();
         let mut cells_vec = vec![0_u32; cells_width * cells_width];
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.30 {
+            if rng.gen::<f32>() < 0.15 {
                 *cell = 1;
             }
         }
 
         let cells_buffer_0 = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
-            contents: unsafe {
-                std::slice::from_raw_parts(cells_vec.as_ptr() as *const u8, cells_vec.len() * 4)
-            },
+            contents: bytemuck::cast_slice(&cells_vec),
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
         });
 
@@ -321,17 +317,12 @@ impl<'a> State<'a> {
         let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
         let square_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("square_buffer"),
-            contents: unsafe {
-                std::slice::from_raw_parts(
-                    square_vertices.as_ptr() as *const u8,
-                    square_vertices.len() * 4,
-                )
-            },
+            contents: bytemuck::cast_slice(&square_vertices),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
         let square_stride = wgpu::VertexBufferLayout {
-            array_stride: 2 * (u32::BITS / 8) as u64,
+            array_stride: 2 * std::mem::size_of::<u32>() as u64,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[wgpu::VertexAttribute {
                 shader_location: 1,
@@ -341,7 +332,7 @@ impl<'a> State<'a> {
         };
 
         let cells_stride = wgpu::VertexBufferLayout {
-            array_stride: (u32::BITS / 8) as u64,
+            array_stride: std::mem::size_of::<u32>() as u64,
             step_mode: wgpu::VertexStepMode::Instance,
             attributes: &[wgpu::VertexAttribute {
                 offset: 0,

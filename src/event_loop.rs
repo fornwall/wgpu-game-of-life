@@ -6,6 +6,7 @@ use winit::{
 use crate::State;
 
 pub fn handle_event_loop(event: Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
+    // *control_flow = ControlFlow::WaitUntil(Instant::now().add(Duration::from_millis(1000)));
     match event {
         Event::WindowEvent {
             ref event,
