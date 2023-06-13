@@ -33,13 +33,13 @@ jobs:
     - uses: Homebrew/actions/setup-homebrew@master
     - name: Install wasm-opt
       run: brew update && brew install binaryen
-    - name: cargo install wasm-bindgen-cli
+    - run: cargo install wasm-bindgen-cli
     - run: make WASM_RELEASE=1 generate-wasm
     - name: Publish
       uses: cloudflare/pages-action@1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_KEY }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: wgpu-game-of-life-fornwall-net
-          directory: site
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_KEY }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: wgpu-game-of-life-fornwall-net
+        directory: site
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
