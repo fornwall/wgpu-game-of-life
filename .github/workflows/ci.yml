@@ -6,41 +6,40 @@ on:
       - '**'
 
 jobs:
-  test-rust:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Windows x86_64
-            os: windows-latest
-          - name: Linux x86_64
-            os: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+  check-rust:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: stable
-    - name: Show rust version
-      run: rustc --version
-    - name: install swiftshader
-      if: matrix.os == 'ubuntu-latest'
-      shell: bash
-      run: |
-        set -e
-        mkdir -p swiftshader
-        curl -LsSf https://github.com/gfx-rs/ci-build/releases/latest/download/swiftshader-linux-x86_64.tar.xz | tar -xf - -C swiftshader
-        echo "VK_ICD_FILENAMES=$PWD/swiftshader/vk_swiftshader_icd.json" >> $GITHUB_ENV
-    - name: install llvmpipe, vulkan sdk
-      if: matrix.os == 'ubuntu-latest'
-      shell: bash
-      run: |
-        set -e
-        sudo apt-get update -y -qq
-        # vulkan sdk
-        wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-        sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list https://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-        sudo apt-get update
-        sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
-    - name: Run
-      run: cargo run
+    - run: make
+
+  deploy-site:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 'lts/*'
+        registry-url: 'https://registry.npmjs.org'
+    - uses: Homebrew/actions/setup-homebrew@master
+    - name: Install wasm-opt
+      run: brew update && brew install binaryen
+    - name: cargo install wasm-bindgen-cli
+    - run: make WASM_RELEASE=1 generate-wasm
+    - name: Publish
+      uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_KEY }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: wgpu-game-of-life-fornwall-net
+          directory: site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
