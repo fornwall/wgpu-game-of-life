@@ -34,7 +34,7 @@ jobs:
     - name: Publish
       uses: cloudflare/pages-action@1
       with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_KEY }}
+        apiToken: ${{ secrets.CLOUDFLARE_PAGES_EDIT_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: wgpu-game-of-life-fornwall-net
         directory: site
