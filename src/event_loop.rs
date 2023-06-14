@@ -1,9 +1,10 @@
 use winit::{
-    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::ControlFlow,
 };
 
 use crate::State;
+use log::error;
 
 pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
     // *control_flow = ControlFlow::WaitUntil(Instant::now().add(Duration::from_millis(1000)));
@@ -16,27 +17,29 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                 match event {
                     WindowEvent::CloseRequested
                     | WindowEvent::KeyboardInput {
-                        input:
-                            KeyboardInput {
+                        event:
+                            KeyEvent {
                                 state: ElementState::Pressed,
-                                virtual_keycode: Some(VirtualKeyCode::Escape),
+                                physical_key: winit::keyboard::KeyCode::Escape,
                                 ..
                             },
                         ..
                     } => *control_flow = ControlFlow::Exit,
                     WindowEvent::KeyboardInput {
-                        input:
-                            KeyboardInput {
+                        event:
+                            KeyEvent {
                                 state: ElementState::Pressed,
-                                virtual_keycode: Some(VirtualKeyCode::Space),
+                                physical_key: winit::keyboard::KeyCode::Space,
                                 ..
                             },
                         ..
                     } => {
+                        error!("Space pressed - warn");
                         println!("Space press");
                         state.window.set_title("SPACE");
                     }
                     WindowEvent::Resized(physical_size) => {
+                        log::info!("resize: {:?}", physical_size);
                         state.resize(*physical_size);
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
@@ -71,6 +74,12 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
         //}
         Event::MainEventsCleared => {
             state.window.request_redraw();
+        }
+        &Event::WindowEvent {
+            ref event,
+            window_id,
+        } => {
+            error!("INFO: {:?}, window = {:?}", event, window_id);
         }
         _ => {}
     }

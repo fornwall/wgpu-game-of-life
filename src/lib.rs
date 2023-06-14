@@ -2,12 +2,14 @@ mod event_loop;
 
 use rand::prelude::*;
 
+use log::error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
-    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event::{ElementState, WindowEvent},
     event_loop::EventLoop,
+    keyboard::KeyCode,
     window::{Window, WindowBuilder},
 };
 
@@ -15,7 +17,8 @@ fn init_logging() {
     #[cfg(target_arch = "wasm32")]
     {
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-        console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
+        console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
+        log::info!("IT WORKS FROM LOG - 2");
     }
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -24,38 +27,33 @@ fn init_logging() {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn setup_html_canvas(window: &mut Window) {
-    // Winit prevents sizing with CSS, so we have to set
-    // the size manually when on web.
-    use winit::dpi::PhysicalSize;
-    window.set_inner_size(PhysicalSize::new(450, 400));
-
-    use winit::platform::web::WindowExtWebSys;
+fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
+    use web_sys::HtmlCanvasElement;
     web_sys::window()
         .and_then(|win| win.document())
         .and_then(|doc| {
-            let dst = doc.get_element_by_id("wasm-example")?;
-            let canvas = web_sys::Element::from(window.canvas());
-            canvas.set_id("webgpu-canvas");
-            dst.append_child(&canvas).ok()?;
-            Some(())
+            let canvas = doc.get_element_by_id("webgpu-canvas")?;
+            canvas.dyn_into::<HtmlCanvasElement>().ok()
         })
-        .expect("Couldn't append canvas to document body.");
+        .expect("Could not get canvas")
 }
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
+//#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub async fn run() {
     init_logging();
 
     let event_loop = EventLoop::new();
 
     #[cfg(target_arch = "wasm32")]
-    let mut window = WindowBuilder::new().build(&event_loop).unwrap();
+    use winit::platform::web::WindowBuilderExtWebSys;
+    #[cfg(target_arch = "wasm32")]
+    let window = WindowBuilder::new()
+        .with_canvas(Some(setup_html_canvas()))
+        .build(&event_loop)
+        .unwrap();
     #[cfg(not(target_arch = "wasm32"))]
     let window = WindowBuilder::new().build(&event_loop).unwrap();
-
-    #[cfg(target_arch = "wasm32")]
-    setup_html_canvas(&mut window);
 
     let mut state = State::new(window).await;
 
@@ -94,6 +92,7 @@ pub struct State<'a> {
 impl<'a> State<'a> {
     async fn new(window: Window) -> State<'a> {
         let size = window.inner_size();
+        log::info!("size = {:?}", size);
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface(&window).unwrap() };
 
@@ -154,7 +153,7 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
-        let cells_width = 1024;
+        let cells_width = 512;
 
         let size_array = [cells_width as u32, cells_width as u32];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -169,7 +168,7 @@ impl<'a> State<'a> {
         let mut rng = rand::thread_rng();
         let mut cells_vec = vec![0_u32; cells_width * cells_width];
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.15 {
+            if rng.gen::<f32>() < 0.12 {
                 *cell = 1;
             }
         }
@@ -199,7 +198,7 @@ impl<'a> State<'a> {
                         ty: wgpu::BindingType::Buffer {
                             ty: wgpu::BufferBindingType::Storage { read_only: true },
                             has_dynamic_offset: false,
-                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                            min_binding_size: None,
                         },
                         count: None,
                     },
@@ -209,7 +208,7 @@ impl<'a> State<'a> {
                         ty: wgpu::BindingType::Buffer {
                             ty: wgpu::BufferBindingType::Storage { read_only: false },
                             has_dynamic_offset: false,
-                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                            min_binding_size: None,
                         },
                         count: None,
                     },
@@ -219,7 +218,7 @@ impl<'a> State<'a> {
                         ty: wgpu::BindingType::Buffer {
                             ty: wgpu::BufferBindingType::Storage { read_only: true },
                             has_dynamic_offset: false,
-                            min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                            min_binding_size: None,
                         },
                         count: None,
                     },
@@ -314,7 +313,7 @@ impl<'a> State<'a> {
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: None, // None = Check at draw call, bad for perf/correctness?
+                        min_binding_size: None,
                     },
                     count: None,
                 }],
@@ -328,6 +327,16 @@ impl<'a> State<'a> {
             usage: wgpu::BufferUsages::VERTEX,
         });
 
+        let cells_stride = wgpu::VertexBufferLayout {
+            array_stride: std::mem::size_of::<u32>() as u64,
+            step_mode: wgpu::VertexStepMode::Instance,
+            attributes: &[wgpu::VertexAttribute {
+                shader_location: 0,
+                offset: 0,
+                format: wgpu::VertexFormat::Uint32,
+            }],
+        };
+
         let square_stride = wgpu::VertexBufferLayout {
             array_stride: 2 * std::mem::size_of::<u32>() as u64,
             step_mode: wgpu::VertexStepMode::Vertex,
@@ -335,16 +344,6 @@ impl<'a> State<'a> {
                 shader_location: 1,
                 offset: 0,
                 format: wgpu::VertexFormat::Uint32x2,
-            }],
-        };
-
-        let cells_stride = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<u32>() as u64,
-            step_mode: wgpu::VertexStepMode::Instance,
-            attributes: &[wgpu::VertexAttribute {
-                offset: 0,
-                shader_location: 0,
-                format: wgpu::VertexFormat::Uint32,
             }],
         };
 
@@ -440,26 +439,16 @@ impl<'a> State<'a> {
     }
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+        if self.window.inner_size().height < 10 {
+            return Ok(());
+        }
         self.frame_count += 1;
         let is_even = self.frame_count % 2 == 0;
-        //println!("render: {}", self.frame_count);
 
-        // Note: About recreating the below objects each time:
-        // https://stackoverflow.com/questions/70489849/in-webgpu-can-you-reuse-the-same-render-pass-in-multiple-frames
-        // "As answered below, a render pass (or more specifically: a GPURenderPassEncoder) cannot be reused. However,
-        // if your goal is to execute the same render commands repeatedly without re-encoding them each time you'll want to look at WebGPU's
-        // Render Bundles API. It allows you to record most render commands into a resuable object that can be executed as part of a full render pass"
+        let output: wgpu::SurfaceTexture = self.surface.get_current_texture()?;
 
-        // "The get_current_texture function will wait for the surface to provide a new
-        // SurfaceTexture that we will render to. We'll store this in output for later."
-        let output = self.surface.get_current_texture()?;
-
-        // "This line creates a TextureView with default settings".
         let view = output.texture.create_view(&self.texture_view_descriptor);
 
-        // "We also need to create a CommandEncoder to create the actual commands to send to the gpu.
-        // Most modern graphics frameworks expect commands to be stored in a command buffer before being sent to the gpu.
-        // The encoder builds a command buffer that we can then send to the gpu."
         let mut encoder = self
             .device
             .create_command_encoder(&self.command_encoder_descriptor);
@@ -509,12 +498,13 @@ impl<'a> State<'a> {
     }
 
     fn input(&mut self, event: &WindowEvent) -> bool {
+        //error!("input: {:?}", event);
         match event {
             WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         state: ElementState::Pressed,
-                        virtual_keycode: Some(VirtualKeyCode::NumpadAdd),
+                        physical_key: KeyCode::NumpadAdd,
                         ..
                     },
                 ..
@@ -523,10 +513,10 @@ impl<'a> State<'a> {
                 true
             }
             WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         state: ElementState::Pressed,
-                        virtual_keycode: Some(VirtualKeyCode::Minus),
+                        physical_key: KeyCode::Minus,
                         ..
                     },
                 ..
@@ -535,10 +525,10 @@ impl<'a> State<'a> {
                 true
             }
             WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         state: ElementState::Pressed,
-                        virtual_keycode: Some(VirtualKeyCode::Up),
+                        physical_key: KeyCode::ArrowUp,
                         ..
                     },
                 ..
@@ -546,13 +536,29 @@ impl<'a> State<'a> {
                 self.window.set_title("up");
                 true
             }
-            WindowEvent::ReceivedCharacter(c) => {
+            WindowEvent::KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
+                        logical_key: winit::keyboard::Key::Character(c),
+                        ..
+                    },
+                ..
+            } => {
+                error!("KEY: {}", c);
                 self.window.set_title(&format!("char: {}", c));
+                if c == "f" || c == "F" {
+                    if self.window.fullscreen().is_some() {
+                        self.window.set_fullscreen(None);
+                    } else {
+                        self.window
+                            .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+                    }
+                }
                 true
             }
             WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         state: ElementState::Pressed,
                         ..
                     },
@@ -578,33 +584,33 @@ fn render_pipeline_from_shader(
         label: Some("render_pipeline"),
         layout: Some(render_pipeline_layout),
         vertex: wgpu::VertexState {
-            module: shader,
-            entry_point: "vertex_main",
             buffers: &[cells_stride, square_stride],
+            entry_point: "vertex_main",
+            module: shader,
         },
         fragment: Some(wgpu::FragmentState {
             module: shader,
             entry_point: "fragment_main",
             targets: &[Some(wgpu::ColorTargetState {
-                format: config.format,
                 blend: Some(wgpu::BlendState::REPLACE),
+                format: config.format,
                 write_mask: wgpu::ColorWrites::ALL,
             })],
         }),
         primitive: wgpu::PrimitiveState {
-            topology: wgpu::PrimitiveTopology::TriangleStrip,
-            strip_index_format: None,
-            front_face: wgpu::FrontFace::Cw,
-            cull_mode: Some(wgpu::Face::Back),
-            polygon_mode: wgpu::PolygonMode::Fill,
-            unclipped_depth: false,
             conservative: false,
+            cull_mode: Some(wgpu::Face::Back),
+            front_face: wgpu::FrontFace::Cw,
+            polygon_mode: wgpu::PolygonMode::Fill,
+            strip_index_format: None,
+            topology: wgpu::PrimitiveTopology::TriangleStrip,
+            unclipped_depth: false,
         },
         depth_stencil: None,
         multisample: wgpu::MultisampleState {
+            alpha_to_coverage_enabled: false,
             count: 1,
             mask: !0,
-            alpha_to_coverage_enabled: false,
         },
         multiview: None,
     })
