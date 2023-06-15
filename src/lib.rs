@@ -505,7 +505,7 @@ impl<'a> State<'a> {
             height: size.height,
             // "present_mode uses wgpu::PresentMode enum which determines how to sync the surface with the display"
             // Probably want PresentMode::Fifo (VSync)?
-            present_mode: surface_caps.present_modes[0],
+            present_mode: wgpu::PresentMode::Fifo, // surface_caps.present_modes[0],
             // "alpha_mode is honestly not something I'm familiar with. I believe it has something to do with
             // transparent windows, but feel free to open a pull request"
             alpha_mode: surface_caps.alpha_modes[0],

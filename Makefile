@@ -1,4 +1,4 @@
-APP_NAME := WgpuStart
+APP_NAME := Game of Life
 WASM_BINDGEN = wasm-bindgen --target web --weak-refs --reference-types
 WASM_TARGET_FEATURES := "+bulk-memory,+mutable-globals,+nontrapping-fptoint,+sign-ext,+simd128,+reference-types"
 WASM_DIR = debug
@@ -44,12 +44,12 @@ check:
 macos-app:
 	cargo install cargo-bundle
 	cargo bundle --release
-	cd target/release/bundle/osx && zip -r $(APP_NAME).zip $(APP_NAME).app &> /dev/null
-	echo target/release/bundle/osx/$(APP_NAME).zip
+	cd target/release/bundle/osx && zip -r "$(APP_NAME)".zip "$(APP_NAME)".app &> /dev/null
+	echo target/release/bundle/osx/"$(APP_NAME)".zip
 
 run-app:
 	@cargo bundle --release &> /dev/null
-	@open target/release/bundle/osx/$(APP_NAME).app
+	@open target/release/bundle/osx/"$(APP_NAME)".app
 
 generate-wasm:
 	# --cfg=web_sys_unstable_apis is necessary for webgpu:
