@@ -165,7 +165,7 @@ impl<'a> RendererFactory<'a> {
         texture_format: wgpu::TextureFormat,
     ) -> Renderer {
         let render_pipeline = render_pipeline_from_shader(
-            &device,
+            device,
             &self.pipeline_layout,
             &self.shader,
             texture_format,
@@ -180,7 +180,7 @@ impl<'a> RendererFactory<'a> {
                     entries: &[wgpu::BindGroupEntry {
                         binding: 0,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &size_buffer,
+                            buffer: size_buffer,
                             offset: 0,
                             size: None,
                         }),
@@ -355,7 +355,7 @@ impl ComputerFactory {
                     wgpu::BindGroupEntry {
                         binding: 2,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &size_buffer,
+                            buffer: size_buffer,
                             offset: 0,
                             size: None,
                         }),
@@ -387,7 +387,7 @@ impl ComputerFactory {
                     wgpu::BindGroupEntry {
                         binding: 2,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &size_buffer,
+                            buffer: size_buffer,
                             offset: 0,
                             size: None,
                         }),
@@ -575,6 +575,9 @@ impl<'a> State<'a> {
 
     fn reset_with_cells_width(&mut self, new_cells_width: usize) {
         self.cells_width = new_cells_width;
+        self.window
+            .set_title(&format!("{} x {}", new_cells_width, new_cells_width));
+
         let size_array = [self.cells_width as u32, self.cells_width as u32];
         self.queue
             .write_buffer(&self.size_buffer, 0, bytemuck::cast_slice(&size_array));
@@ -591,7 +594,7 @@ impl<'a> State<'a> {
             &self.size_buffer,
             self.cells_width,
             self.config.format,
-        )
+        );
     }
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -669,7 +672,6 @@ impl<'a> State<'a> {
                     },
                 ..
             } => {
-                self.window.set_title(&format!("char: {}", c));
                 if c == "f" || c == "F" {
                     if self.window.fullscreen().is_some() {
                         self.window.set_fullscreen(None);
@@ -679,14 +681,10 @@ impl<'a> State<'a> {
                     }
                 } else if c == "r" || c == "R" {
                     self.reset_with_cells_width(self.cells_width);
-                } else if c == "+" {
-                    if self.cells_width < 2048 {
-                        self.reset_with_cells_width(self.cells_width + 128);
-                    }
-                } else if c == "-" {
-                    if self.cells_width > 128 {
-                        self.reset_with_cells_width(self.cells_width - 128);
-                    }
+                } else if c == "+" && self.cells_width < 2048 {
+                    self.reset_with_cells_width(self.cells_width + 128);
+                } else if c == "-" && self.cells_width > 128 {
+                    self.reset_with_cells_width(self.cells_width - 128);
                 }
                 true
             }
@@ -727,7 +725,7 @@ fn render_pipeline_from_shader(
             entry_point: "fragment_main",
             targets: &[Some(wgpu::ColorTargetState {
                 blend: Some(wgpu::BlendState::REPLACE),
-                format: format,
+                format,
                 write_mask: wgpu::ColorWrites::ALL,
             })],
         }),
