@@ -1822,7 +1822,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "winit"
 version = "0.28.6"
-source = "git+https://github.com/rust-windowing/winit?branch=master#6300cf915e21089481398c96cc38808764de0a9c"
+source = "git+https://github.com/rust-windowing/winit?rev=6300cf915e21089481398c96cc38808764de0a9c#6300cf915e21089481398c96cc38808764de0a9c"
 dependencies = [
  "android-activity",
  "atomic-waker",
