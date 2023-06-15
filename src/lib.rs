@@ -8,7 +8,6 @@ use wgpu::util::DeviceExt;
 use winit::{
     event::{ElementState, WindowEvent},
     event_loop::EventLoop,
-    keyboard::KeyCode,
     window::{Window, WindowBuilder},
 };
 
@@ -569,10 +568,6 @@ impl<'a> State<'a> {
         }
     }
 
-    fn update(&mut self) {
-        // todo!()
-    }
-
     fn reset_with_cells_width(&mut self, new_cells_width: usize) {
         self.cells_width = new_cells_width;
         self.window
@@ -626,48 +621,12 @@ impl<'a> State<'a> {
     }
 
     fn input(&mut self, event: &WindowEvent) -> bool {
-        //error!("input: {:?}", event);
         match event {
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
-                        state: ElementState::Pressed,
-                        physical_key: KeyCode::NumpadAdd,
-                        ..
-                    },
-                ..
-            } => {
-                self.window.set_title("plus");
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        state: ElementState::Pressed,
-                        physical_key: KeyCode::Minus,
-                        ..
-                    },
-                ..
-            } => {
-                self.window.set_title("minus");
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        state: ElementState::Pressed,
-                        physical_key: KeyCode::ArrowUp,
-                        ..
-                    },
-                ..
-            } => {
-                self.window.set_title("up");
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
                         logical_key: winit::keyboard::Key::Character(c),
+                        state: winit::event::ElementState::Pressed,
                         ..
                     },
                 ..
@@ -697,7 +656,7 @@ impl<'a> State<'a> {
                 ..
             } => {
                 println!("key = {:?}", event);
-                true
+                false
             }
             _ => false,
         }
