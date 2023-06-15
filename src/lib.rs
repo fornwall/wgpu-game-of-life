@@ -457,7 +457,6 @@ impl Computer {
 impl<'a> State<'a> {
     async fn new(window: Window) -> State<'a> {
         let size = window.inner_size();
-        log::info!("size = {:?}", size);
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface(&window).unwrap() };
 
@@ -515,8 +514,6 @@ impl<'a> State<'a> {
             // that uses a linear color space."
             view_formats: vec![],
         };
-
-        surface.configure(&device, &config);
 
         let cells_width = 256;
 
