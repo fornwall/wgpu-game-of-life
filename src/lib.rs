@@ -6,6 +6,7 @@ use rand::prelude::*;
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
+    dpi::PhysicalPosition,
     event::{ElementState, WindowEvent},
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
@@ -83,6 +84,7 @@ pub struct State<'a> {
     renderer: Renderer,
     size_buffer: wgpu::Buffer,
     cells_width: usize,
+    cursor_position: PhysicalPosition<f64>,
 }
 
 pub struct RendererFactory<'a> {
@@ -163,14 +165,40 @@ impl<'a> RendererFactory<'a> {
         cells_width: usize,
         texture_format: wgpu::TextureFormat,
     ) -> Renderer {
-        let render_pipeline = render_pipeline_from_shader(
-            device,
-            &self.pipeline_layout,
-            &self.shader,
-            texture_format,
-            self.cells_stride.clone(),
-            self.square_stride.clone(),
-        );
+        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("render_pipeline"),
+            layout: Some(&self.pipeline_layout),
+            vertex: wgpu::VertexState {
+                buffers: &[self.cells_stride.clone(), self.square_stride.clone()],
+                entry_point: "vertex_main",
+                module: &self.shader,
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &self.shader,
+                entry_point: "fragment_main",
+                targets: &[Some(wgpu::ColorTargetState {
+                    blend: Some(wgpu::BlendState::REPLACE),
+                    format: texture_format,
+                    write_mask: wgpu::ColorWrites::ALL,
+                })],
+            }),
+            primitive: wgpu::PrimitiveState {
+                conservative: false,
+                cull_mode: Some(wgpu::Face::Back),
+                front_face: wgpu::FrontFace::Cw,
+                polygon_mode: wgpu::PolygonMode::Fill,
+                strip_index_format: None,
+                topology: wgpu::PrimitiveTopology::TriangleStrip,
+                unclipped_depth: false,
+            },
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                alpha_to_coverage_enabled: false,
+                count: 1,
+                mask: !0,
+            },
+            multiview: None,
+        });
 
         let size_bind_group = device.create_bind_group({
             {
@@ -503,8 +531,7 @@ impl<'a> State<'a> {
             width: size.width,
             height: size.height,
             // "present_mode uses wgpu::PresentMode enum which determines how to sync the surface with the display"
-            // Probably want PresentMode::Fifo (VSync)?
-            present_mode: wgpu::PresentMode::Fifo, // surface_caps.present_modes[0],
+            present_mode: wgpu::PresentMode::Fifo,
             // "alpha_mode is honestly not something I'm familiar with. I believe it has something to do with
             // transparent windows, but feel free to open a pull request"
             alpha_mode: surface_caps.alpha_modes[0],
@@ -556,6 +583,7 @@ impl<'a> State<'a> {
             computer_factory,
             computer,
             cells_width,
+            cursor_position: PhysicalPosition { x: 0., y: 0. },
         }
     }
 
@@ -661,48 +689,4 @@ impl<'a> State<'a> {
             _ => false,
         }
     }
-}
-
-fn render_pipeline_from_shader(
-    device: &wgpu::Device,
-    render_pipeline_layout: &wgpu::PipelineLayout,
-    shader: &wgpu::ShaderModule,
-    format: wgpu::TextureFormat,
-    cells_stride: wgpu::VertexBufferLayout,
-    square_stride: wgpu::VertexBufferLayout,
-) -> wgpu::RenderPipeline {
-    device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: Some("render_pipeline"),
-        layout: Some(render_pipeline_layout),
-        vertex: wgpu::VertexState {
-            buffers: &[cells_stride, square_stride],
-            entry_point: "vertex_main",
-            module: shader,
-        },
-        fragment: Some(wgpu::FragmentState {
-            module: shader,
-            entry_point: "fragment_main",
-            targets: &[Some(wgpu::ColorTargetState {
-                blend: Some(wgpu::BlendState::REPLACE),
-                format,
-                write_mask: wgpu::ColorWrites::ALL,
-            })],
-        }),
-        primitive: wgpu::PrimitiveState {
-            conservative: false,
-            cull_mode: Some(wgpu::Face::Back),
-            front_face: wgpu::FrontFace::Cw,
-            polygon_mode: wgpu::PolygonMode::Fill,
-            strip_index_format: None,
-            topology: wgpu::PrimitiveTopology::TriangleStrip,
-            unclipped_depth: false,
-        },
-        depth_stencil: None,
-        multisample: wgpu::MultisampleState {
-            alpha_to_coverage_enabled: false,
-            count: 1,
-            mask: !0,
-        },
-        multiview: None,
-    })
 }

@@ -1,3 +1,5 @@
+use std::time::{Duration, Instant};
+
 use winit::{
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::ControlFlow,
@@ -7,6 +9,7 @@ use crate::State;
 use log::error;
 
 pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
+    // use std::ops::Add;
     // *control_flow = ControlFlow::WaitUntil(Instant::now().add(Duration::from_millis(1000)));
     match event {
         &Event::WindowEvent {
@@ -28,15 +31,13 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                     WindowEvent::KeyboardInput {
                         event:
                             KeyEvent {
-                                state: ElementState::Pressed,
                                 physical_key: winit::keyboard::KeyCode::Space,
+                                state: ElementState::Pressed,
                                 ..
                             },
                         ..
                     } => {
                         error!("Space pressed - warn");
-                        println!("Space press");
-                        state.window.set_title("SPACE");
                     }
                     WindowEvent::Resized(physical_size) => {
                         log::info!("resize: {:?}", physical_size);
@@ -45,13 +46,24 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         state.resize(**new_inner_size);
                     }
+                    WindowEvent::CursorMoved {
+                        device_id: _,
+                        position,
+                    } => {
+                        state.cursor_position = *position;
+                    }
+                    WindowEvent::MouseInput {
+                        state: winit::event::ElementState::Pressed,
+                        ..
+                    } => {
+                        error!("Mouse pressed");
+                    }
                     _ => {}
                 }
             }
         }
 
         &Event::RedrawRequested(window_id) if window_id == state.window.id() => {
-            state.update();
             match state.render() {
                 Ok(_) => {}
                 // Reconfigure the surface if lost
