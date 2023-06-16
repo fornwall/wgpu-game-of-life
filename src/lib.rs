@@ -1,6 +1,7 @@
 mod event_loop;
 
 use rand::prelude::*;
+use rand_chacha::ChaCha20Rng;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -11,6 +12,61 @@ use winit::{
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
+
+struct Rule {
+    born: u16,
+    survives: u16,
+    name: &'static str,
+}
+
+impl Rule {
+    fn rule_array(&self) -> [u32; 2] {
+        [u32::from(self.born), u32::from(self.survives)]
+    }
+}
+
+static RULES: [Rule; 8] = [
+    Rule {
+        born: 0b1000,
+        survives: 0b1100,
+        name: "Conway's Life",
+    },
+    Rule {
+        born: 0b0_1000_1000,
+        survives: 0b0_0001_1110,
+        name: "Mazectric with Mice",
+    },
+    Rule {
+        born: 0b1,
+        survives: 0b1,
+        name: "Gnarl",
+    },
+    Rule {
+        born: 0b1_1100_1000,
+        survives: 0b1_1101_1000,
+        name: "Day & Night",
+    },
+    Rule {
+        born: 0b0_0010_1000,
+        survives: 0b1_1011_1100,
+        name: "Land Rush",
+    },
+    Rule {
+        born: 0b0_0100_1000,
+        survives: 0b1_1011_1100,
+        name: "Land Rush 2",
+    },
+    Rule {
+        born: 0b1_1100_1000,
+        survives: 0b1_1110_1100,
+        name: "Stains",
+    },
+    Rule {
+        born: 0b1_1110_0000,
+        survives: 0b1_1111_0000,
+        name: "Vote",
+    },
+];
 
 #[cfg(target_arch = "wasm32")]
 fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
@@ -76,9 +132,12 @@ pub struct State<'a> {
     computer_factory: ComputerFactory,
     computer: Computer,
     frame_count: u64,
+    seed: u32,
     renderer_factory: RendererFactory<'a>,
     renderer: Renderer,
     size_buffer: wgpu::Buffer,
+    rule_buffer: wgpu::Buffer,
+    rule_idx: usize,
     cells_width: usize,
     cells_height: usize,
     cursor_position: PhysicalPosition<f64>,
@@ -321,6 +380,16 @@ impl ComputerFactory {
                     },
                     count: None,
                 },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 3,
+                    visibility: wgpu::ShaderStages::COMPUTE,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
             ],
             label: Some("compute_bind_group_layout"),
         });
@@ -336,8 +405,10 @@ impl ComputerFactory {
         cells_width: usize,
         cells_height: usize,
         size_buffer: &wgpu::Buffer,
+        rule_buffer: &wgpu::Buffer,
+        seed: u32,
     ) -> Computer {
-        let mut rng = rand::thread_rng();
+        let mut rng = ChaCha20Rng::seed_from_u64(u64::from(seed));
         let mut cells_vec = vec![0_u32; cells_width * cells_height];
         for cell in cells_vec.iter_mut() {
             if rng.gen::<f32>() < 0.50 {
@@ -386,6 +457,14 @@ impl ComputerFactory {
                             size: None,
                         }),
                     },
+                    wgpu::BindGroupEntry {
+                        binding: 3,
+                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                            buffer: rule_buffer,
+                            offset: 0,
+                            size: None,
+                        }),
+                    },
                 ],
                 label: Some("compute_bind_group_0"),
             }
@@ -414,6 +493,14 @@ impl ComputerFactory {
                         binding: 2,
                         resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
                             buffer: size_buffer,
+                            offset: 0,
+                            size: None,
+                        }),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 3,
+                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                            buffer: rule_buffer,
                             offset: 0,
                             size: None,
                         }),
@@ -542,8 +629,8 @@ impl<'a> State<'a> {
             view_formats: vec![],
         };
 
-        let cells_width = 256;
-        let cells_height = 256;
+        let cells_width = 1024;
+        let cells_height = cells_width;
 
         let size_array = [cells_width as u32, cells_height as u32];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -555,8 +642,29 @@ impl<'a> State<'a> {
                 | wgpu::BufferUsages::VERTEX,
         });
 
+        let rule_idx = 0;
+        let rule = &RULES[rule_idx];
+        let rule_array = rule.rule_array();
+        let rule_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("rule_buffer"),
+            contents: bytemuck::cast_slice(&rule_array),
+            usage: wgpu::BufferUsages::STORAGE
+                | wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::VERTEX,
+        });
+
+        let seed = 1_u32;
+
         let computer_factory = ComputerFactory::new(&device);
-        let computer = computer_factory.create(&device, cells_width, cells_height, &size_buffer);
+        let computer = computer_factory.create(
+            &device,
+            cells_width,
+            cells_height,
+            &size_buffer,
+            &rule_buffer,
+            seed,
+        );
 
         let renderer_factory = RendererFactory::new(&device);
         let renderer = renderer_factory.create(
@@ -569,6 +677,9 @@ impl<'a> State<'a> {
         );
 
         Ok(Self {
+            seed,
+            rule_idx,
+            rule_buffer,
             size_buffer,
             renderer_factory,
             renderer,
@@ -601,11 +712,30 @@ impl<'a> State<'a> {
         }
     }
 
+    fn change_rule(&mut self, next: bool) {
+        self.rule_idx = if next {
+            (self.rule_idx + 1) % RULES.len()
+        } else if self.rule_idx == 0 {
+            RULES.len() - 1
+        } else {
+            self.rule_idx - 1
+        };
+        let rule = &RULES[self.rule_idx];
+        self.queue.write_buffer(
+            &self.rule_buffer,
+            0,
+            bytemuck::cast_slice(&rule.rule_array()),
+        );
+        self.reset_with_cells_width(self.cells_width, self.cells_height);
+    }
+
     fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
         self.cells_width = new_cells_width;
         self.cells_height = new_cells_height;
-        self.window
-            .set_title(&format!("{} x {}", new_cells_width, new_cells_height));
+        self.window.set_title(&format!(
+            "{} {}x{} {}",
+            RULES[self.rule_idx].name, new_cells_width, new_cells_height, self.seed
+        ));
 
         let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
@@ -618,6 +748,8 @@ impl<'a> State<'a> {
             self.cells_width,
             self.cells_height,
             &self.size_buffer,
+            &self.rule_buffer,
+            self.seed,
         );
 
         self.renderer = self.renderer_factory.create(
@@ -663,6 +795,30 @@ impl<'a> State<'a> {
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
+                        logical_key: winit::keyboard::Key::ArrowRight,
+                        state: winit::event::ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                self.change_rule(true);
+                true
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
+                        logical_key: winit::keyboard::Key::ArrowLeft,
+                        state: winit::event::ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                self.change_rule(false);
+                true
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         logical_key: winit::keyboard::Key::Character(c),
                         state: winit::event::ElementState::Pressed,
                         ..
@@ -677,6 +833,7 @@ impl<'a> State<'a> {
                             .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
                     }
                 } else if c == "r" || c == "R" {
+                    self.seed = rand::thread_rng().next_u32();
                     self.reset_with_cells_width(self.cells_width, self.cells_height);
                 } else if c == "-" && self.cells_width < 2048 {
                     self.reset_with_cells_width(self.cells_width + 128, self.cells_height + 128);

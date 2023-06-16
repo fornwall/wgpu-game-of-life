@@ -17,6 +17,7 @@ env_logger = "*"
 log = "*"
 pollster = "*"
 rand = "*"
+rand_chacha = "*"
 wgpu = "*"
 winit = { git = "https://github.com/rust-windowing/winit", rev = "47488909353bb6d8e52801b8824b0e2352e4ab63" }
 
