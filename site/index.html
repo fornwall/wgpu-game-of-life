@@ -11,11 +11,30 @@
         html, body { width: 100%; height: 100%; background: black; }
         canvas { display:block; height: 100vh; width: 100vw; }
         canvas:focus { outline: none !important; }
+        #fallback {
+          color: white;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+        }
+        #fallback a {
+            color: white;
+        }
     </style>
 </head>
 
 <body>
-    <canvas id="webgpu-canvas" width="100" height="100" tabindex="0"/>
+    <canvas id="webgpu-canvas" width="100" height="100" tabindex="0"></canvas>
+    <div id="fallback" style="display:none">
+        <h1>wgpu Game of life</h1>
+        <p>This is a game of life simulation done using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API">WebGPU</a>.</p>
+        <p>See <a href="https://github.com/fornwall/wgpu-game-of-life">source code</a>.</p>
+     </div>
 </body>
 
 </html>

@@ -9,8 +9,8 @@ struct Out {
 fn vertex_main(@builtin(instance_index) i: u32, @location(0) cell: u32, @location(1) pos: vec2<u32>) -> Out {
     let w = size.x;
     let h = size.y;
-    let x = (f32(i % w + pos.x) / f32(w) - 0.5) * 2. * f32(w) / f32(max(w, h));
-    let y = (f32((i - (i % w)) / w + pos.y) / f32(h) - 0.5) * 2. * f32(h) / f32(max(w, h));
+    let x = (f32(i % w + pos.x) / f32(w) - 0.5) * 2. * f32(w) / f32(w);
+    let y = (f32((i - (i % w)) / w + pos.y) / f32(h) - 0.5) * 2. * f32(h) / f32(h);
 
     let c = f32(i) / f32(size.x * size.y);
     let r = f32(cell) * f32(i % w) / f32(w);

@@ -3,9 +3,8 @@
 @binding(2) @group(0) var<storage, read> size: vec2<u32>;
 
 fn getIndex(x: i32, y: i32) -> u32 {
-    let h = i32(size.x); // TODO: Should come from override, must mach lib.rs
-    let w = i32(size.y); // TODO: Should come from override, must match lib.rs
-
+    let w = i32(size.x);
+    let h = i32(size.y);
     return u32((y % h) * w + (x % w));
 }
 
@@ -27,5 +26,5 @@ fn main(@builtin(global_invocation_id) grid: vec3<u32>) {
         // Day and night: https://conwaylife.com/wiki/OCA:Day_%26_Night
         // select(u32(n == 3u || n == 6u || n == 7u || n == 8u), u32(n == 3u || n == 4u || n == 6u || n == 7u || n == 8u), getCell(x, y) == 1u);
         // Highlife:
-        //select(u32(n == 3u || n == 6u), u32(n == 2u || n == 3u), getCell(x, y) == 1u);
+        // select(u32(n == 3u || n == 6u), u32(n == 2u || n == 3u), getCell(x, y) == 1u);
 } 

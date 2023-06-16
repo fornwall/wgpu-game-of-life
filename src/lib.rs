@@ -12,18 +12,6 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-fn init_logging() {
-    #[cfg(target_arch = "wasm32")]
-    {
-        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-        console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
-    }
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        env_logger::init();
-    }
-}
-
 #[cfg(target_arch = "wasm32")]
 fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
     use web_sys::HtmlCanvasElement;
@@ -36,32 +24,41 @@ fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
         .expect("Could not get canvas")
 }
 
-//#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-pub async fn run() {
-    init_logging();
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub async fn run() -> Result<(), String> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
 
     let event_loop = EventLoop::new();
 
-    #[cfg(target_arch = "wasm32")]
     use winit::platform::web::WindowBuilderExtWebSys;
-    #[cfg(target_arch = "wasm32")]
     let window = WindowBuilder::new()
         .with_canvas(Some(setup_html_canvas()))
         .build(&event_loop)
         .unwrap();
-    #[cfg(not(target_arch = "wasm32"))]
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window).await;
+    let mut state = State::new(window)
+        .await
+        .map_err(|()| "Failed to build".to_string())?;
 
-    #[cfg(target_arch = "wasm32")]
     use winit::platform::web::EventLoopExtWebSys;
-    #[cfg(target_arch = "wasm32")]
     event_loop.spawn(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
-    #[cfg(not(target_arch = "wasm32"))]
+    Ok(())
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn run() -> ! {
+    env_logger::init();
+
+    let event_loop = EventLoop::new();
+
+    let window = WindowBuilder::new().build(&event_loop).unwrap();
+
+    let mut state = State::new(window).await.unwrap();
+
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
@@ -72,11 +69,10 @@ pub struct State<'a> {
     queue: wgpu::Queue,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
     command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'a>,
-    // Window
+    window: Window,
     surface: wgpu::Surface,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
-    window: Window,
     computer_factory: ComputerFactory,
     computer: Computer,
     frame_count: u64,
@@ -84,6 +80,7 @@ pub struct State<'a> {
     renderer: Renderer,
     size_buffer: wgpu::Buffer,
     cells_width: usize,
+    cells_height: usize,
     cursor_position: PhysicalPosition<f64>,
 }
 
@@ -163,6 +160,7 @@ impl<'a> RendererFactory<'a> {
         computer: &Computer,
         size_buffer: &wgpu::Buffer,
         cells_width: usize,
+        cells_height: usize,
         texture_format: wgpu::TextureFormat,
     ) -> Renderer {
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -228,7 +226,7 @@ impl<'a> RendererFactory<'a> {
             render_bundle_encoder.set_vertex_buffer(0, cells_buffer.slice(..));
             render_bundle_encoder.set_vertex_buffer(1, self.square_buffer.slice(..));
             render_bundle_encoder.set_bind_group(0, &size_bind_group, &[]);
-            render_bundle_encoder.draw(0..4, 0..((cells_width * cells_width) as u32));
+            render_bundle_encoder.draw(0..4, 0..((cells_width * cells_height) as u32));
             render_bundle_encoder.finish(&wgpu::RenderBundleDescriptor::default())
         };
 
@@ -336,10 +334,11 @@ impl ComputerFactory {
         &self,
         device: &wgpu::Device,
         cells_width: usize,
+        cells_height: usize,
         size_buffer: &wgpu::Buffer,
     ) -> Computer {
         let mut rng = rand::thread_rng();
-        let mut cells_vec = vec![0_u32; cells_width * cells_width];
+        let mut cells_vec = vec![0_u32; cells_width * cells_height];
         for cell in cells_vec.iter_mut() {
             if rng.gen::<f32>() < 0.50 {
                 *cell = 1;
@@ -354,7 +353,7 @@ impl ComputerFactory {
 
         let cells_buffer_1 = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
-            size: (cells_vec.len() * 4) as u64,
+            size: (cells_vec.len() * std::mem::size_of::<u32>()) as u64,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
             mapped_at_creation: false,
         });
@@ -440,6 +439,7 @@ impl ComputerFactory {
 
         Computer {
             cells_width: cells_width as u32,
+            cells_height: cells_height as u32,
             compute_pipeline,
             compute_bind_group_0,
             compute_bind_group_1,
@@ -451,6 +451,7 @@ impl ComputerFactory {
 
 pub struct Computer {
     cells_width: u32,
+    cells_height: u32,
     compute_pipeline: wgpu::ComputePipeline,
     compute_bind_group_0: wgpu::BindGroup,
     compute_bind_group_1: wgpu::BindGroup,
@@ -473,8 +474,8 @@ impl Computer {
             &[],
         );
         let workgroup_width = 8;
-        let workgroup_count_x = self.cells_width / workgroup_width;
-        let workgroup_count_y = self.cells_width / workgroup_width;
+        let workgroup_count_x = (self.cells_width + workgroup_width - 1) / workgroup_width;
+        let workgroup_count_y = (self.cells_height + workgroup_width - 1) / workgroup_width;
         let workgroup_count_z = 1;
         pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
         drop(pass_encoder);
@@ -482,10 +483,10 @@ impl Computer {
 }
 
 impl<'a> State<'a> {
-    async fn new(window: Window) -> State<'a> {
+    async fn new(window: Window) -> Result<State<'a>, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface = unsafe { instance.create_surface(&window).unwrap() };
+        let surface = unsafe { instance.create_surface(&window).map_err(|_| ())? };
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -542,8 +543,9 @@ impl<'a> State<'a> {
         };
 
         let cells_width = 256;
+        let cells_height = 256;
 
-        let size_array = [cells_width as u32, cells_width as u32];
+        let size_array = [cells_width as u32, cells_height as u32];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("size_buffer"),
             contents: bytemuck::cast_slice(&size_array),
@@ -554,7 +556,7 @@ impl<'a> State<'a> {
         });
 
         let computer_factory = ComputerFactory::new(&device);
-        let computer = computer_factory.create(&device, cells_width, &size_buffer);
+        let computer = computer_factory.create(&device, cells_width, cells_height, &size_buffer);
 
         let renderer_factory = RendererFactory::new(&device);
         let renderer = renderer_factory.create(
@@ -562,10 +564,11 @@ impl<'a> State<'a> {
             &computer,
             &size_buffer,
             cells_width,
+            cells_height,
             surface_format,
         );
 
-        Self {
+        Ok(Self {
             size_buffer,
             renderer_factory,
             renderer,
@@ -583,8 +586,9 @@ impl<'a> State<'a> {
             computer_factory,
             computer,
             cells_width,
+            cells_height,
             cursor_position: PhysicalPosition { x: 0., y: 0. },
-        }
+        })
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
@@ -593,29 +597,35 @@ impl<'a> State<'a> {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
+            //self.reset_with_cells_width(new_size.width as usize, new_size.height as usize);
         }
     }
 
-    fn reset_with_cells_width(&mut self, new_cells_width: usize) {
+    fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
         self.cells_width = new_cells_width;
+        self.cells_height = new_cells_height;
         self.window
-            .set_title(&format!("{} x {}", new_cells_width, new_cells_width));
+            .set_title(&format!("{} x {}", new_cells_width, new_cells_height));
 
-        let size_array = [self.cells_width as u32, self.cells_width as u32];
+        let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
             .write_buffer(&self.size_buffer, 0, bytemuck::cast_slice(&size_array));
 
         self.frame_count = 0;
 
-        self.computer =
-            self.computer_factory
-                .create(&self.device, self.cells_width, &self.size_buffer);
+        self.computer = self.computer_factory.create(
+            &self.device,
+            self.cells_width,
+            self.cells_height,
+            &self.size_buffer,
+        );
 
         self.renderer = self.renderer_factory.create(
             &self.device,
             &self.computer,
             &self.size_buffer,
             self.cells_width,
+            self.cells_height,
             self.config.format,
         );
     }
@@ -667,11 +677,11 @@ impl<'a> State<'a> {
                             .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
                     }
                 } else if c == "r" || c == "R" {
-                    self.reset_with_cells_width(self.cells_width);
-                } else if c == "+" && self.cells_width < 2048 {
-                    self.reset_with_cells_width(self.cells_width + 128);
-                } else if c == "-" && self.cells_width > 128 {
-                    self.reset_with_cells_width(self.cells_width - 128);
+                    self.reset_with_cells_width(self.cells_width, self.cells_height);
+                } else if c == "-" && self.cells_width < 2048 {
+                    self.reset_with_cells_width(self.cells_width + 128, self.cells_height + 128);
+                } else if c == "+" && self.cells_width > 128 {
+                    self.reset_with_cells_width(self.cells_width - 128, self.cells_height - 128);
                 }
                 true
             }

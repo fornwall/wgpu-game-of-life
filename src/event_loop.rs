@@ -1,5 +1,3 @@
-use std::time::{Duration, Instant};
-
 use winit::{
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::ControlFlow,
@@ -46,17 +44,14 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                         state.resize(**new_inner_size);
                     }
-                    WindowEvent::CursorMoved {
-                        device_id: _,
-                        position,
-                    } => {
+                    WindowEvent::CursorMoved { position, .. } => {
                         state.cursor_position = *position;
                     }
                     WindowEvent::MouseInput {
                         state: winit::event::ElementState::Pressed,
                         ..
                     } => {
-                        error!("Mouse pressed");
+                        error!("Mouse pressed: {:?}", state.cursor_position);
                     }
                     _ => {}
                 }
