@@ -15,7 +15,7 @@ crate-type = ["cdylib", "rlib"]
 bytemuck = { version = "*", features = ["derive"] }
 env_logger = "*"
 log = "*"
-instant = { version = "*", features = ["stdweb"] }
+instant = { version = "*", features = ["wasm-bindgen"] }
 pollster = "*"
 rand = "*"
 rand_chacha = "*"
