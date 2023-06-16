@@ -1,5 +1,7 @@
 mod event_loop;
 
+use std::time::Instant;
+
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
@@ -121,6 +123,8 @@ pub async fn run() -> ! {
 }
 
 pub struct State<'a> {
+    elapsed_time: f32,
+    last_time: Instant,
     device: wgpu::Device,
     queue: wgpu::Queue,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
@@ -676,7 +680,12 @@ impl<'a> State<'a> {
             surface_format,
         );
 
+        let last_time = Instant::now();
+        let elapsed_time = 0.;
+
         Ok(Self {
+            last_time,
+            elapsed_time,
             seed,
             rule_idx,
             rule_buffer,
@@ -766,7 +775,17 @@ impl<'a> State<'a> {
         if self.window.inner_size().height < 10 {
             return Ok(());
         }
-        self.frame_count += 1;
+
+        // Let's clock the game at 1 simulation steps per second
+        const SIM_DT: f32 = 1.0 / 4.0;
+        self.elapsed_time += self.last_time.elapsed().as_secs_f32();
+        let advance_state = self.elapsed_time > SIM_DT;
+        self.last_time = Instant::now();
+
+        if advance_state {
+            self.elapsed_time = 0.;
+            self.frame_count += 1;
+        }
         let is_even = self.frame_count % 2 == 0;
 
         let mut encoder = self
@@ -775,7 +794,9 @@ impl<'a> State<'a> {
 
         let output: wgpu::SurfaceTexture = self.surface.get_current_texture().unwrap();
 
-        self.computer.enqueue(is_even, &mut encoder);
+        if advance_state {
+            self.computer.enqueue(is_even, &mut encoder);
+        }
         self.renderer.enqueue(
             is_even,
             &mut encoder,

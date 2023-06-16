@@ -4,7 +4,6 @@ use winit::{
 };
 
 use crate::State;
-use log::error;
 
 pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
     // use std::ops::Add;
@@ -35,7 +34,7 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                             },
                         ..
                     } => {
-                        error!("Space pressed - warn");
+                        log::error!("Space pressed - warn");
                     }
                     WindowEvent::Resized(physical_size) => {
                         log::info!("resize: {:?}", physical_size);
@@ -51,7 +50,7 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                         state: winit::event::ElementState::Pressed,
                         ..
                     } => {
-                        error!("Mouse pressed: {:?}", state.cursor_position);
+                        log::error!("Mouse pressed: {:?}", state.cursor_position);
                     }
                     _ => {}
                 }
@@ -61,24 +60,11 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
         &Event::RedrawRequested(window_id) if window_id == state.window.id() => {
             match state.render() {
                 Ok(_) => {}
-                // Reconfigure the surface if lost
                 Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
-                // The system is out of memory, we should probably quit
                 Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
-                // All other errors (Outdated, Timeout) should be resolved by the next frame
-                Err(e) => eprintln!("{:?}", e),
+                Err(e) => log::error!("{:?}", e),
             }
         }
-        //Event::NewEvents(StartCause::Init) => {
-        // From the winit README:
-        // "A lot of functionality expects the application to be ready before you start doing anything;
-        // this includes creating windows, fetching monitors, drawing, and so on, see issues #2238, #2051
-        // and #2087.
-        // If you encounter problems, you should try doing your initialization inside
-        // Event::NewEvents(StartCause::Init)."
-        //state .window .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
-        //state.window.focus_window();
-        //}
         Event::MainEventsCleared => {
             state.window.request_redraw();
         }
@@ -86,7 +72,7 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
             ref event,
             window_id,
         } => {
-            error!("INFO: {:?}, window = {:?}", event, window_id);
+            log::error!("INFO: {:?}, window = {:?}", event, window_id);
         }
         _ => {}
     }
