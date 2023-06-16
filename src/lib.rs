@@ -1,7 +1,5 @@
 mod event_loop;
 
-use std::time::Instant;
-
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
@@ -124,7 +122,7 @@ pub async fn run() -> ! {
 
 pub struct State<'a> {
     elapsed_time: f32,
-    last_time: Instant,
+    last_time: instant::Instant,
     device: wgpu::Device,
     queue: wgpu::Queue,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
@@ -680,7 +678,7 @@ impl<'a> State<'a> {
             surface_format,
         );
 
-        let last_time = Instant::now();
+        let last_time = instant::Instant::now();
         let elapsed_time = 0.;
 
         Ok(Self {
@@ -780,7 +778,7 @@ impl<'a> State<'a> {
         const SIM_DT: f32 = 1.0 / 4.0;
         self.elapsed_time += self.last_time.elapsed().as_secs_f32();
         let advance_state = self.elapsed_time > SIM_DT;
-        self.last_time = Instant::now();
+        self.last_time = instant::Instant::now();
 
         if advance_state {
             self.elapsed_time = 0.;
