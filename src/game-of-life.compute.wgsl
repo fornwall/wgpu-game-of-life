@@ -1,7 +1,7 @@
 @binding(0) @group(0) var<storage, read> current: array<u32>;
 @binding(1) @group(0) var<storage, read_write> next: array<u32>;
-@binding(2) @group(0) var<storage, read> size: vec2<u32>;
-@binding(3) @group(0) var<storage, read> rule: vec2<i32>;
+@binding(2) @group(0) var<uniform> size: vec2<u32>;
+@binding(3) @group(0) var<uniform> rule: vec2<i32>;
 
 fn getIndex(x: i32, y: i32) -> u32 {
     let w = i32(size.x);
