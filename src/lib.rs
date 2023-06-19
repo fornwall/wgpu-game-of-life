@@ -1,15 +1,19 @@
 mod event_loop;
 
+#[cfg(target_arch = "wasm32")]
+use std::sync::Mutex;
+
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
+#[cfg(target_arch = "wasm32")]
+use winit::event_loop::EventLoopProxy;
 use winit::{
     dpi::PhysicalPosition,
-    event::{ElementState, WindowEvent},
-    event_loop::EventLoop,
+    event::{ElementState, Event, WindowEvent},
     window::{Window, WindowBuilder},
 };
 
@@ -19,6 +23,22 @@ struct Rule {
     pub born: u16,
     pub survives: u16,
     name: &'static str,
+}
+
+#[cfg(target_arch = "wasm32")]
+#[derive(Debug, Clone, Copy)]
+pub enum CustomWinitEvent {
+    RuleChange(usize),
+}
+
+#[cfg(target_arch = "wasm32")]
+type EventTypeUsed<'a> = Event<'a, CustomWinitEvent>;
+#[cfg(not(target_arch = "wasm32"))]
+type EventTypeUsed<'a> = Event<'a, ()>;
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+    pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = Mutex::new(None);
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -104,10 +124,10 @@ fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn run() -> ! {
+pub async fn run() {
     env_logger::init();
 
-    let event_loop = EventLoop::new();
+    let event_loop = winit::event_loop::EventLoop::new();
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
@@ -121,7 +141,20 @@ pub async fn run() -> ! {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 extern "C" {
-    fn setNewState(rule_idx: usize, size: u32, seed: u32);
+    #[wasm_bindgen(js_name = setNewState)]
+    pub fn set_new_state(rule_idx: usize, cells_width: usize, cells_height: usize, seed: u32);
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "setNewRule")]
+pub fn set_new_rule(rule_idx: usize) {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Some(event_loop_proxy) = &*proxy.lock().unwrap() {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::RuleChange(rule_idx))
+                .ok();
+        }
+    });
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -142,8 +175,14 @@ pub async fn run() -> Result<(), String> {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
 
-    let event_loop = EventLoop::new();
+    let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event().build();
 
+    let event_loop_proxy = event_loop.create_proxy();
+    EVENT_LOOP_PROXY.with(move |proxy| {
+        *proxy.lock().unwrap() = Some(event_loop_proxy);
+    });
+
+    use winit::event_loop::EventLoopBuilder;
     use winit::platform::web::WindowBuilderExtWebSys;
     let window = WindowBuilder::new()
         .with_canvas(Some(setup_html_canvas()))
@@ -155,21 +194,24 @@ pub async fn run() -> Result<(), String> {
         .await
         .map_err(|()| "Failed to build".to_string())?;
 
+    state.inform_js_about_state();
+
     use winit::platform::web::EventLoopExtWebSys;
     event_loop.spawn(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
+
     Ok(())
 }
 
-pub struct State<'a> {
+pub struct State {
     paused: bool,
     elapsed_time: f32,
     last_time: instant::Instant,
     device: wgpu::Device,
     queue: wgpu::Queue,
-    texture_view_descriptor: wgpu::TextureViewDescriptor<'a>,
-    command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'a>,
+    texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
+    command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'static>,
     window: Window,
     surface: wgpu::Surface,
     config: wgpu::SurfaceConfiguration,
@@ -178,7 +220,7 @@ pub struct State<'a> {
     computer: Computer,
     frame_count: u64,
     seed: u32,
-    renderer_factory: RendererFactory<'a>,
+    renderer_factory: RendererFactory<'static>,
     renderer: Renderer,
     size_buffer: wgpu::Buffer,
     rule_buffer: wgpu::Buffer,
@@ -614,8 +656,8 @@ impl Computer {
     }
 }
 
-impl<'a> State<'a> {
-    async fn new(window: Window) -> Result<State<'a>, ()> {
+impl State {
+    async fn new(window: Window) -> Result<State, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface(&window).map_err(|_| ())? };
@@ -753,7 +795,7 @@ impl<'a> State<'a> {
         })
     }
 
-    pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
             self.size = new_size;
             self.config.width = new_size.width;
@@ -762,31 +804,52 @@ impl<'a> State<'a> {
         }
     }
 
-    fn change_rule(&mut self, next: bool) {
-        self.rule_idx = if next {
-            (self.rule_idx + 1) % RULES.len()
-        } else if self.rule_idx == 0 {
-            RULES.len() - 1
-        } else {
-            self.rule_idx - 1
-        };
+    pub fn set_rule_idx(&mut self, new_rule_idx: usize) {
+        self.rule_idx = new_rule_idx;
         let rule = &RULES[self.rule_idx];
         self.queue.write_buffer(
             &self.rule_buffer,
             0,
             bytemuck::cast_slice(&rule.rule_array()),
         );
-        self.reset_with_cells_width(self.cells_width, self.cells_height);
+        self.on_state_change();
+    }
+
+    fn change_rule(&mut self, next: bool) {
+        let new_rule_idx = if next {
+            (self.rule_idx + 1) % RULES.len()
+        } else if self.rule_idx == 0 {
+            RULES.len() - 1
+        } else {
+            self.rule_idx - 1
+        };
+        self.set_rule_idx(new_rule_idx);
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn inform_js_about_state(&self) {
+        set_new_state(
+            self.rule_idx,
+            self.cells_width,
+            self.cells_height,
+            self.seed,
+        );
     }
 
     fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
         self.cells_width = new_cells_width;
         self.cells_height = new_cells_height;
+        self.on_state_change();
+    }
+
+    fn on_state_change(&mut self) {
         self.window.set_title(&format!(
             "{} {}x{} {}",
-            RULES[self.rule_idx].name, new_cells_width, new_cells_height, self.seed
+            RULES[self.rule_idx].name, self.cells_width, self.cells_height, self.seed
         ));
-        setNewState(self.rule_idx, new_cells_width as u32, self.seed);
+
+        #[cfg(target_arch = "wasm32")]
+        self.inform_js_about_state();
 
         let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
@@ -900,7 +963,7 @@ impl<'a> State<'a> {
                     }
                 } else if c == "r" || c == "R" {
                     self.seed = rand::thread_rng().next_u32();
-                    self.reset_with_cells_width(self.cells_width, self.cells_height);
+                    self.on_state_change();
                 } else if c == "-" && self.cells_width < 2048 {
                     self.reset_with_cells_width(self.cells_width + 128, self.cells_height + 128);
                 } else if c == "+" && self.cells_width > 128 {

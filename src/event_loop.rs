@@ -3,12 +3,22 @@ use winit::{
     event_loop::ControlFlow,
 };
 
+#[cfg(target_arch = "wasm32")]
+use crate::CustomWinitEvent;
 use crate::State;
 
-pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mut ControlFlow) {
-    // use std::ops::Add;
-    // *control_flow = ControlFlow::WaitUntil(Instant::now().add(Duration::from_millis(1000)));
+pub fn handle_event_loop(
+    event: &crate::EventTypeUsed,
+    state: &mut State,
+    control_flow: &mut ControlFlow,
+) {
     match event {
+        #[cfg(target_arch = "wasm32")]
+        Event::UserEvent(event) => match event {
+            &CustomWinitEvent::RuleChange(new_rule_idx) => {
+                state.set_rule_idx(new_rule_idx);
+            }
+        },
         &Event::WindowEvent {
             ref event,
             window_id,
