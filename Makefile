@@ -40,6 +40,7 @@ CARGO_COMMAND = cargo
 check:
 	$(CARGO_COMMAND) fmt --all
 	$(CARGO_COMMAND) clippy --tests $(CLIPPY_PARAMS)
+	$(CARGO_COMMAND) clippy --target wasm32-unknown-unknown $(CLIPPY_PARAMS)
 
 macos-app:
 	cargo install cargo-bundle

@@ -13,28 +13,51 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
+#[derive(Clone, Copy)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 struct Rule {
-    born: u16,
-    survives: u16,
+    pub born: u16,
+    pub survives: u16,
     name: &'static str,
 }
 
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 impl Rule {
     fn rule_array(&self) -> [u32; 2] {
         [u32::from(self.born), u32::from(self.survives)]
     }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn name(&self) -> String {
+        let mut born = String::from("B");
+        let mut survives = String::from("S");
+        for i in 0..9 {
+            if self.born & (1 << i) != 0 {
+                born.push_str(&format!("{i}"));
+            }
+            if self.survives & (1 << i) != 0 {
+                survives.push_str(&format!("{i}"));
+            }
+        }
+        format!("{} {}/{}", self.name, born, survives)
+    }
 }
 
-static RULES: [Rule; 8] = [
+static RULES: [Rule; 9] = [
     Rule {
         born: 0b1000,
         survives: 0b1100,
         name: "Conway's Life",
     },
     Rule {
-        born: 0b0_1000_1000,
+        born: 0b0_0000_1000,
+        survives: 0b0_0011_1110,
+        name: "Maze",
+    },
+    Rule {
+        born: 0b0_0000_1000,
         survives: 0b0_0001_1110,
-        name: "Mazectric with Mice",
+        name: "Mazectric",
     },
     Rule {
         born: 0b1,
@@ -80,31 +103,6 @@ fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
         .expect("Could not get canvas")
 }
 
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-pub async fn run() -> Result<(), String> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
-
-    let event_loop = EventLoop::new();
-
-    use winit::platform::web::WindowBuilderExtWebSys;
-    let window = WindowBuilder::new()
-        .with_canvas(Some(setup_html_canvas()))
-        .build(&event_loop)
-        .unwrap();
-
-    let mut state = State::new(window)
-        .await
-        .map_err(|()| "Failed to build".to_string())?;
-
-    use winit::platform::web::EventLoopExtWebSys;
-    event_loop.spawn(move |event, _, control_flow| {
-        event_loop::handle_event_loop(&event, &mut state, control_flow);
-    });
-    Ok(())
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 pub async fn run() -> ! {
     env_logger::init();
@@ -120,7 +118,52 @@ pub async fn run() -> ! {
     });
 }
 
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+extern "C" {
+    fn setNewState(rule_idx: usize, size: u32, seed: u32);
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = getRules)]
+pub fn get_rules() -> wasm_bindgen::prelude::JsValue {
+    wasm_bindgen::prelude::JsValue::from(
+        RULES
+            .iter()
+            .copied()
+            .map(wasm_bindgen::prelude::JsValue::from)
+            .collect::<js_sys::Array>(),
+    )
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub async fn run() -> Result<(), String> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
+
+    let event_loop = EventLoop::new();
+
+    use winit::platform::web::WindowBuilderExtWebSys;
+    let window = WindowBuilder::new()
+        .with_canvas(Some(setup_html_canvas()))
+        .with_prevent_default(false)
+        .build(&event_loop)
+        .unwrap();
+
+    let mut state = State::new(window)
+        .await
+        .map_err(|()| "Failed to build".to_string())?;
+
+    use winit::platform::web::EventLoopExtWebSys;
+    event_loop.spawn(move |event, _, control_flow| {
+        event_loop::handle_event_loop(&event, &mut state, control_flow);
+    });
+    Ok(())
+}
+
 pub struct State<'a> {
+    paused: bool,
     elapsed_time: f32,
     last_time: instant::Instant,
     device: wgpu::Device,
@@ -631,7 +674,7 @@ impl<'a> State<'a> {
             view_formats: vec![],
         };
 
-        let cells_width = 1024;
+        let cells_width = 256;
         let cells_height = cells_width;
 
         let size_array = [cells_width as u32, cells_height as u32];
@@ -682,6 +725,7 @@ impl<'a> State<'a> {
         let elapsed_time = 0.;
 
         Ok(Self {
+            paused: false,
             last_time,
             elapsed_time,
             seed,
@@ -715,7 +759,6 @@ impl<'a> State<'a> {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
-            //self.reset_with_cells_width(new_size.width as usize, new_size.height as usize);
         }
     }
 
@@ -743,6 +786,7 @@ impl<'a> State<'a> {
             "{} {}x{} {}",
             RULES[self.rule_idx].name, new_cells_width, new_cells_height, self.seed
         ));
+        setNewState(self.rule_idx, new_cells_width as u32, self.seed);
 
         let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
@@ -774,11 +818,14 @@ impl<'a> State<'a> {
             return Ok(());
         }
 
-        // Let's clock the game at 1 simulation steps per second
-        const SIM_DT: f32 = 1.0 / 4.0;
-        self.elapsed_time += self.last_time.elapsed().as_secs_f32();
-        let advance_state = self.elapsed_time > SIM_DT;
-        self.last_time = instant::Instant::now();
+        let advance_state = if self.paused {
+            false
+        } else {
+            const SIM_DT: f32 = 1.0 / 4.0;
+            self.elapsed_time += self.last_time.elapsed().as_secs_f32();
+            self.last_time = instant::Instant::now();
+            self.elapsed_time > SIM_DT
+        };
 
         if advance_state {
             self.elapsed_time = 0.;

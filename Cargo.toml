@@ -29,6 +29,7 @@ getrandom = { version = "*", features = ["js"] }
 wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
 web-sys = { version = "*", features = ["Document", "Element", "Window"] }
+js-sys = "*"
 wgpu = { version = "*" }
 
 [package.metadata.bundle]

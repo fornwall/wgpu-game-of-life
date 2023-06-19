@@ -34,7 +34,7 @@ pub fn handle_event_loop(event: &Event<()>, state: &mut State, control_flow: &mu
                             },
                         ..
                     } => {
-                        log::error!("Space pressed - warn");
+                        state.paused = !state.paused;
                     }
                     WindowEvent::Resized(physical_size) => {
                         log::info!("resize: {:?}", physical_size);
