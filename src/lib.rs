@@ -23,6 +23,7 @@ use winit::{
 pub enum CustomWinitEvent {
     RuleChange(u32),
     SetDensity(u8),
+    SetGenerationsPerSecond(u8),
     Reset,
     TogglePause,
 }
@@ -45,7 +46,9 @@ pub async fn run() {
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window, None, None, None, false).await.unwrap();
+    let mut state = State::new(window, None, None, None, false, None)
+        .await
+        .unwrap();
 
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
@@ -56,7 +59,14 @@ pub async fn run() {
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = setNewState)]
-    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32, density: u8, paused: bool);
+    pub fn set_new_state(
+        rule_idx: u32,
+        cells_width: usize,
+        seed: u32,
+        density: u8,
+        paused: bool,
+        generations_per_second: u8,
+    );
 
     #[wasm_bindgen(js_name = toggleFullscreen)]
     pub fn toggle_fullscreen();
@@ -120,12 +130,29 @@ pub fn set_density(density: u8) {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "setGenerationsPerSecond")]
+pub fn set_generations_per_second(generations_per_second: u8) {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy
+                    .send_event(CustomWinitEvent::SetGenerationsPerSecond(
+                        generations_per_second,
+                    ))
+                    .ok();
+            }
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn run(
     rule_idx: Option<u32>,
     seed: Option<u32>,
     initial_density: Option<u8>,
     paused: bool,
+    generations_per_second: Option<u8>,
 ) -> Result<(), String> {
     use winit::event_loop::EventLoopBuilder;
     use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
@@ -157,11 +184,18 @@ pub async fn run(
         .build(&event_loop)
         .unwrap();
 
-    let mut state = State::new(window, rule_idx, seed, initial_density, paused)
-        .await
-        .map_err(|()| "Failed to build".to_string())?;
+    let mut state = State::new(
+        window,
+        rule_idx,
+        seed,
+        initial_density,
+        paused,
+        generations_per_second,
+    )
+    .await
+    .map_err(|()| "Failed to build".to_string())?;
 
-    state.inform_js_about_state();
+    state.inform_ui_about_state();
 
     event_loop.spawn(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
@@ -171,6 +205,7 @@ pub async fn run(
 }
 
 pub struct State {
+    generations_per_second: u8,
     paused: bool,
     elapsed_time: f32,
     last_time: instant::Instant,
@@ -633,6 +668,7 @@ impl State {
         seed: Option<u32>,
         initial_density: Option<u8>,
         paused: bool,
+        generations_per_second: Option<u8>,
     ) -> Result<State, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
@@ -727,6 +763,11 @@ impl State {
             _ => 12,
         };
 
+        let generations_per_second = match generations_per_second {
+            Some(value) if value > 0 && value < 100 => value,
+            _ => 4,
+        };
+
         let computer_factory = ComputerFactory::new(&device);
         let computer = computer_factory.create(
             &device,
@@ -752,6 +793,7 @@ impl State {
         let elapsed_time = 0.;
 
         Ok(Self {
+            generations_per_second,
             initial_density,
             paused,
             last_time,
@@ -819,14 +861,26 @@ impl State {
         self.set_rule_idx(new_rule_idx);
     }
 
-    #[cfg(target_arch = "wasm32")]
-    fn inform_js_about_state(&self) {
+    fn inform_ui_about_state(&self) {
+        #[cfg(not(target_arch = "wasm32"))]
+        self.window.set_title(&format!(
+            "{} {}x{} 0.{} {} {}/s",
+            rules::RULES[self.rule_idx as usize].name(),
+            self.cells_width,
+            self.cells_height,
+            self.initial_density,
+            self.seed,
+            self.generations_per_second,
+        ));
+
+        #[cfg(target_arch = "wasm32")]
         set_new_state(
             self.rule_idx,
             self.cells_width,
             self.seed,
             self.initial_density,
             self.paused,
+            self.generations_per_second,
         );
     }
 
@@ -843,31 +897,18 @@ impl State {
 
     fn toggle_pause(&mut self) {
         self.paused = !self.paused;
-        #[cfg(target_arch = "wasm32")]
-        self.inform_js_about_state();
+        self.inform_ui_about_state();
+    }
+
+    fn set_generations_per_second(&mut self, new_value: u8) {
+        if new_value > 0 && new_value <= 100 {
+            self.generations_per_second = new_value;
+            self.inform_ui_about_state();
+        }
     }
 
     fn on_state_change(&mut self) {
-        self.window.set_title(&format!(
-            "{} {}x{} 0.{} {}",
-            rules::RULES[self.rule_idx as usize].name(),
-            self.cells_width,
-            self.cells_height,
-            self.initial_density,
-            self.seed
-        ));
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            /*
-            let hash = format!("rule={}&size={}", self.rule_idx, self.cells_height);
-            let window = web_sys::window().unwrap();
-            let document = window.document().unwrap();
-            document.location().unwrap().set_hash(&hash).unwrap();
-            */
-
-            self.inform_js_about_state();
-        }
+        self.inform_ui_about_state();
 
         let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
@@ -900,30 +941,37 @@ impl State {
             return Ok(());
         }
 
-        let advance_state = if self.paused {
-            false
-        } else {
-            const SIM_DT: f32 = 1.0 / 4.0;
-            self.elapsed_time += self.last_time.elapsed().as_secs_f32();
-            self.last_time = instant::Instant::now();
-            self.elapsed_time > SIM_DT
-        };
-
-        if advance_state {
-            self.elapsed_time = 0.;
-            self.frame_count += 1;
-        }
-        let is_even = self.frame_count % 2 == 0;
-
         let mut encoder = self
             .device
             .create_command_encoder(&self.command_encoder_descriptor);
 
+        let mut is_even;
+        let frequency = 1.0 / f32::from(self.generations_per_second);
+        loop {
+            let advance_state = if self.paused {
+                false
+            } else {
+                self.elapsed_time += self.last_time.elapsed().as_secs_f32();
+                self.last_time = instant::Instant::now();
+                self.elapsed_time > frequency
+            };
+
+            if advance_state {
+                self.elapsed_time -= frequency;
+                self.frame_count += 1;
+            }
+            is_even = self.frame_count % 2 == 0;
+
+            if advance_state {
+                self.computer.enqueue(is_even, &mut encoder);
+            }
+            if !advance_state {
+                break;
+            }
+        }
+
         let output: wgpu::SurfaceTexture = self.surface.get_current_texture()?;
 
-        if advance_state {
-            self.computer.enqueue(is_even, &mut encoder);
-        }
         self.renderer.enqueue(
             is_even,
             &mut encoder,

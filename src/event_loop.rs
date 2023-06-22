@@ -27,6 +27,9 @@ pub fn handle_event_loop(
             CustomWinitEvent::TogglePause => {
                 state.toggle_pause();
             }
+            &CustomWinitEvent::SetGenerationsPerSecond(gps) => {
+                state.set_generations_per_second(gps);
+            }
         },
         &Event::WindowEvent {
             ref event,
@@ -105,6 +108,10 @@ pub fn handle_event_loop(
                     crate::toggle_controls();
                 } else if c == "r" || c == "R" {
                     state.reset();
+                } else if c == "q" || c == "Q" {
+                    state.set_generations_per_second(state.generations_per_second - 1);
+                } else if c == "w" || c == "W" {
+                    state.set_generations_per_second(state.generations_per_second + 1);
                 } else if c == "-" && state.cells_width < 2048 {
                     state.reset_with_cells_width(state.cells_width + 128, state.cells_height + 128);
                 } else if c == "+" && state.cells_width > 128 {
