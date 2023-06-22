@@ -24,6 +24,7 @@ pub enum CustomWinitEvent {
     RuleChange(u32),
     SetDensity(u8),
     Reset,
+    TogglePause,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -44,7 +45,7 @@ pub async fn run() {
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window, None, None, None).await.unwrap();
+    let mut state = State::new(window, None, None, None, false).await.unwrap();
 
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
@@ -55,7 +56,7 @@ pub async fn run() {
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = setNewState)]
-    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32, density: u8);
+    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32, density: u8, paused: bool);
 
     #[wasm_bindgen(js_name = toggleFullscreen)]
     pub fn toggle_fullscreen();
@@ -91,6 +92,20 @@ pub fn reset_game() {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "togglePause")]
+pub fn toggle_pause() {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy
+                    .send_event(CustomWinitEvent::TogglePause)
+                    .ok();
+            }
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "setDensity")]
 pub fn set_density(density: u8) {
     EVENT_LOOP_PROXY.with(|proxy| {
@@ -110,6 +125,7 @@ pub async fn run(
     rule_idx: Option<u32>,
     seed: Option<u32>,
     initial_density: Option<u8>,
+    paused: bool,
 ) -> Result<(), String> {
     use winit::event_loop::EventLoopBuilder;
     use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
@@ -141,7 +157,7 @@ pub async fn run(
         .build(&event_loop)
         .unwrap();
 
-    let mut state = State::new(window, rule_idx, seed, initial_density)
+    let mut state = State::new(window, rule_idx, seed, initial_density, paused)
         .await
         .map_err(|()| "Failed to build".to_string())?;
 
@@ -616,6 +632,7 @@ impl State {
         rule_idx: Option<u32>,
         seed: Option<u32>,
         initial_density: Option<u8>,
+        paused: bool,
     ) -> Result<State, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
@@ -736,7 +753,7 @@ impl State {
 
         Ok(Self {
             initial_density,
-            paused: false,
+            paused,
             last_time,
             elapsed_time,
             seed,
@@ -809,6 +826,7 @@ impl State {
             self.cells_width,
             self.seed,
             self.initial_density,
+            self.paused,
         );
     }
 
@@ -821,6 +839,12 @@ impl State {
     fn reset(&mut self) {
         self.seed = rand::thread_rng().next_u32();
         self.on_state_change();
+    }
+
+    fn toggle_pause(&mut self) {
+        self.paused = !self.paused;
+        #[cfg(target_arch = "wasm32")]
+        self.inform_js_about_state();
     }
 
     fn on_state_change(&mut self) {

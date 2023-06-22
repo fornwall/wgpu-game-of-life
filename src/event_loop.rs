@@ -24,6 +24,9 @@ pub fn handle_event_loop(
             CustomWinitEvent::Reset => {
                 state.reset();
             }
+            CustomWinitEvent::TogglePause => {
+                state.toggle_pause();
+            }
         },
         &Event::WindowEvent {
             ref event,
@@ -127,7 +130,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => {
-                state.paused = !state.paused;
+                state.toggle_pause();
             }
             WindowEvent::Resized(physical_size) => {
                 state.resize(*physical_size);

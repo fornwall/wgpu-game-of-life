@@ -1,4 +1,4 @@
-import init, { run, getRules, setNewRule, setDensity, resetGame } from "./generated/wgpu_game_of_life.js";
+import init, { run, getRules, setNewRule, setDensity, resetGame, togglePause } from "./generated/wgpu_game_of_life.js";
 
 const ruleSelect = document.getElementById('rule');
 const canvas = document.getElementById("webgpu-canvas");
@@ -6,18 +6,20 @@ const sizeElement = document.getElementById("size");
 const overlayElement = document.getElementById("overlay");
 const densityInput = document.getElementById("density");
 const densityDisplay = document.getElementById("density-display");
+const pauseButton = document.getElementById("pauseButton");
 
 canvas.focus();
 
-globalThis.setNewState = function (ruleIdx, size, seed, density) {
+globalThis.setNewState = function (ruleIdx, size, seed, density, paused) {
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeElement.textContent = size + 'x' + size;
   ruleSelect.value = ruleIdx;
-  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}`;
+  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&paused=${paused}`;
   window.history.replaceState({}, '', queryString);
   densityInput.value = density;
   densityDisplay.innerHTML = '&nbsp;0.' + density;
   overlayElement.style.display = 'block';
+  pauseButton.textContent = paused ? 'Play' : 'Pause';
 }
 
 globalThis.toggleFullscreen = function () {
@@ -43,13 +45,15 @@ try {
   document.getElementById('resetButton').addEventListener('click', resetGame);
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
+  pauseButton.addEventListener('click', togglePause);
 
   const urlParams = new URLSearchParams(window.location.search);
   const rule = parseInt(urlParams.get('rule'));
   const seed = parseInt(urlParams.get('seed'));
   const density = parseInt(urlParams.get('density'));
+  const paused = "true" === urlParams.get('paused');
 
-  await run(rule, seed, density);
+  await run(rule, seed, density, paused);
 
   densityInput.addEventListener('change', () => {
     setDensity(densityInput.value);
