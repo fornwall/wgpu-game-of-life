@@ -1,4 +1,5 @@
 mod event_loop;
+mod rules;
 
 #[cfg(target_arch = "wasm32")]
 use std::sync::Mutex;
@@ -17,14 +18,6 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-#[derive(Clone, Copy)]
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-struct Rule {
-    pub born: u16,
-    pub survives: u16,
-    name: &'static str,
-}
-
 #[cfg(target_arch = "wasm32")]
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
@@ -40,88 +33,6 @@ type EventTypeUsed<'a> = Event<'a, ()>;
 #[cfg(target_arch = "wasm32")]
 thread_local! {
     pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = Mutex::new(None);
-}
-
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-impl Rule {
-    fn rule_array(&self) -> [u32; 2] {
-        [u32::from(self.born), u32::from(self.survives)]
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    pub fn name(&self) -> String {
-        let mut born = String::from("B");
-        let mut survives = String::from("S");
-        for i in 0..9 {
-            if self.born & (1 << i) != 0 {
-                born.push_str(&format!("{i}"));
-            }
-            if self.survives & (1 << i) != 0 {
-                survives.push_str(&format!("{i}"));
-            }
-        }
-        format!("{} {}/{}", self.name, born, survives)
-    }
-}
-
-static RULES: [Rule; 9] = [
-    Rule {
-        born: 0b1000,
-        survives: 0b1100,
-        name: "Conway's Life",
-    },
-    Rule {
-        born: 0b0_0000_1000,
-        survives: 0b0_0011_1110,
-        name: "Maze",
-    },
-    Rule {
-        born: 0b0_0000_1000,
-        survives: 0b0_0001_1110,
-        name: "Mazectric",
-    },
-    Rule {
-        born: 0b1,
-        survives: 0b1,
-        name: "Gnarl",
-    },
-    Rule {
-        born: 0b1_1100_1000,
-        survives: 0b1_1101_1000,
-        name: "Day & Night",
-    },
-    Rule {
-        born: 0b0_0010_1000,
-        survives: 0b1_1011_1100,
-        name: "Land Rush",
-    },
-    Rule {
-        born: 0b0_0100_1000,
-        survives: 0b1_1011_1100,
-        name: "Land Rush 2",
-    },
-    Rule {
-        born: 0b1_1100_1000,
-        survives: 0b1_1110_1100,
-        name: "Stains",
-    },
-    Rule {
-        born: 0b1_1110_0000,
-        survives: 0b1_1111_0000,
-        name: "Vote",
-    },
-];
-
-#[cfg(target_arch = "wasm32")]
-fn setup_html_canvas() -> web_sys::HtmlCanvasElement {
-    use web_sys::HtmlCanvasElement;
-    web_sys::window()
-        .and_then(|win| win.document())
-        .and_then(|doc| {
-            let canvas = doc.get_element_by_id("webgpu-canvas")?;
-            canvas.dyn_into::<HtmlCanvasElement>().ok()
-        })
-        .expect("Could not get canvas")
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -176,22 +87,14 @@ pub fn reset_game() {
 }
 
 #[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = getRules)]
-pub fn get_rules() -> wasm_bindgen::prelude::JsValue {
-    wasm_bindgen::prelude::JsValue::from(
-        RULES
-            .iter()
-            .copied()
-            .map(wasm_bindgen::prelude::JsValue::from)
-            .collect::<js_sys::Array>(),
-    )
-}
-
-#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String> {
+    use winit::event_loop::EventLoopBuilder;
+    use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
+
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
+    console_log::init_with_level(log::Level::Info)
+        .map_err(|e| format!("Couldn't initialize logger: {e}"))?;
 
     let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event().build();
 
@@ -202,10 +105,16 @@ pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String>
         }
     });
 
-    use winit::event_loop::EventLoopBuilder;
-    use winit::platform::web::WindowBuilderExtWebSys;
+    let canvas_element = web_sys::window()
+        .and_then(|win| win.document())
+        .and_then(|doc| {
+            let canvas = doc.get_element_by_id("webgpu-canvas")?;
+            canvas.dyn_into::<web_sys::HtmlCanvasElement>().ok()
+        })
+        .ok_or("Could not get canvas element")?;
+
     let window = WindowBuilder::new()
-        .with_canvas(Some(setup_html_canvas()))
+        .with_canvas(Some(canvas_element))
         .with_prevent_default(false)
         .build(&event_loop)
         .unwrap();
@@ -216,7 +125,6 @@ pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String>
 
     state.inform_js_about_state();
 
-    use winit::platform::web::EventLoopExtWebSys;
     event_loop.spawn(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
@@ -750,10 +658,10 @@ impl State {
         });
 
         let rule_idx = match rule_idx {
-            Some(idx) if idx < RULES.len() as u32 => idx,
+            Some(idx) if idx < rules::RULES.len() as u32 => idx,
             _ => 0,
         };
-        let rule = &RULES[rule_idx as usize];
+        let rule = &rules::RULES[rule_idx as usize];
         let rule_array = rule.rule_array();
         let rule_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("rule_buffer"),
@@ -829,7 +737,7 @@ impl State {
 
     pub fn set_rule_idx(&mut self, new_rule_idx: u32) {
         self.rule_idx = new_rule_idx;
-        let rule = &RULES[self.rule_idx as usize];
+        let rule = &rules::RULES[self.rule_idx as usize];
         self.queue.write_buffer(
             &self.rule_buffer,
             0,
@@ -840,9 +748,9 @@ impl State {
 
     fn change_rule(&mut self, next: bool) {
         let new_rule_idx = if next {
-            (self.rule_idx + 1) % (RULES.len() as u32)
+            (self.rule_idx + 1) % (rules::RULES.len() as u32)
         } else if self.rule_idx == 0 {
-            RULES.len() as u32 - 1
+            rules::RULES.len() as u32 - 1
         } else {
             self.rule_idx - 1
         };
@@ -868,7 +776,10 @@ impl State {
     fn on_state_change(&mut self) {
         self.window.set_title(&format!(
             "{} {}x{} {}",
-            RULES[self.rule_idx as usize].name, self.cells_width, self.cells_height, self.seed
+            rules::RULES[self.rule_idx as usize].name(),
+            self.cells_width,
+            self.cells_height,
+            self.seed
         ));
 
         #[cfg(target_arch = "wasm32")]

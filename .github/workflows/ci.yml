@@ -15,6 +15,23 @@ jobs:
         toolchain: stable
     - run: make
 
+  generate-wasm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        targets: wasm32-unknown-unknown
+    - run: make generate-wasm
+    - run: test -f site/generated/wgpu_game_of_life_bg.wasm
+    - uses: Homebrew/actions/setup-homebrew@master
+    - name: Install wasm-opt
+      run: brew update && brew install binaryen
+    - run: rm site/generated/wgpu_game_of_life_bg.wasm
+    - run: make WASM_RELEASE=1 generate-wasm
+    - run: test -f site/generated/wgpu_game_of_life_bg.wasm
+
   deploy-site:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

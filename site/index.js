@@ -3,6 +3,7 @@ import init, { run, getRules, setNewRule, resetGame } from "./generated/wgpu_gam
 const ruleSelect = document.getElementById('rule');
 const canvas = document.getElementById("webgpu-canvas");
 const sizeElement = document.getElementById("size");
+const overlayElement = document.getElementById("overlay");
 
 canvas.focus();
 
@@ -10,6 +11,7 @@ globalThis.setNewState = function (ruleIdx, size, seed) {
   sizeElement.textContent = size + 'x' + size;
   ruleSelect.value = ruleIdx;
   window.location.hash = `rule=${ruleIdx}&size=${size}&seed=${seed}`;
+  overlayElement.style.display = 'block';
 }
 
 globalThis.toggleFullscreen = function () {
@@ -44,6 +46,6 @@ try {
 } catch (e) {
   console.error('error', e);
   canvas.remove();
-  document.getElementById('overlay').remove();
+  overlayElement.remove();
   document.getElementById('fallback').style.display = 'flex';
 }

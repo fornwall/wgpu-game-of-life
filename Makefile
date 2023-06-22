@@ -33,13 +33,16 @@ CLIPPY_PARAMS = --all-targets -- \
 	-W clippy::unreadable-literal \
 	-W clippy::unseparated-literal-suffix \
 	-W clippy::unnested_or_patterns \
-	-A clippy::wildcard_dependencies
+	-A clippy::wildcard_dependencies \
+	-D warnings
 
 CARGO_COMMAND = cargo
 
 check:
 	$(CARGO_COMMAND) fmt --all
-	$(CARGO_COMMAND) clippy --tests $(CLIPPY_PARAMS)
+	$(CARGO_COMMAND) clippy $(CLIPPY_PARAMS)
+	RUSTFLAGS="--cfg=web_sys_unstable_apis" \
+		$(CARGO_COMMAND) clippy --target wasm32-unknown-unknown $(CLIPPY_PARAMS)
 
 macos-app:
 	cargo install cargo-bundle
@@ -67,6 +70,5 @@ generate-wasm:
 	cargo watch --ignore crates/wasm/site --shell '$(MAKE) generate-wasm'
 
 serve-site: --run-devserver --watch-and-build-wasm ;
-
 
 .PHONY: check macos-app run-app generate-wasm serve-wasm
