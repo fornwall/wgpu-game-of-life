@@ -28,7 +28,8 @@ struct Rule {
 #[cfg(target_arch = "wasm32")]
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
-    RuleChange(usize),
+    RuleChange(u32),
+    Reset,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -131,7 +132,7 @@ pub async fn run() {
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window).await.unwrap();
+    let mut state = State::new(window, None, None).await.unwrap();
 
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
@@ -142,17 +143,34 @@ pub async fn run() {
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = setNewState)]
-    pub fn set_new_state(rule_idx: usize, cells_width: usize, cells_height: usize, seed: u32);
+    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32);
+
+    #[wasm_bindgen(js_name = toggleFullscreen)]
+    pub fn toggle_fullscreen();
 }
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "setNewRule")]
-pub fn set_new_rule(rule_idx: usize) {
+pub fn set_new_rule(rule_idx: u32) {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Some(event_loop_proxy) = &*proxy.lock().unwrap() {
-            event_loop_proxy
-                .send_event(CustomWinitEvent::RuleChange(rule_idx))
-                .ok();
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy
+                    .send_event(CustomWinitEvent::RuleChange(rule_idx))
+                    .ok();
+            }
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "resetGame")]
+pub fn reset_game() {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy.send_event(CustomWinitEvent::Reset).ok();
+            }
         }
     });
 }
@@ -171,7 +189,7 @@ pub fn get_rules() -> wasm_bindgen::prelude::JsValue {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub async fn run() -> Result<(), String> {
+pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String> {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
 
@@ -179,7 +197,9 @@ pub async fn run() -> Result<(), String> {
 
     let event_loop_proxy = event_loop.create_proxy();
     EVENT_LOOP_PROXY.with(move |proxy| {
-        *proxy.lock().unwrap() = Some(event_loop_proxy);
+        if let Ok(mut proxy) = proxy.lock() {
+            *proxy = Some(event_loop_proxy);
+        }
     });
 
     use winit::event_loop::EventLoopBuilder;
@@ -190,7 +210,7 @@ pub async fn run() -> Result<(), String> {
         .build(&event_loop)
         .unwrap();
 
-    let mut state = State::new(window)
+    let mut state = State::new(window, rule_idx, seed)
         .await
         .map_err(|()| "Failed to build".to_string())?;
 
@@ -224,7 +244,7 @@ pub struct State {
     renderer: Renderer,
     size_buffer: wgpu::Buffer,
     rule_buffer: wgpu::Buffer,
-    rule_idx: usize,
+    rule_idx: u32,
     cells_width: usize,
     cells_height: usize,
     cursor_position: PhysicalPosition<f64>,
@@ -657,10 +677,10 @@ impl Computer {
 }
 
 impl State {
-    async fn new(window: Window) -> Result<State, ()> {
+    async fn new(window: Window, rule_idx: Option<u32>, seed: Option<u32>) -> Result<State, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface = unsafe { instance.create_surface(&window).map_err(|_| ())? };
+        let surface = unsafe { instance.create_surface(&window) }.map_err(|_| ())?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -669,7 +689,7 @@ impl State {
                 force_fallback_adapter: false,
             })
             .await
-            .unwrap();
+            .ok_or(())?;
 
         let (device, queue) = adapter
             .request_device(
@@ -681,7 +701,7 @@ impl State {
                 None,
             )
             .await
-            .unwrap();
+            .map_err(|_| ())?;
 
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this tutorial assumes an sRGB surface texture. Using a different
@@ -729,8 +749,11 @@ impl State {
                 | wgpu::BufferUsages::VERTEX,
         });
 
-        let rule_idx = 0;
-        let rule = &RULES[rule_idx];
+        let rule_idx = match rule_idx {
+            Some(idx) if idx < RULES.len() as u32 => idx,
+            _ => 0,
+        };
+        let rule = &RULES[rule_idx as usize];
         let rule_array = rule.rule_array();
         let rule_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("rule_buffer"),
@@ -741,7 +764,7 @@ impl State {
                 | wgpu::BufferUsages::VERTEX,
         });
 
-        let seed = 1_u32;
+        let seed = seed.unwrap_or(0);
 
         let computer_factory = ComputerFactory::new(&device);
         let computer = computer_factory.create(
@@ -804,9 +827,9 @@ impl State {
         }
     }
 
-    pub fn set_rule_idx(&mut self, new_rule_idx: usize) {
+    pub fn set_rule_idx(&mut self, new_rule_idx: u32) {
         self.rule_idx = new_rule_idx;
-        let rule = &RULES[self.rule_idx];
+        let rule = &RULES[self.rule_idx as usize];
         self.queue.write_buffer(
             &self.rule_buffer,
             0,
@@ -817,9 +840,9 @@ impl State {
 
     fn change_rule(&mut self, next: bool) {
         let new_rule_idx = if next {
-            (self.rule_idx + 1) % RULES.len()
+            (self.rule_idx + 1) % (RULES.len() as u32)
         } else if self.rule_idx == 0 {
-            RULES.len() - 1
+            RULES.len() as u32 - 1
         } else {
             self.rule_idx - 1
         };
@@ -828,12 +851,7 @@ impl State {
 
     #[cfg(target_arch = "wasm32")]
     fn inform_js_about_state(&self) {
-        set_new_state(
-            self.rule_idx,
-            self.cells_width,
-            self.cells_height,
-            self.seed,
-        );
+        set_new_state(self.rule_idx, self.cells_width, self.seed);
     }
 
     fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
@@ -842,14 +860,28 @@ impl State {
         self.on_state_change();
     }
 
+    fn reset(&mut self) {
+        self.seed = rand::thread_rng().next_u32();
+        self.on_state_change();
+    }
+
     fn on_state_change(&mut self) {
         self.window.set_title(&format!(
             "{} {}x{} {}",
-            RULES[self.rule_idx].name, self.cells_width, self.cells_height, self.seed
+            RULES[self.rule_idx as usize].name, self.cells_width, self.cells_height, self.seed
         ));
 
         #[cfg(target_arch = "wasm32")]
-        self.inform_js_about_state();
+        {
+            /*
+            let hash = format!("rule={}&size={}", self.rule_idx, self.cells_height);
+            let window = web_sys::window().unwrap();
+            let document = window.document().unwrap();
+            document.location().unwrap().set_hash(&hash).unwrap();
+            */
+
+            self.inform_js_about_state();
+        }
 
         let size_array = [self.cells_width as u32, self.cells_height as u32];
         self.queue
@@ -900,7 +932,7 @@ impl State {
             .device
             .create_command_encoder(&self.command_encoder_descriptor);
 
-        let output: wgpu::SurfaceTexture = self.surface.get_current_texture().unwrap();
+        let output: wgpu::SurfaceTexture = self.surface.get_current_texture()?;
 
         if advance_state {
             self.computer.enqueue(is_even, &mut encoder);
@@ -955,15 +987,21 @@ impl State {
                 ..
             } => {
                 if c == "f" || c == "F" {
-                    if self.window.fullscreen().is_some() {
-                        self.window.set_fullscreen(None);
-                    } else {
-                        self.window
-                            .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        toggle_fullscreen();
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        if self.window.fullscreen().is_some() {
+                            self.window.set_fullscreen(None);
+                        } else {
+                            self.window
+                                .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
+                        }
                     }
                 } else if c == "r" || c == "R" {
-                    self.seed = rand::thread_rng().next_u32();
-                    self.on_state_change();
+                    self.reset();
                 } else if c == "-" && self.cells_width < 2048 {
                     self.reset_with_cells_width(self.cells_width + 128, self.cells_height + 128);
                 } else if c == "+" && self.cells_width > 128 {

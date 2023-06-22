@@ -18,6 +18,9 @@ pub fn handle_event_loop(
             &CustomWinitEvent::RuleChange(new_rule_idx) => {
                 state.set_rule_idx(new_rule_idx);
             }
+            CustomWinitEvent::Reset => {
+                state.reset();
+            }
         },
         &Event::WindowEvent {
             ref event,
@@ -51,6 +54,7 @@ pub fn handle_event_loop(
                         state.resize(*physical_size);
                     }
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                        log::info!("scale factor: {:?}", new_inner_size);
                         state.resize(**new_inner_size);
                     }
                     WindowEvent::CursorMoved { position, .. } => {
