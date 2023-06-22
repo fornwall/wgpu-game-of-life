@@ -14,7 +14,7 @@ use wgpu::util::DeviceExt;
 use winit::event_loop::EventLoopProxy;
 use winit::{
     dpi::PhysicalPosition,
-    event::{ElementState, Event, WindowEvent},
+    event::Event,
     window::{Window, WindowBuilder},
 };
 
@@ -58,6 +58,9 @@ extern "C" {
 
     #[wasm_bindgen(js_name = toggleFullscreen)]
     pub fn toggle_fullscreen();
+
+    #[wasm_bindgen(js_name = toggleControls)]
+    pub fn toggle_controls();
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -860,78 +863,5 @@ impl State {
         output.present();
 
         Ok(())
-    }
-
-    fn input(&mut self, event: &WindowEvent) -> bool {
-        match event {
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowRight,
-                        state: winit::event::ElementState::Pressed,
-                        ..
-                    },
-                ..
-            } => {
-                self.change_rule(true);
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowLeft,
-                        state: winit::event::ElementState::Pressed,
-                        ..
-                    },
-                ..
-            } => {
-                self.change_rule(false);
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::Character(c),
-                        state: winit::event::ElementState::Pressed,
-                        ..
-                    },
-                ..
-            } => {
-                if c == "f" || c == "F" {
-                    #[cfg(target_arch = "wasm32")]
-                    {
-                        toggle_fullscreen();
-                    }
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        if self.window.fullscreen().is_some() {
-                            self.window.set_fullscreen(None);
-                        } else {
-                            self.window
-                                .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
-                        }
-                    }
-                } else if c == "r" || c == "R" {
-                    self.reset();
-                } else if c == "-" && self.cells_width < 2048 {
-                    self.reset_with_cells_width(self.cells_width + 128, self.cells_height + 128);
-                } else if c == "+" && self.cells_width > 128 {
-                    self.reset_with_cells_width(self.cells_width - 128, self.cells_height - 128);
-                }
-                true
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        state: ElementState::Pressed,
-                        ..
-                    },
-                ..
-            } => {
-                println!("key = {:?}", event);
-                false
-            }
-            _ => false,
-        }
     }
 }

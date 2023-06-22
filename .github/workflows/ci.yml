@@ -13,6 +13,7 @@ jobs:
     - uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: stable
+        targets: wasm32-unknown-unknown
     - run: make
 
   generate-wasm:

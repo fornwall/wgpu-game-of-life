@@ -22,18 +22,21 @@ globalThis.toggleFullscreen = function () {
   }
 }
 
+globalThis.toggleControls = function () {
+  const controls = document.getElementById("hideableControls");
+  controls.classList.toggle('hidden');
+}
+
 try {
   await init();
 
   for (const [ruleIdx, rule] of getRules().entries()) {
     ruleSelect.appendChild(new Option(rule.name(), ruleIdx));
   }
-  ruleSelect.addEventListener('change', () => {
-    setNewRule(ruleSelect.value);
-  });
-  document.getElementById('resetButton').addEventListener('click', () => {
-    resetGame();
-  });
+  ruleSelect.addEventListener('change', () => { setNewRule(ruleSelect.value); });
+  document.getElementById('resetButton').addEventListener('click', resetGame);
+  document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
+  document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
 
   let rule = null;
   let seed = null;

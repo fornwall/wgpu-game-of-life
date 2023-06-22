@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>WGPU Game of Life</title>
     <style>
         * {
@@ -50,13 +50,17 @@
         }
 
         #overlay {
-            padding: 1em;
+            padding: 0.4em;
             color: white;
             position: absolute;
             top: 0px;
             right: 0px;
             background: black;
             opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -70,16 +74,22 @@
         <p>See <a href="https://github.com/fornwall/wgpu-game-of-life">source code</a>.</p>
     </div>
     <div id="overlay" style="display: none">
-        Rule: <select id="rule"></select>
-        <br />
-        <br />
-        Size: <span id="size"></span>
-        <br />
-        <br />
-        <button id="resetButton">Reset</button>
-        <br />
-        <br />
-        <a href="https://github.com/fornwall/wgpu-game-of-life">Source</a>
+        <span style="float:right">
+            <button id="hideControlsButton">Hide</button>
+            <button id="resetButton">Reset</button>
+            <button id="fullscreenButton">Fullscreen</button>
+        </span>
+        <span id="hideableControls">
+            <br />
+            <br />
+            Rule: <select id="rule"></select>
+            <br />
+            <br />
+            Size: <span id="size"></span>
+            <br />
+            <br />
+            <a href="https://github.com/fornwall/wgpu-game-of-life">Source</a>
+        </span>
     </div>
 </body>
 
