@@ -67,6 +67,10 @@
             display: flex;
             align-items: center;
         }
+
+        .max-width {
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -88,24 +92,24 @@
         <span id="hideableControls">
             <br />
             <br />
-            <span class="input-row">
-                <label for="rule">Rule:&nbsp;</label><select id="rule"></select>
-            </span>
+            <p><label for="rule">Rule:&nbsp;</label></p>
+            <select id="rule" class="max-width"></select>
+            <br />
             <br />
             Size: <span id="size"></span>
             <br />
             <br />
-            <span class="input-row">
-                <label for="density">Density:&nbsp;</label>
-                <input type="range" id="density" min="1" max="99"></input>
-                <label for="density" id="density-display"></span>
-            <span class="input-row">
-                <label for="generations-per-second">GPS:&nbsp;</label>
-                <input type="range" id="generations-per-second" min="1" max="100"></input>
-                <label for="generations-per-second" id="generations-per-second-display"></span>
+            <p><label for="density">Density:&nbsp;<span id="density-display"></span></label></p>
+            <input type="range" class="max-width" id="density" min="1" max="99"></input>
             <br />
-            <a href="https://github.com/fornwall/wgpu-game-of-life">Source</a>
-        </span>
+            <br />
+            <p><label for="generations-per-second">GPS:&nbsp;<span id="generations-per-second-display"></span></label>
+            </p>
+            <input type="range" id="generations-per-second" class="max-width" min="1" max="100"></input>
+            <br />
+            <div style="text-align: center; margin: 1em">
+                <a href="https://github.com/fornwall/wgpu-game-of-life">Source</a>
+            </div>
         </span>
     </div>
 </body>
