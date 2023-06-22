@@ -7,10 +7,11 @@ const overlayElement = document.getElementById("overlay");
 
 canvas.focus();
 
-globalThis.setNewState = function (ruleIdx, size, seed) {
+globalThis.setNewState = function (ruleIdx, size, seed, density) {
+  document.title = ruleSelect.options[ruleIdx].textContent;
   sizeElement.textContent = size + 'x' + size;
   ruleSelect.value = ruleIdx;
-  window.location.hash = `rule=${ruleIdx}&size=${size}&seed=${seed}`;
+  window.location.hash = `rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}`;
   overlayElement.style.display = 'block';
 }
 
@@ -40,12 +41,14 @@ try {
 
   let rule = null;
   let seed = null;
+  let density = null;
   if (window.location.hash) {
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     rule = parseInt(urlParams.get('rule'));
     seed = parseInt(urlParams.get('seed'));
+    density = parseInt(urlParams.get('density'));
   }
-  await run(rule, seed);
+  await run(rule, seed, density);
 } catch (e) {
   console.error('error', e);
   canvas.remove();

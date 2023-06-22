@@ -51,6 +51,34 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
+                        logical_key: winit::keyboard::Key::ArrowLeft,
+                        state: winit::event::ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                if state.initial_density > 1 {
+                    state.initial_density -= 1;
+                    state.on_state_change();
+                }
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
+                        logical_key: winit::keyboard::Key::ArrowRight,
+                        state: winit::event::ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                if state.initial_density < 99 {
+                    state.initial_density += 1;
+                    state.on_state_change();
+                }
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    winit::event::KeyEvent {
                         logical_key: winit::keyboard::Key::Character(c),
                         state: winit::event::ElementState::Pressed,
                         ..

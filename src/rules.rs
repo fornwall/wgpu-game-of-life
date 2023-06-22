@@ -47,9 +47,9 @@ pub static RULES: [Rule; 9] = [
         name: "Mazectric",
     },
     Rule {
-        born: 0b1,
-        survives: 0b1,
-        name: "Gnarl",
+        born: 0b0_1010_1010,
+        survives: 0b0_1010_1010,
+        name: "Replicator",
     },
     Rule {
         born: 0b1_1100_1000,

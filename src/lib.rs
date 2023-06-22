@@ -43,7 +43,7 @@ pub async fn run() {
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window, None, None).await.unwrap();
+    let mut state = State::new(window, None, None, None).await.unwrap();
 
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
@@ -54,7 +54,7 @@ pub async fn run() {
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = setNewState)]
-    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32);
+    pub fn set_new_state(rule_idx: u32, cells_width: usize, seed: u32, density: u8);
 
     #[wasm_bindgen(js_name = toggleFullscreen)]
     pub fn toggle_fullscreen();
@@ -91,7 +91,11 @@ pub fn reset_game() {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String> {
+pub async fn run(
+    rule_idx: Option<u32>,
+    seed: Option<u32>,
+    initial_density: Option<u8>,
+) -> Result<(), String> {
     use winit::event_loop::EventLoopBuilder;
     use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
 
@@ -122,7 +126,7 @@ pub async fn run(rule_idx: Option<u32>, seed: Option<u32>) -> Result<(), String>
         .build(&event_loop)
         .unwrap();
 
-    let mut state = State::new(window, rule_idx, seed)
+    let mut state = State::new(window, rule_idx, seed, initial_density)
         .await
         .map_err(|()| "Failed to build".to_string())?;
 
@@ -156,6 +160,7 @@ pub struct State {
     size_buffer: wgpu::Buffer,
     rule_buffer: wgpu::Buffer,
     rule_idx: u32,
+    initial_density: u8,
     cells_width: usize,
     cells_height: usize,
     cursor_position: PhysicalPosition<f64>,
@@ -417,6 +422,7 @@ impl ComputerFactory {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn create(
         &self,
         device: &wgpu::Device,
@@ -425,11 +431,13 @@ impl ComputerFactory {
         size_buffer: &wgpu::Buffer,
         rule_buffer: &wgpu::Buffer,
         seed: u32,
+        initial_density: u8,
     ) -> Computer {
         let mut rng = ChaCha20Rng::seed_from_u64(u64::from(seed));
         let mut cells_vec = vec![0_u32; cells_width * cells_height];
+        let initial_density = f32::from(initial_density) * 0.01;
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < 0.50 {
+            if rng.gen::<f32>() < initial_density {
                 *cell = 1;
             }
         }
@@ -588,7 +596,12 @@ impl Computer {
 }
 
 impl State {
-    async fn new(window: Window, rule_idx: Option<u32>, seed: Option<u32>) -> Result<State, ()> {
+    async fn new(
+        window: Window,
+        rule_idx: Option<u32>,
+        seed: Option<u32>,
+        initial_density: Option<u8>,
+    ) -> Result<State, ()> {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface(&window) }.map_err(|_| ())?;
@@ -677,6 +690,11 @@ impl State {
 
         let seed = seed.unwrap_or(0);
 
+        let initial_density = match initial_density {
+            Some(value) if value > 0 && value < 100 => value,
+            _ => 12,
+        };
+
         let computer_factory = ComputerFactory::new(&device);
         let computer = computer_factory.create(
             &device,
@@ -685,6 +703,7 @@ impl State {
             &size_buffer,
             &rule_buffer,
             seed,
+            initial_density,
         );
 
         let renderer_factory = RendererFactory::new(&device);
@@ -701,6 +720,7 @@ impl State {
         let elapsed_time = 0.;
 
         Ok(Self {
+            initial_density,
             paused: false,
             last_time,
             elapsed_time,
@@ -762,7 +782,12 @@ impl State {
 
     #[cfg(target_arch = "wasm32")]
     fn inform_js_about_state(&self) {
-        set_new_state(self.rule_idx, self.cells_width, self.seed);
+        set_new_state(
+            self.rule_idx,
+            self.cells_width,
+            self.seed,
+            self.initial_density,
+        );
     }
 
     fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
@@ -778,10 +803,11 @@ impl State {
 
     fn on_state_change(&mut self) {
         self.window.set_title(&format!(
-            "{} {}x{} {}",
+            "{} {}x{} 0.{} {}",
             rules::RULES[self.rule_idx as usize].name(),
             self.cells_width,
             self.cells_height,
+            self.initial_density,
             self.seed
         ));
 
@@ -810,6 +836,7 @@ impl State {
             &self.size_buffer,
             &self.rule_buffer,
             self.seed,
+            self.initial_density,
         );
 
         self.renderer = self.renderer_factory.create(
