@@ -130,21 +130,13 @@ pub fn handle_event_loop(
                 state.paused = !state.paused;
             }
             WindowEvent::Resized(physical_size) => {
-                log::info!("resize: {:?}", physical_size);
                 state.resize(*physical_size);
             }
             WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                log::info!("scale factor: {:?}", new_inner_size);
                 state.resize(**new_inner_size);
             }
             WindowEvent::CursorMoved { position, .. } => {
                 state.cursor_position = *position;
-            }
-            WindowEvent::MouseInput {
-                state: winit::event::ElementState::Pressed,
-                ..
-            } => {
-                log::error!("Mouse pressed: {:?}", state.cursor_position);
             }
             WindowEvent::KeyboardInput {
                 event:

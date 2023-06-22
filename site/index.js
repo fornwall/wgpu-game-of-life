@@ -13,9 +13,10 @@ globalThis.setNewState = function (ruleIdx, size, seed, density) {
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeElement.textContent = size + 'x' + size;
   ruleSelect.value = ruleIdx;
-  window.location.hash = `rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}`;
+  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}`;
+  window.history.replaceState({}, '', queryString);
   densityInput.value = density;
-  densityDisplay.textContent = '0.' + density;
+  densityDisplay.innerHTML = '&nbsp;0.' + density;
   overlayElement.style.display = 'block';
 }
 
@@ -43,15 +44,10 @@ try {
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
 
-  let rule = null;
-  let seed = null;
-  let density = null;
-  if (window.location.hash) {
-    const urlParams = new URLSearchParams(window.location.hash.substring(1));
-    rule = parseInt(urlParams.get('rule'));
-    seed = parseInt(urlParams.get('seed'));
-    density = parseInt(urlParams.get('density'));
-  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const rule = parseInt(urlParams.get('rule'));
+  const seed = parseInt(urlParams.get('seed'));
+  const density = parseInt(urlParams.get('density'));
 
   await run(rule, seed, density);
 
