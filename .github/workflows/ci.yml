@@ -25,11 +25,11 @@ jobs:
         toolchain: stable
         targets: wasm32-unknown-unknown
     - uses: jetli/wasm-bindgen-action@v0.2.0
-    - run: make generate-wasm
-    - run: test -f site/generated/wgpu_game_of_life_bg.wasm
     - uses: Homebrew/actions/setup-homebrew@master
     - name: Install wasm-opt
       run: brew update && brew install binaryen
+    - run: make generate-wasm
+    - run: test -f site/generated/wgpu_game_of_life_bg.wasm
     - run: rm site/generated/wgpu_game_of_life_bg.wasm
     - run: make WASM_RELEASE=1 generate-wasm
     - run: test -f site/generated/wgpu_game_of_life_bg.wasm
