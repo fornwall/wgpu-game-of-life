@@ -66,6 +66,7 @@ extern "C" {
         density: u8,
         paused: bool,
         generations_per_second: u8,
+        frame: u64,
     );
 
     #[wasm_bindgen(js_name = toggleFullscreen)]
@@ -881,6 +882,7 @@ impl State {
             self.initial_density,
             self.paused,
             self.generations_per_second,
+            if self.paused { self.frame_count } else { 0 },
         );
     }
 
@@ -952,9 +954,9 @@ impl State {
                 false
             } else {
                 self.elapsed_time += self.last_time.elapsed().as_secs_f32();
-                self.last_time = instant::Instant::now();
                 self.elapsed_time > frequency
             };
+            self.last_time = instant::Instant::now();
 
             if advance_state {
                 self.elapsed_time -= frequency;

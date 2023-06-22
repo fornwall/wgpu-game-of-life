@@ -12,11 +12,11 @@ const generationsPerSecondDisplay = document.getElementById("generations-per-sec
 
 canvas.focus();
 
-globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generationsPerSecond) {
+globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generationsPerSecond, frame) {
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeElement.textContent = size + 'x' + size;
   ruleSelect.value = ruleIdx;
-  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&paused=${paused}&gps=${generationsPerSecond}`;
+  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}&paused=${paused}` + (paused ? `&frame=${frame}` : '');
   window.history.replaceState({}, '', queryString);
   overlayElement.style.display = 'block';
 
