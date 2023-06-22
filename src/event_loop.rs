@@ -118,6 +118,7 @@ pub fn handle_event_loop(
                     state.reset_with_cells_width(state.cells_width - 128, state.cells_height - 128);
                 }
             }
+            #[cfg(not(target_arch = "wasm32"))]
             WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
                 event:
