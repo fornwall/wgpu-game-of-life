@@ -22,6 +22,7 @@ use winit::{
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
     RuleChange(u32),
+    SetDensity(u8),
     Reset,
 }
 
@@ -84,6 +85,20 @@ pub fn reset_game() {
         if let Ok(unlocked) = proxy.lock() {
             if let Some(event_loop_proxy) = &*unlocked {
                 event_loop_proxy.send_event(CustomWinitEvent::Reset).ok();
+            }
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "setDensity")]
+pub fn set_density(density: u8) {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy
+                    .send_event(CustomWinitEvent::SetDensity(density))
+                    .ok();
             }
         }
     });
@@ -755,6 +770,13 @@ impl State {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
+        }
+    }
+
+    pub fn set_density(&mut self, new_density: u8) {
+        if (1..=99).contains(&new_density) {
+            self.initial_density = new_density;
+            self.on_state_change();
         }
     }
 

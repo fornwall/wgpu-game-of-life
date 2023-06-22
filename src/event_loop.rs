@@ -18,6 +18,9 @@ pub fn handle_event_loop(
             &CustomWinitEvent::RuleChange(new_rule_idx) => {
                 state.set_rule_idx(new_rule_idx);
             }
+            &CustomWinitEvent::SetDensity(new_density) => {
+                state.set_density(new_density);
+            }
             CustomWinitEvent::Reset => {
                 state.reset();
             }
@@ -57,10 +60,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => {
-                if state.initial_density > 1 {
-                    state.initial_density -= 1;
-                    state.on_state_change();
-                }
+                state.set_density(state.initial_density - 1);
             }
             WindowEvent::KeyboardInput {
                 event:
@@ -71,10 +71,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => {
-                if state.initial_density < 99 {
-                    state.initial_density += 1;
-                    state.on_state_change();
-                }
+                state.set_density(state.initial_density + 1);
             }
             WindowEvent::KeyboardInput {
                 event:
