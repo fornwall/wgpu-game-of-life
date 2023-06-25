@@ -20,7 +20,7 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = "*"
-winit = { git = "https://github.com/rust-windowing/winit", rev = "66ff52b0128be9430b32cb5756e124f61d2e67d0" }
+winit = { git = "https://github.com/rust-windowing/winit", rev = "059abb06fc7c1e072a986648e3df9ca9925a4355" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "*"
