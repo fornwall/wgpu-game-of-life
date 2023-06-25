@@ -4,6 +4,7 @@
     "webpack": "webpack"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "*",
     "html-webpack-plugin": "*",
     "webpack": "*",
     "webpack-cli": "*",

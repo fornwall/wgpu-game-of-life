@@ -18,6 +18,9 @@ pub fn handle_event_loop(
             &CustomWinitEvent::RuleChange(new_rule_idx) => {
                 state.set_rule_idx(new_rule_idx);
             }
+            &CustomWinitEvent::SizeChange(size) => {
+                state.reset_with_cells_width(size, size);
+            }
             &CustomWinitEvent::SetDensity(new_density) => {
                 state.set_density(new_density);
             }

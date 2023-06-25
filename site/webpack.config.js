@@ -1,4 +1,5 @@
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 
 export default {
   entry: {
@@ -22,6 +23,9 @@ export default {
       filename: "index.html",
       template: "index.html",
       chunks: ["home"],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: "static", to: "static" }],
     }),
   ],
 };

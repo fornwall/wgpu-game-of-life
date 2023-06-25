@@ -1,8 +1,8 @@
-import init, { run, getRules, setNewRule, setDensity, resetGame, togglePause, setGenerationsPerSecond } from "./generated/wgpu_game_of_life.js";
+import init, { run, getRules, setNewRule, setNewSize, setDensity, resetGame, togglePause, setGenerationsPerSecond } from "./generated/wgpu_game_of_life.js";
 
 const ruleSelect = document.getElementById('rule');
+const sizeSelect = document.getElementById("size");
 const canvas = document.getElementById("webgpu-canvas");
-const sizeElement = document.getElementById("size");
 const overlayElement = document.getElementById("overlay");
 const densityInput = document.getElementById("density");
 const densityDisplay = document.getElementById("density-display");
@@ -15,7 +15,7 @@ canvas.focus();
 
 globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generationsPerSecond, frame) {
   document.title = ruleSelect.options[ruleIdx].textContent;
-  sizeElement.textContent = size + 'x' + size;
+  sizeSelect.value = size;
   ruleSelect.value = ruleIdx;
   const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}&paused=${paused}` + (paused ? `&frame=${frame}` : '');
   window.history.replaceState({}, '', queryString);
@@ -51,9 +51,14 @@ try {
     ruleSelect.appendChild(new Option(rule.name(), ruleIdx));
   }
   ruleSelect.addEventListener('change', () => { setNewRule(ruleSelect.value); });
+  sizeSelect.addEventListener('change', () => { setNewSize(sizeSelect.value); });
   document.getElementById('resetButton').addEventListener('click', resetGame);
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
+  document.getElementById('about-link').addEventListener('click', (event) => {
+    event.preventDefault();
+    aboutDialog.showModal();
+  });
   pauseButton.addEventListener('click', togglePause);
   densityInput.addEventListener('change', () => {
     setDensity(densityInput.value);
@@ -64,20 +69,18 @@ try {
 
   const urlParams = new URLSearchParams(window.location.search);
   const rule = parseInt(urlParams.get('rule'));
+  const size = parseInt(urlParams.get('size'));
   const seed = parseInt(urlParams.get('seed'));
   const density = parseInt(urlParams.get('density'));
   const paused = "true" === urlParams.get('paused');
   const generationsPerSecond = parseInt(urlParams.get("gps"));
 
-  await run(rule, seed, density, paused, generationsPerSecond);
-
-  aboutDialog.showModal();
-  aboutDialog.focus();
+  await run(rule, size, seed, density, paused, generationsPerSecond);
 } catch (e) {
   console.error('error', e);
   canvas.remove();
   overlayElement.remove();
   document.getElementById('webgpu-not-working').style.display = 'block';
   document.getElementById('close-dialog').remove();
-  document.getElementById('about').show();
+  aboutDialog.show();
 }

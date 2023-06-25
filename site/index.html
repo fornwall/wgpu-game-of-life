@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>WGPU Game of Life</title>
+    <meta property="og:url" content="https://wgpu-game-of-life.fornwall.net" />
+    <meta property="og:title" content="Game of Life WebGPU" />
+    <meta property="og:description" content="A simulation of Game of Life using the WebGPU API." />
+    <meta property="og:image" content="https://wgpu-game-of-life.fornwall.net/static/screenshot.png" />
+    <title>Game of Life</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
         }
@@ -46,7 +50,7 @@
             color: white;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             border: 1px solid white;
             padding: 1em;
             border-radius: 0.5em;
@@ -56,8 +60,13 @@
         }
 
         #about h1,
+        #about h2,
         #about p {
             margin-bottom: 0.5em;
+        }
+
+        #about h2 {
+            margin-top: 1em;
         }
 
         #about a {
@@ -72,6 +81,14 @@
             right: 0px;
             background: black;
             opacity: 0.9;
+        }
+
+        #overlay a {
+            color: white;
+        }
+
+        #overlay p {
+            margin-block-end: 0;
         }
 
         .hidden {
@@ -96,9 +113,13 @@
         <h1>wgpu-game-of-life</h1>
         <p id="webgpu-not-working" style="display: none"><strong>⚠️ NOTE:️</strong> WebGPU is not working in your
             browser - see <a href="https://caniuse.com/webgpu">caniuse.com/webgpu</a>.</p>
-        <p>This is a game of life simulation done using the <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API">WebGPU</a>.</p>
+        <p>This is a <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Game of Life</a> simulation done
+            using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API">WebGPU API</a>.</p>
         <p>See <a href="https://github.com/fornwall/wgpu-game-of-life">source code</a>.</p>
+        <h2>About game of life</h2>
+        <p>Game of Life is a simulation of a grid.
+        <p>Each cell in the grid is either <strong>alive</strong> or <strong>dead</strong>.
+        </p>
         <form>
             <button id="close-dialog" formmethod="dialog">Ok</button>
         </form>
@@ -107,9 +128,9 @@
     <div id="overlay" style="display: none" open="true">
         <span style="float:right">
             <button id="pauseButton" style="width: 4em">Pause</button>
-            <button id="hideControlsButton">Hide</button>
             <button id="resetButton">Reset</button>
             <button id="fullscreenButton">Fullscreen</button>
+            <button id="hideControlsButton">Hide</button>
         </span>
         <span id="hideableControls">
             <br />
@@ -118,19 +139,28 @@
             <select id="rule" class="max-width"></select>
             <br />
             <br />
-            Size: <span id="size"></span>
+            <p><label for="size">Grid size:&nbsp;</label></p>
+            <select id="size" class="max-width">
+                <option value="64">64x64</option>
+                <option value="128">128x128</option>
+                <option value="256">256x256</option>
+                <option value="512">512x512</option>
+                <option value="1024">1024x1024</option>
+                <option value="2048">2048x2048</option>
+            </select>
             <br />
             <br />
-            <p><label for="density">Density:&nbsp;<span id="density-display"></span></label></p>
+            <p><label for="density">Initial density:&nbsp;<span id="density-display"></span></label></p>
             <input type="range" class="max-width" id="density" min="1" max="99"></input>
             <br />
             <br />
-            <p><label for="generations-per-second">GPS:&nbsp;<span id="generations-per-second-display"></span></label>
+            <p><label for="generations-per-second">Generations per second:&nbsp;<span
+                        id="generations-per-second-display"></span></label>
             </p>
-            <input type="range" id="generations-per-second" class="max-width" min="1" max="100"></input>
+            <input type="range" id="generations-per-second" class="max-width" min="1" max="30"></input>
             <br />
-            <div style="text-align: center; margin: 1em">
-                <a href="https://github.com/fornwall/wgpu-game-of-life">Source</a>
+            <div style="text-align: center; margin: 1em;">
+                <a id="about-link" href="https://github.com/fornwall/wgpu-game-of-life">About</a>
             </div>
         </span>
     </div>

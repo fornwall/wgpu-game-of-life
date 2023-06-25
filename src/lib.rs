@@ -22,6 +22,7 @@ use winit::{
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
     RuleChange(u32),
+    SizeChange(u32),
     SetDensity(u8),
     SetGenerationsPerSecond(u8),
     Reset,
@@ -46,7 +47,7 @@ pub async fn run() {
 
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut state = State::new(window, None, None, None, false, None)
+    let mut state = State::new(window, None, None, None, None, false, None)
         .await
         .unwrap();
 
@@ -61,7 +62,7 @@ extern "C" {
     #[wasm_bindgen(js_name = setNewState)]
     pub fn set_new_state(
         rule_idx: u32,
-        cells_width: usize,
+        cells_width: u32,
         seed: u32,
         density: u8,
         paused: bool,
@@ -84,6 +85,20 @@ pub fn set_new_rule(rule_idx: u32) {
             if let Some(event_loop_proxy) = &*unlocked {
                 event_loop_proxy
                     .send_event(CustomWinitEvent::RuleChange(rule_idx))
+                    .ok();
+            }
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "setNewSize")]
+pub fn set_new_size(size: u32) {
+    EVENT_LOOP_PROXY.with(|proxy| {
+        if let Ok(unlocked) = proxy.lock() {
+            if let Some(event_loop_proxy) = &*unlocked {
+                event_loop_proxy
+                    .send_event(CustomWinitEvent::SizeChange(size))
                     .ok();
             }
         }
@@ -150,6 +165,7 @@ pub fn set_generations_per_second(generations_per_second: u8) {
 #[wasm_bindgen]
 pub async fn run(
     rule_idx: Option<u32>,
+    size: Option<u32>,
     seed: Option<u32>,
     initial_density: Option<u8>,
     paused: bool,
@@ -188,6 +204,7 @@ pub async fn run(
     let mut state = State::new(
         window,
         rule_idx,
+        size,
         seed,
         initial_density,
         paused,
@@ -228,8 +245,8 @@ pub struct State {
     rule_buffer: wgpu::Buffer,
     rule_idx: u32,
     initial_density: u8,
-    cells_width: usize,
-    cells_height: usize,
+    cells_width: u32,
+    cells_height: u32,
     cursor_position: PhysicalPosition<f64>,
 }
 
@@ -308,8 +325,8 @@ impl<'a> RendererFactory<'a> {
         device: &wgpu::Device,
         computer: &Computer,
         size_buffer: &wgpu::Buffer,
-        cells_width: usize,
-        cells_height: usize,
+        cells_width: u32,
+        cells_height: u32,
         texture_format: wgpu::TextureFormat,
     ) -> Renderer {
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -375,7 +392,7 @@ impl<'a> RendererFactory<'a> {
             render_bundle_encoder.set_vertex_buffer(0, cells_buffer.slice(..));
             render_bundle_encoder.set_vertex_buffer(1, self.square_buffer.slice(..));
             render_bundle_encoder.set_bind_group(0, &size_bind_group, &[]);
-            render_bundle_encoder.draw(0..4, 0..((cells_width * cells_height) as u32));
+            render_bundle_encoder.draw(0..4, 0..(cells_width * cells_height));
             render_bundle_encoder.finish(&wgpu::RenderBundleDescriptor::default())
         };
 
@@ -493,15 +510,15 @@ impl ComputerFactory {
     fn create(
         &self,
         device: &wgpu::Device,
-        cells_width: usize,
-        cells_height: usize,
+        cells_width: u32,
+        cells_height: u32,
         size_buffer: &wgpu::Buffer,
         rule_buffer: &wgpu::Buffer,
         seed: u32,
         initial_density: u8,
     ) -> Computer {
         let mut rng = ChaCha20Rng::seed_from_u64(u64::from(seed));
-        let mut cells_vec = vec![0_u32; cells_width * cells_height];
+        let mut cells_vec = vec![0_u32; cells_width as usize * cells_height as usize];
         let initial_density = f32::from(initial_density) * 0.01;
         for cell in cells_vec.iter_mut() {
             if rng.gen::<f32>() < initial_density {
@@ -618,8 +635,8 @@ impl ComputerFactory {
         });
 
         Computer {
-            cells_width: cells_width as u32,
-            cells_height: cells_height as u32,
+            cells_width,
+            cells_height,
             compute_pipeline,
             compute_bind_group_0,
             compute_bind_group_1,
@@ -666,6 +683,7 @@ impl State {
     async fn new(
         window: Window,
         rule_idx: Option<u32>,
+        grid_size: Option<u32>,
         seed: Option<u32>,
         initial_density: Option<u8>,
         paused: bool,
@@ -729,10 +747,13 @@ impl State {
             view_formats: vec![],
         };
 
-        let cells_width = 256;
+        let cells_width = match grid_size {
+            Some(v) if [128, 256, 512, 1024, 2048].iter().any(|&e| e == v) => v,
+            _ => 256,
+        };
         let cells_height = cells_width;
 
-        let size_array = [cells_width as u32, cells_height as u32];
+        let size_array = [cells_width, cells_height];
         let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("size_buffer"),
             contents: bytemuck::cast_slice(&size_array),
@@ -886,7 +907,7 @@ impl State {
         );
     }
 
-    fn reset_with_cells_width(&mut self, new_cells_width: usize, new_cells_height: usize) {
+    fn reset_with_cells_width(&mut self, new_cells_width: u32, new_cells_height: u32) {
         self.cells_width = new_cells_width;
         self.cells_height = new_cells_height;
         self.on_state_change();
@@ -912,7 +933,7 @@ impl State {
     fn on_state_change(&mut self) {
         self.inform_ui_about_state();
 
-        let size_array = [self.cells_width as u32, self.cells_height as u32];
+        let size_array = [self.cells_width, self.cells_height];
         self.queue
             .write_buffer(&self.size_buffer, 0, bytemuck::cast_slice(&size_array));
 
