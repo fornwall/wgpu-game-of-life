@@ -12,6 +12,10 @@
             padding: 0;
         }
 
+        dialog {
+            user-select: none;
+        }
+
         html {
             width: 100%;
             height: 100%;
@@ -33,19 +37,30 @@
             outline: none;
         }
 
-        #fallback {
+        #about {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+
             color: white;
-            display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid white;
+            padding: 1em;
+            border-radius: 0.5em;
             margin-left: auto;
             margin-right: auto;
             text-align: center;
         }
 
-        #fallback a {
+        #about h1,
+        #about p {
+            margin-bottom: 0.5em;
+        }
+
+        #about a {
             color: white;
         }
 
@@ -76,13 +91,20 @@
 
 <body>
     <canvas id="webgpu-canvas" tabindex="0"></canvas>
-    <div id="fallback" style="display:none">
-        <h1>wgpu Game of life</h1>
+
+    <dialog id="about">
+        <h1>wgpu-game-of-life</h1>
+        <p id="webgpu-not-working" style="display: none"><strong>⚠️ NOTE:️</strong> WebGPU is not working in your
+            browser - see <a href="https://caniuse.com/webgpu">caniuse.com/webgpu</a>.</p>
         <p>This is a game of life simulation done using the <a
                 href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API">WebGPU</a>.</p>
         <p>See <a href="https://github.com/fornwall/wgpu-game-of-life">source code</a>.</p>
-    </div>
-    <div id="overlay" style="display: none">
+        <form>
+            <button id="close-dialog" formmethod="dialog">Ok</button>
+        </form>
+    </dialog>
+
+    <div id="overlay" style="display: none" open="true">
         <span style="float:right">
             <button id="pauseButton" style="width: 4em">Pause</button>
             <button id="hideControlsButton">Hide</button>

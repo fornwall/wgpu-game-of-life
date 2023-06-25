@@ -9,6 +9,7 @@ const densityDisplay = document.getElementById("density-display");
 const pauseButton = document.getElementById("pauseButton");
 const generationsPerSecondInput = document.getElementById("generations-per-second");
 const generationsPerSecondDisplay = document.getElementById("generations-per-second-display");
+const aboutDialog = document.getElementById('about');
 
 canvas.focus();
 
@@ -43,6 +44,7 @@ globalThis.toggleControls = function () {
 }
 
 try {
+  if (!navigator.gpu) throw new Error("No navigator.gpu");
   await init();
 
   for (const [ruleIdx, rule] of getRules().entries()) {
@@ -69,9 +71,13 @@ try {
 
   await run(rule, seed, density, paused, generationsPerSecond);
 
+  aboutDialog.showModal();
+  aboutDialog.focus();
 } catch (e) {
   console.error('error', e);
   canvas.remove();
   overlayElement.remove();
-  document.getElementById('fallback').style.display = 'flex';
+  document.getElementById('webgpu-not-working').style.display = 'block';
+  document.getElementById('close-dialog').remove();
+  document.getElementById('about').show();
 }
