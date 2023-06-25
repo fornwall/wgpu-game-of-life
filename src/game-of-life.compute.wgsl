@@ -13,8 +13,12 @@ fn getCell(x: i32, y: i32) -> u32 {
     return current[getIndex(x, y)];
 }
 
+fn isAlive(x: i32, y: i32) -> u32 {
+    return u32(current[getIndex(x, y)] > 0u);
+}
+
 fn countNeighbors(x: i32, y: i32) -> u32 {
-    return getCell(x - 1, y - 1) + getCell(x, y - 1) + getCell(x + 1, y - 1) + getCell(x - 1, y) + getCell(x + 1, y) + getCell(x - 1, y + 1) + getCell(x, y + 1) + getCell(x + 1, y + 1);
+    return isAlive(x - 1, y - 1) + isAlive(x, y - 1) + isAlive(x + 1, y - 1) + isAlive(x - 1, y) + isAlive(x + 1, y) + isAlive(x - 1, y + 1) + isAlive(x, y + 1) + isAlive(x + 1, y + 1);
 }
 
 @compute @workgroup_size(8, 8)
@@ -22,8 +26,9 @@ fn main(@builtin(global_invocation_id) grid: vec3<u32>) {
     let x = i32(grid.x);
     let y = i32(grid.y);
     let n = countNeighbors(x, y);
+    let current_generation = getCell(x, y);
+    let cell_lives = current_generation >= 1u;
     let will_be_born = u32(((1 << n) & rule.x) > 0);
-    let will_survive = u32(((1 << n) & rule.y) > 0);
-    let cell_lives = getCell(x, y) == 1u;
+    let will_survive = u32(((1 << n) & rule.y) > 0) * (1u + current_generation);
     next[getIndex(x, y)] = select(will_be_born, will_survive, cell_lives);
 } 
