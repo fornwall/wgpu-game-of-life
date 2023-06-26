@@ -17,6 +17,8 @@ export default {
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
+    // Disable webSocketServer to enable bfcache testing:
+    // webSocketServer: false,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -28,4 +30,8 @@ export default {
       patterns: [{ from: "static", to: "static" }],
     }),
   ],
+  performance: {
+    maxAssetSize: 10000000,
+    maxEntrypointSize: 10000000,
+  },
 };
