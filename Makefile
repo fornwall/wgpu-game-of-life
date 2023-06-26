@@ -50,6 +50,11 @@ macos-app:
 	cd target/release/bundle/osx && zip -r "$(APP_NAME)".zip "$(APP_NAME)".app &> /dev/null
 	echo target/release/bundle/osx/"$(APP_NAME)".zip
 
+ios-sim-app:
+	cargo install cargo-bundle
+	rustup target add aarch64-apple-ios-sim
+	cargo bundle --target aarch64-apple-ios-sim --release
+
 run-app:
 	@cargo bundle --release &> /dev/null
 	@open target/release/bundle/osx/"$(APP_NAME)".app
