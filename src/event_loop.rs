@@ -22,7 +22,7 @@ pub fn handle_event_loop(
                 state.reset_with_cells_width(size, size);
             }
             &CustomWinitEvent::SetDensity(new_density) => {
-                state.set_density(new_density);
+                state.set_initial_density(new_density);
             }
             CustomWinitEvent::Reset => {
                 state.reset();
@@ -69,7 +69,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => {
-                state.set_density(state.initial_density - 1);
+                state.set_initial_density(state.initial_density - 1);
             }
             WindowEvent::KeyboardInput {
                 event:
@@ -80,7 +80,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => {
-                state.set_density(state.initial_density + 1);
+                state.set_initial_density(state.initial_density + 1);
             }
             WindowEvent::KeyboardInput {
                 event:
@@ -113,6 +113,10 @@ pub fn handle_event_loop(
                     state.reset();
                 } else if c == "q" || c == "Q" {
                     state.set_generations_per_second(state.generations_per_second - 1);
+                } else if c == "<" {
+                    state.set_initial_density(state.initial_density - 1);
+                } else if c == ">" {
+                    state.set_initial_density(state.initial_density + 1);
                 } else if c == "w" || c == "W" {
                     state.set_generations_per_second(state.generations_per_second + 1);
                 } else if c == "-" && state.cells_width < 2048 {

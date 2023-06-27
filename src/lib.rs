@@ -880,7 +880,7 @@ impl State {
         }
     }
 
-    pub fn set_density(&mut self, new_density: u8) {
+    pub fn set_initial_density(&mut self, new_density: u8) {
         if (1..=99).contains(&new_density) {
             self.initial_density = new_density;
             self.on_state_change();
