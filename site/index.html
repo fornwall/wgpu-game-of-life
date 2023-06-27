@@ -17,10 +17,6 @@
             padding: 0;
         }
 
-        dialog {
-            user-select: none;
-        }
-
         html {
             width: 100%;
             height: 100%;
@@ -43,11 +39,7 @@
         }
 
         #about {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-50%);
-
+            user-select: none;
             color: white;
             flex-direction: column;
             align-items: center;
@@ -64,6 +56,10 @@
         #about h2,
         #about p {
             margin-bottom: 0.5em;
+        }
+
+        #about h1 {
+            margin-top: 0;
         }
 
         #about h2 {
@@ -127,19 +123,15 @@
     </dialog>
 
     <div id="overlay" style="display: none" open="true">
-        <span style="float:right">
+        <span id="overlay-buttons">
             <button id="pauseButton" style="width: 4em">Pause</button>
             <button id="resetButton">Reset</button>
             <button id="fullscreenButton">Fullscreen</button>
             <button id="hideControlsButton">Hide</button>
         </span>
         <span id="hideableControls">
-            <br />
-            <br />
             <p><label for="rule">Rule:&nbsp;</label></p>
             <select id="rule" class="max-width"></select>
-            <br />
-            <br />
             <p><label for="size">Grid size:&nbsp;</label></p>
             <select id="size" class="max-width">
                 <option value="64">64x64</option>
@@ -149,17 +141,12 @@
                 <option value="1024">1024x1024</option>
                 <option value="2048">2048x2048</option>
             </select>
-            <br />
-            <br />
             <p><label for="density">Initial density:&nbsp;<span id="density-display"></span></label></p>
             <input type="range" class="max-width" id="density" min="1" max="99"></input>
-            <br />
-            <br />
             <p><label for="generations-per-second">Generations per second:&nbsp;<span
                         id="generations-per-second-display"></span></label>
             </p>
             <input type="range" id="generations-per-second" class="max-width" min="1" max="30"></input>
-            <br />
             <div style="text-align: center; margin: 1em;">
                 <a id="about-link" href="https://github.com/fornwall/wgpu-game-of-life">About</a>
             </div>
