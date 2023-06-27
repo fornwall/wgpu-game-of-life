@@ -469,7 +469,6 @@ impl Renderer {
         } else {
             &self.render_bundle_1
         }));
-        drop(render_pass);
     }
 }
 
@@ -701,7 +700,6 @@ impl Computer {
         let workgroup_count_y = (self.cells_height + workgroup_width - 1) / workgroup_width;
         let workgroup_count_z = 1;
         pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
-        drop(pass_encoder);
     }
 }
 
