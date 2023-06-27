@@ -6,6 +6,7 @@ use wasm_bindgen::prelude::*;
 pub struct Rule {
     pub born: u16,
     pub survives: u16,
+    pub initial_density: u8,
     name: &'static str,
 }
 
@@ -35,46 +36,55 @@ pub static RULES: [Rule; 9] = [
         born: 0b1000,
         survives: 0b1100,
         name: "Conway's Life",
+        initial_density: 12,
     },
     Rule {
         born: 0b0_0000_1000,
         survives: 0b0_0011_1110,
         name: "Maze",
+        initial_density: 3,
     },
     Rule {
         born: 0b0_0000_1000,
         survives: 0b0_0001_1110,
         name: "Mazectric",
+        initial_density: 3,
     },
     Rule {
         born: 0b0_1010_1010,
         survives: 0b0_1010_1010,
         name: "Replicator",
+        initial_density: 8,
     },
     Rule {
         born: 0b1_1100_1000,
         survives: 0b1_1101_1000,
         name: "Day & Night",
+        initial_density: 30,
     },
     Rule {
         born: 0b0_0010_1000,
         survives: 0b1_1011_1100,
         name: "Land Rush",
+        initial_density: 4,
     },
     Rule {
         born: 0b0_0100_1000,
         survives: 0b1_1011_1100,
         name: "Land Rush 2",
+        initial_density: 4,
     },
     Rule {
         born: 0b1_1100_1000,
         survives: 0b1_1110_1100,
         name: "Stains",
+        initial_density: 8,
     },
     Rule {
         born: 0b1_1110_0000,
         survives: 0b1_1111_0000,
         name: "Vote",
+        initial_density: 50,
     },
 ];
 

@@ -579,7 +579,7 @@ impl State {
 
         let cells_width = match grid_size {
             Some(v) if [128, 256, 512, 1024, 2048].iter().any(|&e| e == v) => v,
-            _ => 256,
+            _ => 512,
         };
         let cells_height = cells_width;
 
@@ -617,7 +617,7 @@ impl State {
 
         let generations_per_second = match generations_per_second {
             Some(value) if value > 0 && value < 100 => value,
-            _ => 4,
+            _ => 8,
         };
 
         let computer_factory = ComputerFactory::new(&device);
@@ -694,6 +694,7 @@ impl State {
     pub fn set_rule_idx(&mut self, new_rule_idx: u32) {
         self.rule_idx = new_rule_idx;
         let rule = &rules::RULES[self.rule_idx as usize];
+        self.initial_density = rule.initial_density;
         self.queue.write_buffer(
             &self.rule_buffer,
             0,

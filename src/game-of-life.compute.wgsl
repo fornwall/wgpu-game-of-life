@@ -3,10 +3,15 @@
 @binding(2) @group(0) var<uniform> size: vec2<u32>;
 @binding(3) @group(0) var<uniform> rule: vec2<i32>;
 
+fn modulo_euclidean(a: i32, b: i32) -> i32 {
+    let m = a % b;
+    return m + select(0, b, m < 0);
+}
+
 fn getIndex(x: i32, y: i32) -> u32 {
     let w = i32(size.x);
     let h = i32(size.y);
-    return u32((y % h) * w + (x % w));
+    return u32(modulo_euclidean(y, h) * w + modulo_euclidean(x, w));
 }
 
 fn getCell(x: i32, y: i32) -> u32 {
