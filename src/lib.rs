@@ -1,43 +1,13 @@
 mod event_loop;
 mod rules;
-
 #[cfg(target_arch = "wasm32")]
-use std::sync::Mutex;
+mod web;
 
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
-#[cfg(target_arch = "wasm32")]
-use winit::event_loop::EventLoopProxy;
-use winit::{
-    dpi::PhysicalPosition,
-    event::Event,
-    window::{Window, WindowBuilder},
-};
-
-#[cfg(target_arch = "wasm32")]
-#[derive(Debug, Clone, Copy)]
-pub enum CustomWinitEvent {
-    RuleChange(u32),
-    SizeChange(u32),
-    SetDensity(u8),
-    SetGenerationsPerSecond(u8),
-    Reset,
-    TogglePause,
-}
-
-#[cfg(target_arch = "wasm32")]
-type EventTypeUsed<'a> = Event<'a, CustomWinitEvent>;
-#[cfg(not(target_arch = "wasm32"))]
-type EventTypeUsed<'a> = Event<'a, ()>;
-
-#[cfg(target_arch = "wasm32")]
-thread_local! {
-    pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = Mutex::new(None);
-}
+use winit::{dpi::PhysicalPosition, window::Window};
 
 #[cfg(not(target_arch = "wasm32"))]
 pub async fn run() {
@@ -45,7 +15,9 @@ pub async fn run() {
 
     let event_loop = winit::event_loop::EventLoop::new();
 
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
+    let window = winit::window::WindowBuilder::new()
+        .build(&event_loop)
+        .unwrap();
 
     let mut state = State::new(window, None, None, None, None, false, None)
         .await
@@ -80,172 +52,6 @@ async fn android_run(app: winit::platform::android::activity::AndroidApp) {
     event_loop.run(move |event, _, control_flow| {
         event_loop::handle_event_loop(&event, &mut state, control_flow);
     });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = setNewState)]
-    pub fn set_new_state(
-        rule_idx: u32,
-        cells_width: u32,
-        seed: u32,
-        density: u8,
-        paused: bool,
-        generations_per_second: u8,
-        frame: u64,
-    );
-
-    #[wasm_bindgen(js_name = toggleFullscreen)]
-    pub fn toggle_fullscreen();
-
-    #[wasm_bindgen(js_name = toggleControls)]
-    pub fn toggle_controls();
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "setNewRule")]
-pub fn set_new_rule(rule_idx: u32) {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::RuleChange(rule_idx))
-                    .ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "setNewSize")]
-pub fn set_new_size(size: u32) {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SizeChange(size))
-                    .ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "resetGame")]
-pub fn reset_game() {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy.send_event(CustomWinitEvent::Reset).ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "togglePause")]
-pub fn toggle_pause() {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::TogglePause)
-                    .ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "setDensity")]
-pub fn set_density(density: u8) {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SetDensity(density))
-                    .ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "setGenerationsPerSecond")]
-pub fn set_generations_per_second(generations_per_second: u8) {
-    EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SetGenerationsPerSecond(
-                        generations_per_second,
-                    ))
-                    .ok();
-            }
-        }
-    });
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-pub async fn run(
-    rule_idx: Option<u32>,
-    size: Option<u32>,
-    seed: Option<u32>,
-    initial_density: Option<u8>,
-    paused: bool,
-    generations_per_second: Option<u8>,
-) -> Result<(), String> {
-    use winit::event_loop::EventLoopBuilder;
-    use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
-
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    console_log::init_with_level(log::Level::Info)
-        .map_err(|e| format!("Couldn't initialize logger: {e}"))?;
-
-    let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event().build();
-
-    let event_loop_proxy = event_loop.create_proxy();
-    EVENT_LOOP_PROXY.with(move |proxy| {
-        if let Ok(mut proxy) = proxy.lock() {
-            *proxy = Some(event_loop_proxy);
-        }
-    });
-
-    let canvas_element = web_sys::window()
-        .and_then(|win| win.document())
-        .and_then(|doc| {
-            let canvas = doc.get_element_by_id("webgpu-canvas")?;
-            canvas.dyn_into::<web_sys::HtmlCanvasElement>().ok()
-        })
-        .ok_or("Could not get canvas element")?;
-
-    let window = WindowBuilder::new()
-        .with_canvas(Some(canvas_element))
-        .with_prevent_default(false)
-        .build(&event_loop)
-        .unwrap();
-
-    let mut state = State::new(
-        window,
-        rule_idx,
-        size,
-        seed,
-        initial_density,
-        paused,
-        generations_per_second,
-    )
-    .await
-    .map_err(|()| "Failed to build".to_string())?;
-
-    state.inform_ui_about_state();
-
-    event_loop.spawn(move |event, _, control_flow| {
-        event_loop::handle_event_loop(&event, &mut state, control_flow);
-    });
-
-    Ok(())
 }
 
 pub struct State {
@@ -920,7 +726,7 @@ impl State {
         ));
 
         #[cfg(target_arch = "wasm32")]
-        set_new_state(
+        web::set_new_state(
             self.rule_idx,
             self.cells_width,
             self.seed,

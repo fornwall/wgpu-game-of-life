@@ -4,14 +4,16 @@ use winit::{
 };
 
 #[cfg(target_arch = "wasm32")]
-use crate::CustomWinitEvent;
+use crate::web::CustomWinitEvent;
 use crate::State;
 
-pub fn handle_event_loop(
-    event: &crate::EventTypeUsed,
-    state: &mut State,
-    control_flow: &mut ControlFlow,
-) {
+#[cfg(target_arch = "wasm32")]
+type EventTypeUsed<'a> = crate::web::EventTypeUsed<'a>;
+
+#[cfg(not(target_arch = "wasm32"))]
+type EventTypeUsed<'a> = winit::event::Event<'a, ()>;
+
+pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow: &mut ControlFlow) {
     match event {
         #[cfg(target_arch = "wasm32")]
         Event::UserEvent(event) => match event {
@@ -94,7 +96,7 @@ pub fn handle_event_loop(
                 if c == "f" || c == "F" {
                     #[cfg(target_arch = "wasm32")]
                     {
-                        crate::toggle_fullscreen();
+                        crate::web::toggle_fullscreen();
                     }
                     #[cfg(not(target_arch = "wasm32"))]
                     {
@@ -108,7 +110,7 @@ pub fn handle_event_loop(
                     }
                 } else if c == "h" || c == "H" {
                     #[cfg(target_arch = "wasm32")]
-                    crate::toggle_controls();
+                    crate::web::toggle_controls();
                 } else if c == "r" || c == "R" {
                     state.reset();
                 } else if c == "q" || c == "Q" {
