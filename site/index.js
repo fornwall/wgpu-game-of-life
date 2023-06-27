@@ -10,6 +10,7 @@ const pauseButton = document.getElementById("pauseButton");
 const generationsPerSecondInput = document.getElementById("generations-per-second");
 const generationsPerSecondDisplay = document.getElementById("generations-per-second-display");
 const aboutDialog = document.getElementById('about');
+const controls = document.getElementById("hideableControls");
 
 canvas.focus();
 
@@ -19,7 +20,6 @@ globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generat
   ruleSelect.value = ruleIdx;
   const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}&paused=${paused}` + (paused ? `&frame=${frame}` : '');
   window.history.replaceState({}, '', queryString);
-  overlayElement.style.display = 'block';
 
   pauseButton.textContent = paused ? 'Play' : 'Pause';
 
@@ -38,9 +38,35 @@ globalThis.toggleFullscreen = function () {
   }
 }
 
+document.documentElement.addEventListener("mousemove", () => {
+  overlayElement.classList.remove('hidden');
+  setHideTimeout();
+});
+document.documentElement.addEventListener("touchstart", () => {
+  overlayElement.classList.remove('hidden');
+  setHideTimeout();
+});
+let currentHideTimeout = null;
+function setHideTimeout() {
+  if (currentHideTimeout) {
+    clearTimeout(currentHideTimeout);
+    currentHideTimeout = null;
+  }
+  if (controls.classList.contains('hidden')) {
+    currentHideTimeout = setTimeout(() => {
+      if (controls.classList.contains('hidden')) {
+        overlayElement.classList.add('hidden');
+        canvas.focus();
+      }
+      currentHideTimeout = null;
+    }, 2000);
+  }
+}
+
 globalThis.toggleControls = function () {
-  const controls = document.getElementById("hideableControls");
   controls.classList.toggle('hidden');
+  if (controls.classList.contains('hidden')) canvas.focus();
+  setHideTimeout();
 }
 
 try {
