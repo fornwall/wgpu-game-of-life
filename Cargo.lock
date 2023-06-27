@@ -78,6 +78,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc7eb209b1518d6bb87b283c20095f5228ecda460da70b44f0802523dea6da04"
 
 [[package]]
+name = "android_log-sys"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27f0fc03f560e1aebde41c2398b691cb98b5ea5996a6184a7a67bbbb77448969"
+
+[[package]]
+name = "android_logger"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fa490e751f3878eb9accb9f18988eca52c2337ce000a8bf31ef50d4c723ca9e"
+dependencies = [
+ "android_log-sys",
+ "env_logger",
+ "log",
+ "once_cell",
+]
+
+[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1615,6 +1633,7 @@ dependencies = [
 name = "wgpu-game-of-life"
 version = "0.1.0"
 dependencies = [
+ "android_logger",
  "bytemuck",
  "console_error_panic_hook",
  "console_log",
@@ -1858,7 +1877,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "winit"
 version = "0.28.6"
-source = "git+https://github.com/rust-windowing/winit?rev=059abb06fc7c1e072a986648e3df9ca9925a4355#059abb06fc7c1e072a986648e3df9ca9925a4355"
+source = "git+https://github.com/fornwall/winit?rev=f9f42fbc4753933158c2090a2948f9aa1776ca37#f9f42fbc4753933158c2090a2948f9aa1776ca37"
 dependencies = [
  "android-activity",
  "atomic-waker",

@@ -55,6 +55,11 @@ ios-sim-app:
 	rustup target add aarch64-apple-ios-sim
 	cargo bundle --target aarch64-apple-ios-sim --release
 
+android-apk:
+	rustup target add x86_64-linux-android aarch64-linux-android
+	cargo install cargo-apk
+	cargo apk build
+
 run-app:
 	@cargo bundle --release &> /dev/null
 	@open target/release/bundle/osx/"$(APP_NAME)".app

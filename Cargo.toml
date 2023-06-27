@@ -20,7 +20,10 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = "*"
-winit = { git = "https://github.com/fornwall/winit", rev = "f9f42fbc4753933158c2090a2948f9aa1776ca37" }
+winit = { git = "https://github.com/fornwall/winit", rev = "f9f42fbc4753933158c2090a2948f9aa1776ca37", features = ["android-native-activity"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "*"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "*"
@@ -43,3 +46,17 @@ long_description = """
 An example wgpu application running game of life.
 Se https://github.com/fornwall/wgpu-game-of-life.
 """
+
+[package.metadata.android]
+package = "net.fornwall.wgpugameoflife"
+build_targets = ["aarch64-linux-android", "x86_64-linux-android"]
+apk_name = "wgpu-game-of-life"
+fullscreen = true
+launch_mode = "singleInstance"
+
+[package.metadata.android.sdk]
+min_sdk_version = 23
+target_sdk_version = 33
+
+[package.metadata.android.application]
+label = "Game of Life"
