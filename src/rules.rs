@@ -53,7 +53,7 @@ pub static RULES: [Rule; 17] = [
     Rule {
         born: 0b1_1110_1000,
         survives: 0b1_1110_0000,
-        name: "Diamoeba	",
+        name: "Diamoeba",
         initial_density: 48,
     },
     Rule {

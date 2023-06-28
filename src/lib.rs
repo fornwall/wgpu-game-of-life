@@ -197,7 +197,7 @@ impl State {
         let last_time = instant::Instant::now();
         let elapsed_time = 0.;
 
-        Ok(Self {
+        let state = Self {
             generations_per_second,
             initial_density,
             paused,
@@ -225,7 +225,9 @@ impl State {
             cells_width,
             cells_height,
             cursor_position: PhysicalPosition { x: 0., y: 0. },
-        })
+        };
+        state.inform_ui_about_state();
+        Ok(state)
     }
 
     fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {

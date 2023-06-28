@@ -168,8 +168,6 @@ pub async fn run(
     )
     .await?;
 
-    state.inform_ui_about_state();
-
     event_loop.spawn(move |event, _, control_flow| {
         crate::event_loop::handle_event_loop(&event, &mut state, control_flow);
     });

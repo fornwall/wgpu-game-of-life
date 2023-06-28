@@ -120,5 +120,6 @@ try {
   overlayElement.remove();
   document.getElementById('webgpu-not-working').style.display = 'block';
   document.getElementById('close-dialog').remove();
-  aboutDialog.show();
+  aboutDialog.addEventListener('cancel', (e) => e.preventDefault());
+  aboutDialog.showModal();
 }
