@@ -108,7 +108,7 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                                 .set_fullscreen(Some(winit::window::Fullscreen::Borderless(None)));
                         }
                     }
-                } else if c == "h" || c == "H" {
+                } else if c == "c" || c == "C" {
                     #[cfg(target_arch = "wasm32")]
                     crate::web::toggle_controls();
                 } else if c == "r" || c == "R" {

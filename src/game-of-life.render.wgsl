@@ -12,7 +12,7 @@ fn vertex_main(@builtin(instance_index) i: u32, @location(0) cell: u32, @locatio
     let x = (f32(i % w + pos.x) / f32(w) - 0.5) * 2. * f32(w) / f32(w);
     let y = (f32((i - (i % w)) / w + pos.y) / f32(h) - 0.5) * 2. * f32(h) / f32(h);
 
-    let max_age_for_color: u32 = 20u;
+    let max_age_for_color: u32 = 40u;
     let intensity = 1.0 - f32(min(cell, max_age_for_color)) / f32(max_age_for_color);
 
     let rgb = select(vec3(0., 0., 0.), spectral_bruton(intensity), cell > 0u);

@@ -14,6 +14,14 @@ const controls = document.getElementById("hideableControls");
 
 canvas.focus();
 
+function downloadImage() {
+  const dataUrl = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "game-of-life" + document.title.toLowerCase().replace(' ', '-').replace('/', '-') + ".png";
+  a.click();
+}
+
 globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generationsPerSecond, frame) {
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeSelect.value = size;
@@ -35,6 +43,9 @@ globalThis.toggleFullscreen = function () {
     document.exitFullscreen();
   } else {
     document.documentElement.requestFullscreen();
+    if (!controls.classList.contains('hidden')) {
+      globalThis.toggleControls();
+    }
   }
 }
 
@@ -78,6 +89,7 @@ try {
   }
   ruleSelect.addEventListener('change', () => { setNewRule(ruleSelect.value); });
   sizeSelect.addEventListener('change', () => { setNewSize(sizeSelect.value); });
+  document.getElementById('downloadButton').addEventListener('click', downloadImage);
   document.getElementById('resetButton').addEventListener('click', resetGame);
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);

@@ -31,7 +31,7 @@ impl Rule {
     }
 }
 
-pub static RULES: [Rule; 18] = [
+pub static RULES: [Rule; 17] = [
     Rule {
         born: 0b1000,
         survives: 0b1100,
@@ -42,12 +42,6 @@ pub static RULES: [Rule; 18] = [
         born: 0b0_1011_1000,
         survives: 0b1_0111_0000,
         name: "Gems",
-        initial_density: 15,
-    },
-    Rule {
-        born: 0b0_0000_0010,
-        survives: 0b0_0000_0010,
-        name: "Gnarl",
         initial_density: 15,
     },
     Rule {
