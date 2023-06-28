@@ -68,12 +68,13 @@ impl State {
         initial_density: Option<u8>,
         paused: bool,
         generations_per_second: Option<u8>,
-    ) -> Result<State, ()> {
+    ) -> Result<State, String> {
         use wgpu::util::DeviceExt;
 
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface = unsafe { instance.create_surface(&window) }.map_err(|_| ())?;
+        let surface =
+            unsafe { instance.create_surface(&window) }.map_err(|_| "create_surface failed")?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -82,7 +83,7 @@ impl State {
                 force_fallback_adapter: false,
             })
             .await
-            .ok_or(())?;
+            .ok_or("request_adapter failed")?;
 
         let (device, queue) = adapter
             .request_device(
@@ -94,7 +95,7 @@ impl State {
                 None,
             )
             .await
-            .map_err(|_| ())?;
+            .map_err(|e| format!("request_device failed: {}", e))?;
 
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this tutorial assumes an sRGB surface texture. Using a different
