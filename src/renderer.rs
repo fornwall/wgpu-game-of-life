@@ -165,7 +165,7 @@ pub struct Renderer {
 impl Renderer {
     pub(crate) fn enqueue(
         &self,
-        is_even: bool,
+        render_first_buffer: bool,
         encoder: &mut wgpu::CommandEncoder,
         surface_texture: &wgpu::SurfaceTexture,
         texture_view_descriptor: &wgpu::TextureViewDescriptor,
@@ -189,7 +189,7 @@ impl Renderer {
             })],
             depth_stencil_attachment: None,
         });
-        render_pass.execute_bundles(std::iter::once(if is_even {
+        render_pass.execute_bundles(std::iter::once(if render_first_buffer {
             &self.render_bundle_0
         } else {
             &self.render_bundle_1

@@ -93,86 +93,53 @@ impl ComputerFactory {
             mapped_at_creation: false,
         });
 
-        let compute_bind_group_0 = device.create_bind_group({
-            &wgpu::BindGroupDescriptor {
-                layout: &self.bind_group_layout,
-                entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &cells_buffer_0,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &cells_buffer_1,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 2,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: size_buffer,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 3,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: rule_buffer,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                ],
-                label: Some("compute_bind_group_0"),
-            }
-        });
-        let compute_bind_group_1 = device.create_bind_group({
-            &wgpu::BindGroupDescriptor {
-                layout: &self.bind_group_layout,
-                entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &cells_buffer_1,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: &cells_buffer_0,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 2,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: size_buffer,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 3,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: rule_buffer,
-                            offset: 0,
-                            size: None,
-                        }),
-                    },
-                ],
-                label: Some("compute_bind_group_1"),
-            }
-        });
+        let create_bind_group = |from_buffer, to_buffer, bind_group_name| {
+            device.create_bind_group({
+                &wgpu::BindGroupDescriptor {
+                    layout: &self.bind_group_layout,
+                    entries: &[
+                        wgpu::BindGroupEntry {
+                            binding: 0,
+                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                                buffer: from_buffer,
+                                offset: 0,
+                                size: None,
+                            }),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 1,
+                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                                buffer: to_buffer,
+                                offset: 0,
+                                size: None,
+                            }),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 2,
+                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                                buffer: size_buffer,
+                                offset: 0,
+                                size: None,
+                            }),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 3,
+                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                                buffer: rule_buffer,
+                                offset: 0,
+                                size: None,
+                            }),
+                        },
+                    ],
+                    label: Some(bind_group_name),
+                }
+            })
+        };
+
+        let compute_bind_group_from_0_to_1 =
+            create_bind_group(&cells_buffer_0, &cells_buffer_1, "compute_bind_group_0");
+        let compute_bind_group_from_1_to_0 =
+            create_bind_group(&cells_buffer_1, &cells_buffer_0, "compute_bind_group_1");
 
         let compute_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -192,8 +159,9 @@ impl ComputerFactory {
             cells_width,
             cells_height,
             compute_pipeline,
-            compute_bind_group_0,
-            compute_bind_group_1,
+            currently_computed_is_0: true,
+            compute_bind_group_from_0_to_1,
+            compute_bind_group_from_1_to_0,
             cells_buffer_0,
             cells_buffer_1,
         }
@@ -204,26 +172,31 @@ pub struct Computer {
     cells_width: u32,
     cells_height: u32,
     compute_pipeline: wgpu::ComputePipeline,
-    compute_bind_group_0: wgpu::BindGroup,
-    compute_bind_group_1: wgpu::BindGroup,
+    compute_bind_group_from_0_to_1: wgpu::BindGroup,
+    compute_bind_group_from_1_to_0: wgpu::BindGroup,
+    pub(crate) currently_computed_is_0: bool,
     pub(crate) cells_buffer_0: wgpu::Buffer,
     pub(crate) cells_buffer_1: wgpu::Buffer,
 }
 
 impl Computer {
-    pub(crate) fn enqueue(&self, is_even: bool, command_encoder: &mut wgpu::CommandEncoder) {
+    pub(crate) fn enqueue(&mut self, command_encoder: &mut wgpu::CommandEncoder) {
         let mut pass_encoder =
             command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
         pass_encoder.set_pipeline(&self.compute_pipeline);
+
         pass_encoder.set_bind_group(
             0,
-            if is_even {
-                &self.compute_bind_group_1
+            if self.currently_computed_is_0 {
+                &self.compute_bind_group_from_0_to_1
             } else {
-                &self.compute_bind_group_0
+                &self.compute_bind_group_from_1_to_0
             },
             &[],
         );
+
+        self.currently_computed_is_0 = !self.currently_computed_is_0;
+
         let workgroup_width = 8;
         let workgroup_count_x = (self.cells_width + workgroup_width - 1) / workgroup_width;
         let workgroup_count_y = (self.cells_height + workgroup_width - 1) / workgroup_width;

@@ -375,7 +375,6 @@ impl State {
             .device
             .create_command_encoder(&self.command_encoder_descriptor);
 
-        let mut is_even;
         let frequency = 1.0 / f32::from(self.generations_per_second);
         loop {
             let advance_state = if self.paused {
@@ -390,10 +389,9 @@ impl State {
                 self.elapsed_time -= frequency;
                 self.frame_count += 1;
             }
-            is_even = self.frame_count % 2 == 0;
 
             if advance_state {
-                self.computer.enqueue(is_even, &mut encoder);
+                self.computer.enqueue(&mut encoder);
             }
             if !advance_state {
                 break;
@@ -403,7 +401,7 @@ impl State {
         let output: wgpu::SurfaceTexture = self.surface.get_current_texture()?;
 
         self.renderer.enqueue(
-            is_even,
+            self.computer.currently_computed_is_0,
             &mut encoder,
             &output,
             &self.texture_view_descriptor,
