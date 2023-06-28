@@ -11,6 +11,10 @@ categories = ["graphics"]
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[profile.release]
+lto = true
+codegen-units = 1
+
 [dependencies]
 bytemuck = { version = "*", features = ["derive"] }
 env_logger = "*"
