@@ -166,8 +166,7 @@ pub async fn run(
         paused,
         generations_per_second,
     )
-    .await
-    .map_err(|()| "Failed to build".to_string())?;
+    .await?;
 
     state.inform_ui_about_state();
 
