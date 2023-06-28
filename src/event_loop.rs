@@ -182,6 +182,9 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
         Event::MainEventsCleared => {
             state.window.request_redraw();
         }
+        Event::Resumed => {
+            state.last_time = instant::Instant::now();
+        }
         &Event::WindowEvent {
             ref event,
             window_id,
