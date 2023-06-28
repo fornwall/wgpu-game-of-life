@@ -59,7 +59,7 @@ function setHideTimeout() {
         canvas.focus();
       }
       currentHideTimeout = null;
-    }, 2000);
+    }, 1500);
   }
 }
 
