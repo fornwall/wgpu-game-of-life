@@ -45,7 +45,9 @@ async fn android_run(app: winit::platform::android::activity::AndroidApp) {
     let event_loop = winit::event_loop::EventLoopBuilder::with_user_event()
         .with_android_app(app)
         .build();
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
+    let window = winit::window::WindowBuilder::new()
+        .build(&event_loop)
+        .unwrap();
 
     let mut state = State::new(window, None, None, None, None, false, None)
         .await
