@@ -86,7 +86,7 @@ jobs:
     - run: make macos-app
     - uses: actions/upload-artifact@v3
       with:
-        path: target/release/bundle/osx/Game of Life.app
+        path: target/release/bundle/osx
         name: Game of Life ${{ github.sha }}.app
 
   build-windows-executable:
