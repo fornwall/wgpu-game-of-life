@@ -97,8 +97,10 @@ jobs:
       with:
         toolchain: stable
     - run: cargo build --release
-    - run: find . -name '*.exe'
-      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        path: target/release/wgpu-game-of-life.exe
+        name: wgpu-game-of-life.windows-x86-64
 
   build-linux-executable:
     runs-on: ubuntu-latest
