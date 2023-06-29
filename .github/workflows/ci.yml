@@ -97,7 +97,7 @@ jobs:
       with:
         toolchain: stable
     - run: cargo build --release
-    - run: find . -name '*.exe'
+    - run: dir /s target
 
   build-linux-executable:
     runs-on: ubuntu-latest

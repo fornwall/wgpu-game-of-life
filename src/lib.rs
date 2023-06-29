@@ -7,8 +7,6 @@ mod rules;
 #[cfg(target_arch = "wasm32")]
 mod web;
 
-use rand::prelude::*;
-
 use computer::{Computer, ComputerFactory};
 use renderer::{Renderer, RendererFactory};
 use winit::{dpi::PhysicalPosition, window::Window};
@@ -79,9 +77,7 @@ impl State {
             .map_err(|e| format!("request_device failed: {}", e))?;
 
         let surface_caps = surface.get_capabilities(&adapter);
-        // Shader code in this tutorial assumes an sRGB surface texture. Using a different
-        // one will result all the colors coming out darker. If you want to support non
-        // sRGB surfaces, you'll need to account for that when drawing to the frame.
+
         let surface_format = surface_caps
             .formats
             .iter()
@@ -90,24 +86,12 @@ impl State {
             .unwrap_or(surface_caps.formats[0]);
 
         let config = wgpu::SurfaceConfiguration {
-            // "The usage field describes how SurfaceTextures will be used. RENDER_ATTACHMENT specifies
-            // that the textures will be used to write to the screen (we'll talk about more TextureUsagess later).""
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            // "The format defines how SurfaceTextures will be stored on the gpu. We can get a supported format
-            // from the SurfaceCapabilities."
             format: surface_format,
-            // "width and height are the width and the height in pixels of a SurfaceTexture. This should
-            // usually be the width and the height of the window.""
             width: size.width,
             height: size.height,
-            // "present_mode uses wgpu::PresentMode enum which determines how to sync the surface with the display"
             present_mode: wgpu::PresentMode::Fifo,
-            // "alpha_mode is honestly not something I'm familiar with. I believe it has something to do with
-            // transparent windows, but feel free to open a pull request"
             alpha_mode: surface_caps.alpha_modes[0],
-            // "view_formats is a list of TextureFormats that you can use when creating TextureViews"
-            // "As of writing this means that if your surface is srgb color space, you can create a texture view
-            // that uses a linear color space."
             view_formats: vec![],
         };
 
@@ -281,6 +265,7 @@ impl State {
     }
 
     fn reset(&mut self) {
+        use rand::prelude::RngCore;
         self.seed = rand::thread_rng().next_u32();
         self.on_state_change();
     }
