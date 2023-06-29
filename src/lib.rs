@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 mod android;
 mod computer;
-mod event_loop;
+pub mod event_loop;
 mod renderer;
 mod rules;
 #[cfg(target_arch = "wasm32")]
@@ -12,25 +12,6 @@ use rand::prelude::*;
 use computer::{Computer, ComputerFactory};
 use renderer::{Renderer, RendererFactory};
 use winit::{dpi::PhysicalPosition, window::Window};
-
-#[cfg(not(target_arch = "wasm32"))]
-pub async fn run() {
-    env_logger::init();
-
-    let event_loop = winit::event_loop::EventLoop::new();
-
-    let window = winit::window::WindowBuilder::new()
-        .build(&event_loop)
-        .unwrap();
-
-    let mut state = State::new(window, None, None, None, None, false, None)
-        .await
-        .unwrap();
-
-    event_loop.run(move |event, _, control_flow| {
-        event_loop::handle_event_loop(&event, &mut state, control_flow);
-    });
-}
 
 pub struct State {
     cells_height: u32,
@@ -60,7 +41,7 @@ pub struct State {
     window: Window,
 }
 impl State {
-    async fn new(
+    pub async fn new(
         window: Window,
         rule_idx: Option<u32>,
         grid_size: Option<u32>,
