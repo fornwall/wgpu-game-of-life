@@ -125,9 +125,19 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                 } else if c == "w" || c == "W" {
                     state.set_generations_per_second(state.generations_per_second + 1);
                 } else if c == "-" && state.cells_width < 2048 {
-                    state.reset_with_cells_width(state.cells_width + 128, state.cells_height + 128);
-                } else if c == "+" && state.cells_width > 128 {
-                    state.reset_with_cells_width(state.cells_width - 128, state.cells_height - 128);
+                    let current_idx = State::ELIGIBLE_SIZES
+                        .iter()
+                        .position(|&s| s == state.cells_width)
+                        .unwrap();
+                    let new_size = State::ELIGIBLE_SIZES[current_idx + 1];
+                    state.reset_with_cells_width(new_size, new_size);
+                } else if c == "+" && state.cells_width > 64 {
+                    let current_idx = State::ELIGIBLE_SIZES
+                        .iter()
+                        .position(|&s| s == state.cells_width)
+                        .unwrap();
+                    let new_size = State::ELIGIBLE_SIZES[current_idx - 1];
+                    state.reset_with_cells_width(new_size, new_size);
                 }
             }
             #[cfg(not(target_arch = "wasm32"))]

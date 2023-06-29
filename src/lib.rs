@@ -39,6 +39,8 @@ pub struct State {
     window: Window,
 }
 impl State {
+    const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
+
     pub async fn new(
         window: Window,
         rule_idx: Option<u32>,
@@ -96,7 +98,7 @@ impl State {
         };
 
         let cells_width = match grid_size {
-            Some(v) if [128, 256, 512, 1024, 2048].iter().any(|&e| e == v) => v,
+            Some(v) if Self::ELIGIBLE_SIZES.iter().any(|&e| e == v) => v,
             _ => 512,
         };
         let cells_height = cells_width;
