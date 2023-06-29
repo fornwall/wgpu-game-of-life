@@ -49,6 +49,8 @@ macos-app:
 	cargo install cargo-bundle
 	cargo bundle --release --target x86_64-apple-darwin
 	cargo bundle --release --target aarch64-apple-darwin
+	cd target/aarch64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
+	cd target/x86_64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
 
 ios-sim-app:
 	cargo install cargo-bundle

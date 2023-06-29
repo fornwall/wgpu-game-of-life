@@ -86,11 +86,11 @@ jobs:
     - run: make macos-app
     - uses: actions/upload-artifact@v3
       with:
-        path: target/x86_64-apple-darwin/release/bundle/osx
+        path: target/x86_64-apple-darwin/release/bundle/osx/Game of Life.app.tar
         name: wgpu-game-of-life.macos-x86-64
     - uses: actions/upload-artifact@v3
       with:
-        path: target/aarch64-apple-darwin/release/bundle/osx
+        path: target/aarch64-apple-darwin/release/bundle/osx/Game of Life.app.tar
         name: wgpu-game-of-life.macos-aarch64
 
   build-windows-executable:
