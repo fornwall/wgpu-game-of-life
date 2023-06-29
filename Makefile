@@ -45,10 +45,10 @@ check:
 		$(CARGO_COMMAND) clippy --target wasm32-unknown-unknown $(CLIPPY_PARAMS)
 
 macos-app:
+	rustup target add aarch64-apple-darwin x86_64-apple-darwin
 	cargo install cargo-bundle
-	cargo bundle --release
-	cd target/release/bundle/osx && zip -r "$(APP_NAME)".zip "$(APP_NAME)".app &> /dev/null
-	echo target/release/bundle/osx/"$(APP_NAME)".zip
+	cargo bundle --release --target x86_64-apple-darwin
+	cargo bundle --release --target aarch64-apple-darwin
 
 ios-sim-app:
 	cargo install cargo-bundle
