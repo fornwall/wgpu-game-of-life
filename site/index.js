@@ -98,8 +98,12 @@ try {
   });
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
+  aboutDialog.addEventListener("close", () => {
+    overlayElement.classList.remove("hidden-due-to-dialog");
+  });
   document.getElementById('about-link').addEventListener('click', (event) => {
     event.preventDefault();
+    overlayElement.classList.add("hidden-due-to-dialog");
     aboutDialog.showModal();
     document.getElementById('close-dialog').focus();
   });

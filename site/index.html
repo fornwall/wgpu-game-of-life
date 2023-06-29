@@ -49,6 +49,7 @@
             padding: 1em;
             border-radius: 0.5em;
             text-align: center;
+            line-height: 1.5;
         }
 
         #about h1,
@@ -98,6 +99,10 @@
             display: none;
         }
 
+        .hidden-due-to-dialog {
+            display: none;
+        }
+
         .input-row {
             display: flex;
             align-items: center;
@@ -117,8 +122,7 @@
         <p id="webgpu-not-working" style="display: none">⚠️ <strong>NOTE:️</strong> <a
                 href="https://caniuse.com/webgpu">WebGPU is not working in your
                 browser</a> ⚠️</p>
-        <p>This is a <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Game of Life</a> simulation done
-            using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API">WebGPU API</a>.
+        <p>This is a Game of Life simulation done using the WebGPU API.
             See <a href="https://github.com/fornwall/wgpu-game-of-life">the source code</a> for details.</p>
         <p>Game of Life is a simulation of a grid of cells. Each cell is <strong>alive</strong> or
             <strong>dead</strong> - initially at random.
@@ -127,8 +131,8 @@
             by applying a <strong>rule</strong>, which for each cell considers whether the current
             cell is alive or dead, and the number of alive neighboring cells.</p>
 
-        <p>A rule of the form <strong>B3/S1234</strong> means that the a dead cell is born
-            if it has 3 live neighbors, and a live cell will survive if it has 1, 2, 3 or 4 live neighbors.
+        <p>A rule of the form <strong>B3/S1234</strong> means that a dead cell is born
+            if it has 3 live neighbors, while a live cell will survive if it has 1, 2, 3 or 4 live neighbors.
         </p>
         <form>
             <button id="close-dialog" formmethod="dialog">Ok</button>
