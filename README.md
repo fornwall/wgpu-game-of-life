@@ -12,7 +12,8 @@ See the online version in a WebGPU capable browser at https://wgpu-game-of-life.
 - Change grid size: `-`/`+`
 - Change initial density: `Left`/`Right` arrows
 - Change rule: `Up`/`Down` arrows
-- Download image: `I` (only works on web)
+- Download image: `I` (web version only)
 - Play/Pause: `Space`
 - Reset: `R`
+- Toggle controls: `C` (web version only)
 - Toggle fullscreen: `F`
