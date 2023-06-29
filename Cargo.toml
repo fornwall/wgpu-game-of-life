@@ -41,7 +41,7 @@ js-sys = "*"
 [package.metadata.bundle]
 name = "Game of Life"
 identifier = "net.fornwall.wgpugameoflife"
-version = "1.0.0"
+version = "0.1.0"
 resources = ["assets", "images/**/*.png"]
 copyright = "Copyright (c) Fredrik Fornwall 2023. All rights reserved."
 category = "Developer Tool"

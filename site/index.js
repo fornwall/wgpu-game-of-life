@@ -18,7 +18,7 @@ globalThis.downloadImage = function () {
   const dataUrl = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = dataUrl;
-  a.download = "game-of-life" + document.title.toLowerCase().replace(' ', '-').replace('/', '-') + ".png";
+  a.download = "game-of-life-" + document.title.toLowerCase().replace(/ |_|'|\//g, '-') + ".png";
   a.click();
 }
 
@@ -53,11 +53,11 @@ globalThis.toggleFullscreen = function () {
 document.documentElement.addEventListener("mousemove", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
-}, {passive: true});
+}, { passive: true });
 document.documentElement.addEventListener("touchstart", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
-}, {passive: true});
+}, { passive: true });
 let currentHideTimeout = null;
 function setHideTimeout() {
   if (currentHideTimeout) {
