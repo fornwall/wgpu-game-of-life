@@ -66,3 +66,12 @@ jobs:
         projectName: wgpu-game-of-life-fornwall-net
         directory: site/dist
         gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  build-android-apk:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - run: make android-apk
