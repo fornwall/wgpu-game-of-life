@@ -75,3 +75,12 @@ jobs:
       with:
         toolchain: stable
     - run: make android-apk
+
+  build-macos-app:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - run: make macos-app
