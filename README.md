@@ -3,7 +3,7 @@ A demo using the rust [wgpu](https://wgpu.rs/) implementation of the [WebGPU](ht
 
 It's based on [WebGPU Samples](https://webgpu.github.io/webgpu-samples/samples/gameOfLife), ported to rust and `wgpu` (with the help of [Learn Wgpu](https://sotrh.github.io/learn-wgpu/)) and having some additional features for demonstration purposes.
 
-<p align="center"><img src="https://wgpu-game-of-life.fornwall.net/static/screenshot.png" width="400"/></p>
+<p align="center"><picture><img src="https://wgpu-game-of-life.fornwall.net/static/screenshot.png" width="400"/></picture></p>
 
 See the online version in a WebGPU capable browser at https://wgpu-game-of-life.fornwall.net or run a checkout locally using `cargo run`.
 
