@@ -4,7 +4,9 @@ use winit::event_loop::EventLoopBuilder;
 fn android_main(app: winit::platform::android::activity::AndroidApp) {
     use winit::platform::android::EventLoopBuilderExtAndroid;
 
-    //android_logger::init_once(android_logger::Config::default().with_min_level(log::Level::Trace));
+    android_logger::init_once(
+        android_logger::Config::default().with_max_level(log::LevelFilter::Debug),
+    );
 
     let mut maybe_state: Option<crate::State> = None;
 

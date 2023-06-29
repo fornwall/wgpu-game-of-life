@@ -111,6 +111,9 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                 } else if c == "c" || c == "C" {
                     #[cfg(target_arch = "wasm32")]
                     crate::web::toggle_controls();
+                } else if c == "i" || c == "I" {
+                    #[cfg(target_arch = "wasm32")]
+                    crate::web::download_image();
                 } else if c == "r" || c == "R" {
                     state.reset();
                 } else if c == "q" || c == "Q" {

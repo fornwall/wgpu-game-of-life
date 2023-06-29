@@ -37,6 +37,9 @@ extern "C" {
 
     #[wasm_bindgen(js_name = toggleControls)]
     pub fn toggle_controls();
+
+    #[wasm_bindgen(js_name = downloadImage)]
+    pub fn download_image();
 }
 
 #[wasm_bindgen(js_name = "setNewRule")]

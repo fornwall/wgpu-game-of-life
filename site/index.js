@@ -14,7 +14,7 @@ const controls = document.getElementById("hideableControls");
 
 canvas.focus();
 
-function downloadImage() {
+globalThis.downloadImage = function () {
   const dataUrl = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = dataUrl;
@@ -47,16 +47,17 @@ globalThis.toggleFullscreen = function () {
       globalThis.toggleControls();
     }
   }
+  canvas.focus();
 }
 
 document.documentElement.addEventListener("mousemove", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
-});
+}, {passive: true});
 document.documentElement.addEventListener("touchstart", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
-});
+}, {passive: true});
 let currentHideTimeout = null;
 function setHideTimeout() {
   if (currentHideTimeout) {
@@ -78,6 +79,7 @@ globalThis.toggleControls = function () {
   controls.classList.toggle('hidden');
   if (controls.classList.contains('hidden')) canvas.focus();
   setHideTimeout();
+  canvas.focus();
 }
 
 try {
@@ -89,13 +91,17 @@ try {
   }
   ruleSelect.addEventListener('change', () => { setNewRule(ruleSelect.value); });
   sizeSelect.addEventListener('change', () => { setNewSize(sizeSelect.value); });
-  document.getElementById('downloadButton').addEventListener('click', downloadImage);
-  document.getElementById('resetButton').addEventListener('click', resetGame);
+  document.getElementById('downloadButton').addEventListener('click', globalThis.downloadImage);
+  document.getElementById('resetButton').addEventListener('click', () => {
+    resetGame();
+    canvas.focus();
+  });
   document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);
   document.getElementById('hideControlsButton').addEventListener('click', toggleControls);
   document.getElementById('about-link').addEventListener('click', (event) => {
     event.preventDefault();
     aboutDialog.showModal();
+    document.getElementById('close-dialog').focus();
   });
   pauseButton.addEventListener('click', togglePause);
   densityInput.addEventListener('change', () => {
