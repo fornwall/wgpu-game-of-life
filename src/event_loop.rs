@@ -168,19 +168,6 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
             WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
                 state.resize(**new_inner_size);
             }
-            WindowEvent::CursorMoved { position, .. } => {
-                state.cursor_position = *position;
-            }
-            WindowEvent::KeyboardInput {
-                event:
-                    winit::event::KeyEvent {
-                        state: ElementState::Pressed,
-                        ..
-                    },
-                ..
-            } => {
-                println!("key = {:?}", event);
-            }
             _ => {}
         },
 
@@ -197,12 +184,6 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
         }
         Event::Resumed => {
             state.last_time = instant::Instant::now();
-        }
-        &Event::WindowEvent {
-            ref event,
-            window_id,
-        } => {
-            log::error!("INFO: {:?}, window = {:?}", event, window_id);
         }
         _ => {}
     }

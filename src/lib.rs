@@ -9,7 +9,7 @@ mod web;
 
 use computer::{Computer, ComputerFactory};
 use renderer::{Renderer, RendererFactory};
-use winit::{dpi::PhysicalPosition, window::Window};
+use winit::window::Window;
 
 pub struct State {
     cells_height: u32,
@@ -18,7 +18,6 @@ pub struct State {
     computer: Computer,
     computer_factory: ComputerFactory,
     config: wgpu::SurfaceConfiguration,
-    cursor_position: PhysicalPosition<f64>,
     device: wgpu::Device,
     elapsed_time: f32,
     frame_count: u64,
@@ -191,7 +190,6 @@ impl State {
             computer,
             cells_width,
             cells_height,
-            cursor_position: PhysicalPosition { x: 0., y: 0. },
         };
         state.inform_ui_about_state();
         Ok(state)
