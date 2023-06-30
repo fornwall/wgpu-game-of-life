@@ -25,7 +25,7 @@ rand = "*"
 rand_chacha = "*"
 # wgpu = "*"
 wgpu = { path = "../wgpu/wgpu" }
-winit = { git = "https://github.com/rust-windowing/winit/", rev = "924f3323b56190ef93829af080fcca046c19bc80", features = ["android-native-activity"] }
+winit = { git = "https://github.com/rust-windowing/winit/", rev = "b0106898f73b70a5487034abbcd4be8296fd2894", features = ["android-native-activity"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "*"
