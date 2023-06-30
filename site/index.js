@@ -26,7 +26,7 @@ globalThis.setNewState = function (ruleIdx, size, seed, density, paused, generat
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeSelect.value = size;
   ruleSelect.value = ruleIdx;
-  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}&paused=${paused}` + (paused ? `&frame=${frame}` : '');
+  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}`;
   window.history.replaceState({}, '', queryString);
 
   pauseButton.textContent = paused ? 'Play' : 'Pause';

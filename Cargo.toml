@@ -23,7 +23,8 @@ instant = { version = "*", features = ["wasm-bindgen"] }
 pollster = "*"
 rand = "*"
 rand_chacha = "*"
-wgpu = "*"
+# wgpu = "*"
+wgpu = { path = "../wgpu/wgpu" }
 winit = { git = "https://github.com/rust-windowing/winit/", rev = "924f3323b56190ef93829af080fcca046c19bc80", features = ["android-native-activity"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
