@@ -65,6 +65,15 @@ impl State {
             .await
             .ok_or("request_adapter failed")?;
 
+        let surface_caps = surface.get_capabilities(&adapter);
+
+        let surface_format = surface_caps
+            .formats
+            .iter()
+            .copied()
+            .find(wgpu::TextureFormat::is_srgb)
+            .unwrap_or(surface_caps.formats[0]);
+
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
@@ -77,15 +86,6 @@ impl State {
             .await
             .map_err(|e| format!("request_device failed: {}", e))?;
 
-        let surface_caps = surface.get_capabilities(&adapter);
-
-        let surface_format = surface_caps
-            .formats
-            .iter()
-            .copied()
-            .find(wgpu::TextureFormat::is_srgb)
-            .unwrap_or(surface_caps.formats[0]);
-
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
@@ -95,6 +95,9 @@ impl State {
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
         };
+
+        // Necessary for android:
+        surface.configure(&device, &config);
 
         let cells_width = match grid_size {
             Some(v) if Self::ELIGIBLE_SIZES.iter().any(|&e| e == v) => v,

@@ -91,11 +91,14 @@ impl<'a> RendererFactory<'a> {
             fragment: Some(wgpu::FragmentState {
                 module: &self.shader,
                 entry_point: "fragment_main",
+                targets: &[Some(texture_format.into())],
+                /*
                 targets: &[Some(wgpu::ColorTargetState {
                     blend: Some(wgpu::BlendState::REPLACE),
                     format: texture_format,
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
+                */
             }),
             primitive: wgpu::PrimitiveState {
                 conservative: false,

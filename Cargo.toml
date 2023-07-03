@@ -57,6 +57,7 @@ build_targets = ["aarch64-linux-android", "x86_64-linux-android"]
 apk_name = "wgpu-game-of-life"
 fullscreen = true
 launch_mode = "singleInstance"
+strip = "strip"
 
 [package.metadata.android.sdk]
 min_sdk_version = 23
