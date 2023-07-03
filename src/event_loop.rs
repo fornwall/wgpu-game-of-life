@@ -141,6 +141,7 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                 }
             }
             #[cfg(not(target_arch = "wasm32"))]
+            #[cfg(not(target_arch = "android"))]
             WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
                 event:
