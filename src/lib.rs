@@ -96,8 +96,10 @@ impl State {
             view_formats: vec![],
         };
 
-        // Necessary for android:
-        surface.configure(&device, &config);
+        if size.height > 0 && size.width > 0 {
+            // Necessary for android, which does not get resize event later:
+            surface.configure(&device, &config);
+        }
 
         let cells_width = match grid_size {
             Some(v) if Self::ELIGIBLE_SIZES.iter().any(|&e| e == v) => v,
