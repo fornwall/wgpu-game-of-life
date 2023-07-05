@@ -54,11 +54,14 @@ document.documentElement.addEventListener("mousemove", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
 }, { passive: true });
+
 document.documentElement.addEventListener("touchstart", () => {
   overlayElement.classList.remove('hidden');
   setHideTimeout();
 }, { passive: true });
+
 let currentHideTimeout = null;
+
 function setHideTimeout() {
   if (currentHideTimeout) {
     clearTimeout(currentHideTimeout);
@@ -77,7 +80,11 @@ function setHideTimeout() {
 
 globalThis.toggleControls = function () {
   controls.classList.toggle('hidden');
-  if (controls.classList.contains('hidden')) canvas.focus();
+  if (controls.classList.contains('hidden')) {
+    canvas.focus();
+  } else {
+    overlayElement.classList.remove('hidden');
+  }
   setHideTimeout();
   canvas.focus();
 }
