@@ -152,6 +152,18 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                     },
                 ..
             } => *control_flow = ControlFlow::Exit,
+            #[cfg(target_arch = "wasm32")]
+            WindowEvent::KeyboardInput {
+                event:
+                    KeyEvent {
+                        physical_key: winit::keyboard::KeyCode::Tab,
+                        state: ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                crate::web::toggle_controls();
+            }
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {
