@@ -28,11 +28,9 @@ pub struct State {
     queue: wgpu::Queue,
     renderer: Renderer,
     renderer_factory: RendererFactory<'static>,
-    rule_buffer: wgpu::Buffer,
     rule_idx: u32,
     seed: u32,
     size: winit::dpi::PhysicalSize<u32>,
-    size_buffer: wgpu::Buffer,
     surface: wgpu::Surface,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
     window: Window,
@@ -49,9 +47,6 @@ impl State {
         paused: bool,
         generations_per_second: Option<u8>,
     ) -> Result<State, String> {
-        use wgpu::util::DeviceExt;
-
-        let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface =
             unsafe { instance.create_surface(&window) }.map_err(|_| "create_surface failed")?;
@@ -65,15 +60,6 @@ impl State {
             .await
             .ok_or("request_adapter failed")?;
 
-        let surface_caps = surface.get_capabilities(&adapter);
-
-        let surface_format = surface_caps
-            .formats
-            .iter()
-            .copied()
-            .find(wgpu::TextureFormat::is_srgb)
-            .unwrap_or(surface_caps.formats[0]);
-
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
@@ -85,6 +71,15 @@ impl State {
             )
             .await
             .map_err(|e| format!("request_device failed: {}", e))?;
+
+        let size = window.inner_size();
+        let surface_caps = surface.get_capabilities(&adapter);
+        let surface_format = surface_caps
+            .formats
+            .iter()
+            .copied()
+            .find(wgpu::TextureFormat::is_srgb)
+            .unwrap_or(surface_caps.formats[0]);
 
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
@@ -107,30 +102,11 @@ impl State {
         };
         let cells_height = cells_width;
 
-        let size_array = [cells_width, cells_height];
-        let size_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("size_buffer"),
-            contents: bytemuck::cast_slice(&size_array),
-            usage: wgpu::BufferUsages::STORAGE
-                | wgpu::BufferUsages::UNIFORM
-                | wgpu::BufferUsages::COPY_DST
-                | wgpu::BufferUsages::VERTEX,
-        });
-
         let rule_idx = match rule_idx {
             Some(idx) if idx < rules::RULES.len() as u32 => idx,
             _ => 0,
         };
         let rule = &rules::RULES[rule_idx as usize];
-        let rule_array = rule.rule_array();
-        let rule_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("rule_buffer"),
-            contents: bytemuck::cast_slice(&rule_array),
-            usage: wgpu::BufferUsages::STORAGE
-                | wgpu::BufferUsages::UNIFORM
-                | wgpu::BufferUsages::COPY_DST
-                | wgpu::BufferUsages::VERTEX,
-        });
 
         let seed = seed.unwrap_or(0);
 
@@ -149,17 +125,17 @@ impl State {
             &device,
             cells_width,
             cells_height,
-            &size_buffer,
-            &rule_buffer,
+            rule,
             seed,
             initial_density,
+            &queue,
         );
 
         let renderer_factory = RendererFactory::new(&device);
         let renderer = renderer_factory.create(
             &device,
             &computer,
-            &size_buffer,
+            &computer_factory.size_buffer,
             cells_width,
             cells_height,
             surface_format,
@@ -176,8 +152,6 @@ impl State {
             elapsed_time,
             seed,
             rule_idx,
-            rule_buffer,
-            size_buffer,
             renderer_factory,
             renderer,
             frame_count: 0,
@@ -220,11 +194,6 @@ impl State {
         self.rule_idx = new_rule_idx;
         let rule = &rules::RULES[self.rule_idx as usize];
         self.initial_density = rule.initial_density;
-        self.queue.write_buffer(
-            &self.rule_buffer,
-            0,
-            bytemuck::cast_slice(&rule.rule_array()),
-        );
         self.on_state_change();
     }
 
@@ -290,26 +259,24 @@ impl State {
     fn on_state_change(&mut self) {
         self.inform_ui_about_state();
 
-        let size_array = [self.cells_width, self.cells_height];
-        self.queue
-            .write_buffer(&self.size_buffer, 0, bytemuck::cast_slice(&size_array));
-
         self.frame_count = 0;
+
+        let rule = &rules::RULES[self.rule_idx as usize];
 
         self.computer = self.computer_factory.create(
             &self.device,
             self.cells_width,
             self.cells_height,
-            &self.size_buffer,
-            &self.rule_buffer,
+            rule,
             self.seed,
             self.initial_density,
+            &self.queue,
         );
 
         self.renderer = self.renderer_factory.create(
             &self.device,
             &self.computer,
-            &self.size_buffer,
+            &self.computer_factory.size_buffer,
             self.cells_width,
             self.cells_height,
             self.config.format,

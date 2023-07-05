@@ -1,6 +1,10 @@
+use crate::rules::Rule;
+
 pub struct ComputerFactory {
     shader: wgpu::ShaderModule,
     bind_group_layout: wgpu::BindGroupLayout,
+    pub(crate) size_buffer: wgpu::Buffer,
+    pub(crate) rule_buffer: wgpu::Buffer,
 }
 
 impl ComputerFactory {
@@ -51,9 +55,32 @@ impl ComputerFactory {
             ],
             label: Some("compute_bind_group_layout"),
         });
+
+        let size_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("size_buffer"),
+            size: (2 * std::mem::size_of::<u32>()) as u64,
+            usage: wgpu::BufferUsages::STORAGE
+                | wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::VERTEX,
+            mapped_at_creation: false,
+        });
+
+        let rule_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("rule_buffer"),
+            size: (2 * std::mem::size_of::<u32>()) as u64,
+            usage: wgpu::BufferUsages::STORAGE
+                | wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST
+                | wgpu::BufferUsages::VERTEX,
+            mapped_at_creation: false,
+        });
+
         Self {
             shader,
             bind_group_layout,
+            size_buffer,
+            rule_buffer,
         }
     }
 
@@ -63,13 +90,22 @@ impl ComputerFactory {
         device: &wgpu::Device,
         cells_width: u32,
         cells_height: u32,
-        size_buffer: &wgpu::Buffer,
-        rule_buffer: &wgpu::Buffer,
+        rule: &Rule,
         seed: u32,
         initial_density: u8,
+        queue: &wgpu::Queue,
     ) -> Computer {
         use rand::prelude::{Rng, SeedableRng};
         use wgpu::util::DeviceExt;
+
+        let size_array = [cells_width, cells_height];
+        queue.write_buffer(&self.size_buffer, 0, bytemuck::cast_slice(&size_array));
+
+        queue.write_buffer(
+            &self.rule_buffer,
+            0,
+            bytemuck::cast_slice(&rule.rule_array()),
+        );
 
         let mut rng = rand_chacha::ChaCha20Rng::seed_from_u64(u64::from(seed));
         let mut cells_vec = vec![0_u32; cells_width as usize * cells_height as usize];
@@ -117,7 +153,7 @@ impl ComputerFactory {
                         wgpu::BindGroupEntry {
                             binding: 2,
                             resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: size_buffer,
+                                buffer: &self.size_buffer,
                                 offset: 0,
                                 size: None,
                             }),
@@ -125,7 +161,7 @@ impl ComputerFactory {
                         wgpu::BindGroupEntry {
                             binding: 3,
                             resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: rule_buffer,
+                                buffer: &self.rule_buffer,
                                 offset: 0,
                                 size: None,
                             }),
@@ -203,4 +239,52 @@ impl Computer {
         let workgroup_count_z = 1;
         pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
     }
+}
+
+#[test]
+fn test_computer() {
+    async fn async_test_computer() {
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::HighPerformance,
+                compatible_surface: None,
+                force_fallback_adapter: false,
+            })
+            .await
+            .unwrap();
+
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::empty(),
+                    limits: wgpu::Limits::default(),
+                    label: None,
+                },
+                None,
+            )
+            .await
+            .map_err(|e| format!("request_device failed: {}", e))
+            .unwrap();
+
+        let cells_width = 64;
+        let cells_height = 64;
+
+        let creator = ComputerFactory::new(&device);
+        let seed = 1;
+        let initial_density = 10;
+        let rule = &crate::rules::RULES[0];
+        let _computer = creator.create(
+            &device,
+            cells_width,
+            cells_height,
+            rule,
+            seed,
+            initial_density,
+            &queue,
+        );
+    }
+
+    pollster::block_on(async_test_computer());
 }
