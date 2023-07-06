@@ -116,16 +116,29 @@ impl ComputerFactory {
             }
         }
 
+        let cells_buffer_usages = {
+            #[cfg(not(test))]
+            {
+                wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX
+            }
+            #[cfg(test)]
+            {
+                wgpu::BufferUsages::STORAGE
+                    | wgpu::BufferUsages::VERTEX
+                    | wgpu::BufferUsages::COPY_SRC
+            }
+        };
+
         let cells_buffer_0 = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
             contents: bytemuck::cast_slice(&cells_vec),
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
+            usage: cells_buffer_usages,
         });
 
         let cells_buffer_1 = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
             size: (cells_vec.len() * std::mem::size_of::<u32>()) as u64,
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::VERTEX,
+            usage: cells_buffer_usages,
             mapped_at_creation: false,
         });
 
@@ -234,6 +247,8 @@ impl Computer {
         self.currently_computed_is_0 = !self.currently_computed_is_0;
 
         let workgroup_width = 8;
+        assert_eq!(self.cells_width % workgroup_width, 0);
+        assert_eq!(self.cells_height % workgroup_width, 0);
         let workgroup_count_x = (self.cells_width + workgroup_width - 1) / workgroup_width;
         let workgroup_count_y = (self.cells_height + workgroup_width - 1) / workgroup_width;
         let workgroup_count_z = 1;
@@ -241,50 +256,199 @@ impl Computer {
     }
 }
 
-#[test]
-fn test_computer() {
-    async fn async_test_computer() {
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+#[cfg(test)]
+mod tests {
+    use core::panic;
+    use std::vec;
 
-        let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::HighPerformance,
-                compatible_surface: None,
-                force_fallback_adapter: false,
-            })
-            .await
-            .unwrap();
+    use super::*;
 
-        let (device, queue) = adapter
-            .request_device(
-                &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::empty(),
-                    limits: wgpu::Limits::default(),
-                    label: None,
-                },
-                None,
-            )
-            .await
-            .map_err(|e| format!("request_device failed: {}", e))
-            .unwrap();
-
-        let cells_width = 64;
-        let cells_height = 64;
-
-        let creator = ComputerFactory::new(&device);
-        let seed = 1;
-        let initial_density = 10;
-        let rule = &crate::rules::RULES[0];
-        let _computer = creator.create(
-            &device,
-            cells_width,
-            cells_height,
-            rule,
-            seed,
-            initial_density,
-            &queue,
-        );
+    struct CpuBasedGameOfLife {
+        cells: Vec<u32>,
+        width: usize,
+        height: usize,
     }
 
-    pollster::block_on(async_test_computer());
+    impl CpuBasedGameOfLife {
+        fn live_neighbours_at(&self, x: usize, y: usize) -> u32 {
+            let mut result = 0;
+            for dx in -1..=1 {
+                for dy in -1..=1 {
+                    if dx == 0 && dy == 0 {
+                        continue;
+                    }
+                    let n_x = (x as i32 - dx).rem_euclid(self.width as i32) as usize;
+                    let n_y = (y as i32 - dy).rem_euclid(self.height as i32) as usize;
+                    if self.cells[n_x + n_y * self.width] > 0 {
+                        result += 1;
+                    }
+                }
+            }
+            result
+        }
+        fn next_generation(&mut self, rule: &Rule) {
+            let mut new_cells = vec![0; self.cells.len()];
+            for x in 0..self.width {
+                for y in 0..self.height {
+                    let current_generation = self.cells[x + y * self.width];
+                    let was_alive = current_generation > 0;
+                    let num_live_neighbours = self.live_neighbours_at(x, y);
+                    let new_is_alive = if was_alive { rule.survives } else { rule.born }
+                        & (1 << num_live_neighbours)
+                        > 0;
+                    new_cells[x + y * self.width] = if new_is_alive {
+                        current_generation + 1
+                    } else {
+                        0
+                    };
+                }
+            }
+            let _ = std::mem::replace(&mut self.cells, new_cells);
+        }
+    }
+
+    #[test]
+    fn test_computer() {
+        async fn async_test_computer() {
+            let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+
+            let adapter = instance
+                .request_adapter(&wgpu::RequestAdapterOptions {
+                    power_preference: wgpu::PowerPreference::HighPerformance,
+                    compatible_surface: None,
+                    force_fallback_adapter: false,
+                })
+                .await
+                .unwrap();
+
+            let (device, queue) = adapter
+                .request_device(
+                    &wgpu::DeviceDescriptor {
+                        features: wgpu::Features::empty(),
+                        limits: wgpu::Limits::default(),
+                        label: None,
+                    },
+                    None,
+                )
+                .await
+                .map_err(|e| format!("request_device failed: {}", e))
+                .unwrap();
+
+            let cells_width = 32;
+            let cells_height = cells_width;
+
+            let creator = ComputerFactory::new(&device);
+            let seed = 1;
+            let initial_density = 50;
+            let rule = &crate::rules::RULES[0];
+            let mut computer = creator.create(
+                &device,
+                cells_width,
+                cells_height,
+                rule,
+                seed,
+                initial_density,
+                &queue,
+            );
+            instance.poll_all(true);
+
+            let copy_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("copy_buffer"),
+                size: computer.cells_buffer_1.size(),
+                usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+
+            let mut encoder =
+                device.create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
+            encoder.copy_buffer_to_buffer(
+                &computer.cells_buffer_0,
+                0,
+                &copy_buffer,
+                0,
+                copy_buffer.size(),
+            );
+            queue.submit(std::iter::once(encoder.finish()));
+            let gpu_read_buffer_slice = copy_buffer.slice(..);
+            gpu_read_buffer_slice.map_async(wgpu::MapMode::Read, Result::unwrap);
+            instance.poll_all(true);
+            let gpu_read_buffer_range = gpu_read_buffer_slice.get_mapped_range();
+            let cells_data: &[u32] = unsafe {
+                std::slice::from_raw_parts(
+                    gpu_read_buffer_range.as_ptr() as *const u32,
+                    copy_buffer.size() as usize,
+                )
+            };
+            for &c in cells_data {
+                if c > 1 {
+                    panic!("In initial data, having cell value {}", c);
+                }
+            }
+            let mut cpu_game_of_life = CpuBasedGameOfLife {
+                cells: cells_data.to_vec(),
+                width: cells_width as usize,
+                height: cells_height as usize,
+            };
+            drop(gpu_read_buffer_range);
+            copy_buffer.unmap();
+
+            assert!(computer.currently_computed_is_0);
+            for iteration in 0..100 {
+                let mut encoder =
+                    device.create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
+                computer.enqueue(&mut encoder);
+                assert!(computer.currently_computed_is_0 == (iteration % 2 == 1));
+
+                encoder.copy_buffer_to_buffer(
+                    if computer.currently_computed_is_0 {
+                        &computer.cells_buffer_0
+                    } else {
+                        &computer.cells_buffer_1
+                    },
+                    0,
+                    &copy_buffer,
+                    0,
+                    copy_buffer.size(),
+                );
+
+                queue.submit(std::iter::once(encoder.finish()));
+                instance.poll_all(true);
+
+                let gpu_read_buffer_slice = copy_buffer.slice(..);
+                gpu_read_buffer_slice.map_async(wgpu::MapMode::Read, Result::unwrap);
+                instance.poll_all(true);
+                let gpu_read_buffer_range = gpu_read_buffer_slice.get_mapped_range();
+                let cells_data: &[u32] = unsafe {
+                    std::slice::from_raw_parts(
+                        gpu_read_buffer_range.as_ptr() as *const u32,
+                        copy_buffer.size() as usize,
+                    )
+                };
+                cpu_game_of_life.next_generation(rule);
+                for &c in &cpu_game_of_life.cells {
+                    if c > (iteration + 2) {
+                        panic!("In iteration {}, having cell value {}", iteration, c);
+                    }
+                }
+                for &c in cells_data {
+                    if c > (iteration + 2) {
+                        panic!("In iteration {}, having cell value {}", iteration, c);
+                    }
+                }
+                if &cpu_game_of_life.cells[..] != cells_data {
+                    panic!("Iteration: {}", iteration);
+                }
+                assert_eq!(
+                    &cpu_game_of_life.cells[..],
+                    cells_data,
+                    "Iteration: {}",
+                    iteration
+                );
+                drop(gpu_read_buffer_range);
+                copy_buffer.unmap();
+            }
+        }
+
+        pollster::block_on(async_test_computer());
+    }
 }
