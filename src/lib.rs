@@ -14,7 +14,6 @@ use winit::window::Window;
 pub struct State {
     cells_height: u32,
     cells_width: u32,
-    command_encoder_descriptor: wgpu::CommandEncoderDescriptor<'static>,
     computer: Computer,
     computer_factory: ComputerFactory,
     config: wgpu::SurfaceConfiguration,
@@ -158,9 +157,6 @@ impl State {
             device,
             queue,
             texture_view_descriptor: wgpu::TextureViewDescriptor::default(),
-            command_encoder_descriptor: wgpu::CommandEncoderDescriptor {
-                label: Some("command_encoder_descriptor"),
-            },
             window,
             config,
             size,
@@ -290,7 +286,9 @@ impl State {
 
         let mut encoder = self
             .device
-            .create_command_encoder(&self.command_encoder_descriptor);
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("command_encoder_descriptor"),
+            });
 
         let frequency = 1.0 / f32::from(self.generations_per_second);
         loop {
