@@ -27,7 +27,7 @@ pub struct State {
     paused: bool,
     queue: wgpu::Queue,
     renderer: Renderer,
-    renderer_factory: RendererFactory<'static>,
+    renderer_factory: RendererFactory,
     rule_idx: u32,
     seed: u32,
     size: winit::dpi::PhysicalSize<u32>,

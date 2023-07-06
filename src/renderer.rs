@@ -1,16 +1,14 @@
 use crate::computer::Computer;
 use wgpu::util::DeviceExt;
 
-pub struct RendererFactory<'a> {
+pub struct RendererFactory {
     bind_group_layout: wgpu::BindGroupLayout,
-    cells_stride: wgpu::VertexBufferLayout<'a>,
     pipeline_layout: wgpu::PipelineLayout,
     shader: wgpu::ShaderModule,
     square_buffer: wgpu::Buffer,
-    square_stride: wgpu::VertexBufferLayout<'a>,
 }
 
-impl<'a> RendererFactory<'a> {
+impl RendererFactory {
     pub(crate) fn new(device: &wgpu::Device) -> Self {
         let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.render.wgsl"));
 
@@ -28,6 +26,36 @@ impl<'a> RendererFactory<'a> {
             label: Some("bind_group_layout_render"),
         });
 
+        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("render_pipeline_layout"),
+            bind_group_layouts: &[&bind_group_layout],
+            push_constant_ranges: &[],
+        });
+
+        let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
+        let square_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("square_buffer"),
+            contents: bytemuck::cast_slice(&square_vertices),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
+        Self {
+            shader,
+            bind_group_layout,
+            square_buffer,
+            pipeline_layout,
+        }
+    }
+
+    pub(crate) fn create(
+        &self,
+        device: &wgpu::Device,
+        computer: &Computer,
+        size_buffer: &wgpu::Buffer,
+        cells_width: u32,
+        cells_height: u32,
+        texture_format: wgpu::TextureFormat,
+    ) -> Renderer {
         let cells_stride = wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<u32>() as u64,
             step_mode: wgpu::VertexStepMode::Instance,
@@ -48,43 +76,11 @@ impl<'a> RendererFactory<'a> {
             }],
         };
 
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("render_pipeline_layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
-
-        let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
-        let square_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("square_buffer"),
-            contents: bytemuck::cast_slice(&square_vertices),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-
-        Self {
-            shader,
-            bind_group_layout,
-            square_buffer,
-            pipeline_layout,
-            cells_stride,
-            square_stride,
-        }
-    }
-
-    pub(crate) fn create(
-        &self,
-        device: &wgpu::Device,
-        computer: &Computer,
-        size_buffer: &wgpu::Buffer,
-        cells_width: u32,
-        cells_height: u32,
-        texture_format: wgpu::TextureFormat,
-    ) -> Renderer {
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("render_pipeline"),
             layout: Some(&self.pipeline_layout),
             vertex: wgpu::VertexState {
-                buffers: &[self.cells_stride.clone(), self.square_stride.clone()],
+                buffers: &[cells_stride.clone(), square_stride.clone()],
                 entry_point: "vertex_main",
                 module: &self.shader,
             },
@@ -92,13 +88,6 @@ impl<'a> RendererFactory<'a> {
                 module: &self.shader,
                 entry_point: "fragment_main",
                 targets: &[Some(texture_format.into())],
-                /*
-                targets: &[Some(wgpu::ColorTargetState {
-                    blend: Some(wgpu::BlendState::REPLACE),
-                    format: texture_format,
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-                */
             }),
             primitive: wgpu::PrimitiveState {
                 conservative: false,
@@ -119,19 +108,17 @@ impl<'a> RendererFactory<'a> {
         });
 
         let size_bind_group = device.create_bind_group({
-            {
-                &wgpu::BindGroupDescriptor {
-                    layout: &self.bind_group_layout,
-                    entries: &[wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                            buffer: size_buffer,
-                            offset: 0,
-                            size: None,
-                        }),
-                    }],
-                    label: Some("compute_bind_group_1"),
-                }
+            &wgpu::BindGroupDescriptor {
+                layout: &self.bind_group_layout,
+                entries: &[wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                        buffer: size_buffer,
+                        offset: 0,
+                        size: None,
+                    }),
+                }],
+                label: Some("size_bind_group"),
             }
         });
 
