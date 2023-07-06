@@ -19,7 +19,7 @@ fn getCell(x: i32, y: i32) -> u32 {
 }
 
 fn isAlive(x: i32, y: i32) -> u32 {
-    return u32(current[getIndex(x, y)] > 0u);
+    return u32(getCell(x, y) > 0u);
 }
 
 fn countNeighbors(x: i32, y: i32) -> u32 {
