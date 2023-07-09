@@ -9,6 +9,7 @@ keywords = ["advent-of-code"]
 categories = ["graphics"]
 
 [lib]
+bench = false
 crate-type = ["cdylib", "rlib"]
 
 [profile.release]
@@ -37,6 +38,13 @@ wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
 web-sys = { version = "*", features = ["Document", "Element", "Window"] }
 js-sys = "*"
+
+[dev-dependencies]
+criterion = { version = "*", default-features = false, features = [] }
+
+[[bench]]
+name = "benchmark"
+harness = false
 
 [package.metadata.bundle]
 name = "Game of Life"

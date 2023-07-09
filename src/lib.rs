@@ -1,9 +1,9 @@
 #[cfg(target_os = "android")]
 mod android;
-mod computer;
+pub mod computer;
 pub mod event_loop;
 mod renderer;
-mod rules;
+pub mod rules;
 #[cfg(target_arch = "wasm32")]
 mod web;
 

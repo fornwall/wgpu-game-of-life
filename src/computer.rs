@@ -8,7 +8,7 @@ pub struct ComputerFactory {
 }
 
 impl ComputerFactory {
-    pub(crate) fn new(device: &wgpu::Device) -> Self {
+    pub fn new(device: &wgpu::Device) -> Self {
         let shader = device.create_shader_module(wgpu::include_wgsl!("game-of-life.compute.wgsl"));
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
@@ -85,7 +85,7 @@ impl ComputerFactory {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub(crate) fn create(
+    pub fn create(
         &self,
         device: &wgpu::Device,
         cells_width: u32,
@@ -223,13 +223,13 @@ pub struct Computer {
     compute_pipeline: wgpu::ComputePipeline,
     compute_bind_group_from_0_to_1: wgpu::BindGroup,
     compute_bind_group_from_1_to_0: wgpu::BindGroup,
-    pub(crate) currently_computed_is_0: bool,
-    pub(crate) cells_buffer_0: wgpu::Buffer,
-    pub(crate) cells_buffer_1: wgpu::Buffer,
+    pub currently_computed_is_0: bool,
+    pub cells_buffer_0: wgpu::Buffer,
+    pub cells_buffer_1: wgpu::Buffer,
 }
 
 impl Computer {
-    pub(crate) fn enqueue(&mut self, command_encoder: &mut wgpu::CommandEncoder) {
+    pub fn enqueue(&mut self, command_encoder: &mut wgpu::CommandEncoder) {
         let mut pass_encoder =
             command_encoder.begin_compute_pass(&wgpu::ComputePassDescriptor::default());
         pass_encoder.set_pipeline(&self.compute_pipeline);
