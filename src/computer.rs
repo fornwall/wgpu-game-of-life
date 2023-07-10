@@ -372,12 +372,7 @@ mod tests {
                 gpu_read_buffer_slice.map_async(wgpu::MapMode::Read, Result::unwrap);
                 instance.poll_all(true);
                 let gpu_read_buffer_range = gpu_read_buffer_slice.get_mapped_range();
-                let cells_data: &[u32] = unsafe {
-                    std::slice::from_raw_parts(
-                        gpu_read_buffer_range.as_ptr() as *const u32,
-                        copy_buffer.size() as usize / std::mem::size_of::<u32>(),
-                    )
-                };
+                let cells_data: &[u32] = bytemuck::cast_slice(&gpu_read_buffer_range);
                 assert_eq!(
                     cells_width as usize * cells_height as usize,
                     cells_data.len()
@@ -416,12 +411,7 @@ mod tests {
                     gpu_read_buffer_slice.map_async(wgpu::MapMode::Read, Result::unwrap);
                     instance.poll_all(true);
                     let gpu_read_buffer_range = gpu_read_buffer_slice.get_mapped_range();
-                    let cells_data: &[u32] = unsafe {
-                        std::slice::from_raw_parts(
-                            gpu_read_buffer_range.as_ptr() as *const u32,
-                            copy_buffer.size() as usize / std::mem::size_of::<u32>(),
-                        )
-                    };
+                    let cells_data: &[u32] = bytemuck::cast_slice(&gpu_read_buffer_range);
                     cpu_game_of_life.next_generation(rule);
                     assert_eq!(
                         &cpu_game_of_life.cells[..],
