@@ -163,3 +163,4 @@ jobs:
         sudo apt-get update
         sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
     - run: cargo test
+    - run: cargo bench
