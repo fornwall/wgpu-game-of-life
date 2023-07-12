@@ -3,7 +3,7 @@ A demo using the rust [wgpu](https://wgpu.rs/) implementation of the [WebGPU](ht
 
 <p align="center"><picture><img src="https://wgpu-game-of-life.fornwall.net/static/screenshot.png" width="400"/></picture></p>
 
-It's based on [WebGPU Samples](https://webgpu.github.io/webgpu-samples/samples/gameOfLife), ported to rust and `wgpu` (with the help of [Learn Wgpu](https://sotrh.github.io/learn-wgpu/)) and having some additional features for demonstration purposes.
+It's based on [WebGPU Samples](https://webgpu.github.io/webgpu-samples/samples/gameOfLife), ported to rust and `wgpu` (with the help of [Learn Wgpu](https://sotrh.github.io/learn-wgpu/)) and having some additional features for demonstration purposes. It uses [winit](https://github.com/rust-windowing/winit) for cross-platform windowing functionality.
 
 See the online version in a WebGPU capable browser at https://wgpu-game-of-life.fornwall.net or run a checkout locally using `cargo run`.
 
