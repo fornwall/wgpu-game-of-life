@@ -150,7 +150,7 @@ jobs:
         set -e
         mkdir -p swiftshader
         curl -LsSf https://github.com/gfx-rs/ci-build/releases/latest/download/swiftshader-linux-x86_64.tar.xz | tar -xf - -C swiftshader
-        echo "VK_ICD_FILENAMES=$PWD/swiftshader/vk_swiftshader_icd.json" >> $GITHUB_ENV
+        echo "VK_ICD_FILENAMES=$PWD/swiftshader/vk_swiftshader_icd.json" >> "$GITHUB_ENV"
     - name: install llvmpipe, vulkan sdk
       if: matrix.os == 'ubuntu-latest'
       shell: bash
@@ -164,3 +164,13 @@ jobs:
         sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
     - run: cargo test
     - run: cargo bench
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download actionlint
+        id: get_actionlint
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+      - name: Check workflow files
+        run: ${{ steps.get_actionlint.outputs.executable }} -color
