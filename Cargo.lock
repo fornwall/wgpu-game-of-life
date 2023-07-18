@@ -318,18 +318,18 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.3.12"
+version = "4.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3eab9e8ceb9afdade1ab3f0fd8dbce5b1b2f468ad653baf10e771781b2b67b73"
+checksum = "8f644d0dac522c8b05ddc39aaaccc5b136d5dc4ff216610c5641e3be5becf56c"
 dependencies = [
  "clap_builder",
 ]
 
 [[package]]
 name = "clap_builder"
-version = "4.3.12"
+version = "4.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f2763db829349bf00cfc06251268865ed4363b93a943174f638daf3ecdba2cd"
+checksum = "af410122b9778e024f9e0fb35682cc09cc3f85cad5e8d3ba8f47a9702df6e73d"
 dependencies = [
  "anstyle",
  "clap_lex",
@@ -613,9 +613,9 @@ checksum = "b6c80984affa11d98d1b88b66ac8853f143217b399d3c74116778ff8fdb4ed2e"
 
 [[package]]
 name = "glow"
-version = "0.12.2"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "807edf58b70c0b5b2181dd39fe1839dbdb3ba02645630dc5f753e23da307f762"
+checksum = "ca0fe580e4b60a8ab24a868bc08e2f03cbcb20d3d676601fa909386713333728"
 dependencies = [
  "js-sys",
  "slotmap",
@@ -794,9 +794,9 @@ dependencies = [
 
 [[package]]
 name = "itoa"
-version = "1.0.8"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62b02a5381cc465bd3041d84623d0fa3b66738b52b8e2fc3bab8ad63ab032f4a"
+checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
 name = "jni-sys"
@@ -961,7 +961,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.12.0"
-source = "git+https://github.com/gfx-rs/naga?rev=76003dc0035d53a474d366dcdf49d2e4d12e921f#76003dc0035d53a474d366dcdf49d2e4d12e921f"
+source = "git+https://github.com/gfx-rs/naga?rev=409239c0e2313bfd0dc4fd64f8c3021185ccef1b#409239c0e2313bfd0dc4fd64f8c3021185ccef1b"
 dependencies = [
  "bit-set",
  "bitflags 2.3.3",
@@ -1202,9 +1202,9 @@ dependencies = [
 
 [[package]]
 name = "paste"
-version = "1.0.13"
+version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4b27ab7be369122c218afc2079489cdcb4b517c0a3fc386ff11e1fedfcc2b35"
+checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
 name = "percent-encoding"
@@ -1242,9 +1242,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.64"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78803b62cbf1f46fde80d7c0e803111524b9877184cfe7c3033659490ac7a7da"
+checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
 dependencies = [
  "unicode-ident",
 ]
@@ -1266,9 +1266,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.29"
+version = "1.0.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "573015e8ab27661678357f27dc26460738fd2b6c86e46f386fde94cb5d913105"
+checksum = "5fe8a65d69dd0808184ebb5f836ab526bb259db23c657efa38711b1072ee47f0"
 dependencies = [
  "proc-macro2",
 ]
@@ -1386,9 +1386,9 @@ dependencies = [
 
 [[package]]
 name = "ryu"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe232bdf6be8c8de797b22184ee71118d63780ea42ac85b61d1baa6d3b782ae9"
+checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
 name = "same-file"
@@ -1407,9 +1407,9 @@ checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
 
 [[package]]
 name = "scopeguard"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "sctk-adwaita"
@@ -1446,9 +1446,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.102"
+version = "1.0.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5062a995d481b2308b6064e9af76011f2921c35f97b0468811ed9f6cd91dfed"
+checksum = "d03b412469450d4404fe8499a268edd7f8b79fecb074b0d812ad64ca21f4031b"
 dependencies = [
  "itoa",
  "ryu",
@@ -1860,7 +1860,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.16.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7198d60f6820af15d12a3762de9ab0d484c4e827"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#80d19d890c64e2eb00597d907ff565328bf53ddb"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1883,7 +1883,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.16.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7198d60f6820af15d12a3762de9ab0d484c4e827"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#80d19d890c64e2eb00597d907ff565328bf53ddb"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1929,7 +1929,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.16.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7198d60f6820af15d12a3762de9ab0d484c4e827"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#80d19d890c64e2eb00597d907ff565328bf53ddb"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1969,7 +1969,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.16.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7198d60f6820af15d12a3762de9ab0d484c4e827"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#80d19d890c64e2eb00597d907ff565328bf53ddb"
 dependencies = [
  "bitflags 2.3.3",
  "js-sys",
@@ -2157,7 +2157,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "winit"
 version = "0.29.0-beta.0"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#b166e1ff1384c694962f57ac7d0dca9c337eae62"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#89aa7cc06e0cfe181d82d8f39c285ccc836f566e"
 dependencies = [
  "android-activity",
  "atomic-waker",
