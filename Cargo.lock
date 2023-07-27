@@ -1428,18 +1428,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.175"
+version = "1.0.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d25439cd7397d044e2748a6fe2432b5e85db703d6d097bd014b3c0ad1ebff0b"
+checksum = "63ba2516aa6bf82e0b19ca8b50019d52df58455d3cf9bdaf6315225fdd0c560a"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.175"
+version = "1.0.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b23f7ade6f110613c0d63858ddb8b94c1041f550eab58a16b371bdf2c9c80ab4"
+checksum = "401797fe7833d72109fedec6bfcbe67c0eed9b99772f26eb8afd261f0abc6fd3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1448,9 +1448,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.103"
+version = "1.0.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d03b412469450d4404fe8499a268edd7f8b79fecb074b0d812ad64ca21f4031b"
+checksum = "076066c5f1078eac5b722a31827a8832fe108bed65dfa75e233c89f8206e976c"
 dependencies = [
  "itoa",
  "ryu",
@@ -1862,7 +1862,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#a7798f2f8ade7829ffc08c47ff12c338a456b0aa"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#01160c3ad1890d3bcfbb2efca0a34c7943ef7d71"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1885,7 +1885,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#a7798f2f8ade7829ffc08c47ff12c338a456b0aa"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#01160c3ad1890d3bcfbb2efca0a34c7943ef7d71"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1931,7 +1931,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#a7798f2f8ade7829ffc08c47ff12c338a456b0aa"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#01160c3ad1890d3bcfbb2efca0a34c7943ef7d71"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1971,7 +1971,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#a7798f2f8ade7829ffc08c47ff12c338a456b0aa"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#01160c3ad1890d3bcfbb2efca0a34c7943ef7d71"
 dependencies = [
  "bitflags 2.3.3",
  "js-sys",
@@ -2204,9 +2204,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81fac9742fd1ad1bd9643b991319f72dd031016d44b77039a26977eb667141e7"
+checksum = "25b5872fa2e10bd067ae946f927e726d7d603eaeb6e02fa6a350e0722d2b8c11"
 dependencies = [
  "memchr",
 ]
