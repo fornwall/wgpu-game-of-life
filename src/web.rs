@@ -13,7 +13,7 @@ pub enum CustomWinitEvent {
     TogglePause,
 }
 
-pub(crate) type EventTypeUsed<'a> = Event<'a, CustomWinitEvent>;
+pub(crate) type EventTypeUsed = Event<CustomWinitEvent>;
 
 thread_local! {
     pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = Mutex::new(None);

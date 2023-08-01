@@ -8,7 +8,7 @@ use crate::web::CustomWinitEvent;
 use crate::State;
 
 #[cfg(target_arch = "wasm32")]
-type EventTypeUsed<'a> = crate::web::EventTypeUsed<'a>;
+type EventTypeUsed = crate::web::EventTypeUsed;
 
 #[cfg(not(target_arch = "wasm32"))]
 type EventTypeUsed = winit::event::Event<()>;
