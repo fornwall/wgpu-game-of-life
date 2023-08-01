@@ -16,9 +16,15 @@ fn main() {
                     .await
                     .unwrap();
 
-            event_loop.run(move |event, _, control_flow| {
-                wgpu_game_of_life::event_loop::handle_event_loop(&event, &mut state, control_flow);
-            });
+            event_loop
+                .run(move |event, _, control_flow| {
+                    wgpu_game_of_life::event_loop::handle_event_loop(
+                        &event,
+                        &mut state,
+                        control_flow,
+                    );
+                })
+                .unwrap();
         }
 
         pollster::block_on(run());

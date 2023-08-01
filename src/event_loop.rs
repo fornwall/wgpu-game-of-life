@@ -11,7 +11,7 @@ use crate::State;
 type EventTypeUsed<'a> = crate::web::EventTypeUsed<'a>;
 
 #[cfg(not(target_arch = "wasm32"))]
-type EventTypeUsed<'a> = winit::event::Event<'a, ()>;
+type EventTypeUsed = winit::event::Event<()>;
 
 pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow: &mut ControlFlow) {
     match event {
@@ -178,9 +178,6 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
             WindowEvent::Resized(physical_size) => {
                 state.resize(*physical_size);
             }
-            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                state.resize(**new_inner_size);
-            }
             _ => {}
         },
 
@@ -192,7 +189,7 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                 Err(e) => log::error!("{:?}", e),
             }
         }
-        Event::MainEventsCleared => {
+        Event::AboutToWait => {
             state.window.request_redraw();
         }
         Event::Resumed => {
