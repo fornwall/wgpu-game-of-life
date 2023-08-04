@@ -1260,9 +1260,9 @@ dependencies = [
 
 [[package]]
 name = "profiling"
-version = "1.0.8"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "332cd62e95873ea4f41f3dfd6bbbfc5b52aec892d7e8d534197c4720a0bbbab2"
+checksum = "46b2164ebdb1dfeec5e337be164292351e11daf63a05174c6776b2f47460f0c9"
 
 [[package]]
 name = "quick-xml"
@@ -1435,18 +1435,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.180"
+version = "1.0.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ea67f183f058fe88a4e3ec6e2788e003840893b91bac4559cabedd00863b3ed"
+checksum = "6d3e73c93c3240c0bda063c239298e633114c69a888c3e37ca8bb33f343e9890"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.180"
+version = "1.0.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24e744d7782b686ab3b73267ef05697159cc0e5abbed3f47f9933165e5219036"
+checksum = "be02f6cb0cd3a5ec20bbcfbcbd749f57daddb1a0882dc2e46a6c236c90b977ed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1869,7 +1869,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#5b4c6b8ae4afa88358be6135b36e9d2b54808611"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#359e39232239d2f5d0ac1dadde7c3d874d3cf29e"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1892,7 +1892,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#5b4c6b8ae4afa88358be6135b36e9d2b54808611"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#359e39232239d2f5d0ac1dadde7c3d874d3cf29e"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1938,7 +1938,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#5b4c6b8ae4afa88358be6135b36e9d2b54808611"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#359e39232239d2f5d0ac1dadde7c3d874d3cf29e"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1978,7 +1978,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#5b4c6b8ae4afa88358be6135b36e9d2b54808611"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#359e39232239d2f5d0ac1dadde7c3d874d3cf29e"
 dependencies = [
  "bitflags 2.3.3",
  "js-sys",
@@ -2166,7 +2166,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "winit"
 version = "0.29.0-beta.0"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#b5aa96bea4a31ec222d62eebfe23ecbad9ad6140"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#57fad2ce1570dce6cb75d62bef875cb05070469d"
 dependencies = [
  "android-activity",
  "atomic-waker",

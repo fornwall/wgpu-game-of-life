@@ -177,7 +177,7 @@ impl Renderer {
                     store: true,
                 },
             })],
-            depth_stencil_attachment: None,
+            ..Default::default()
         });
         render_pass.execute_bundles(std::iter::once(if render_first_buffer {
             &self.render_bundle_0
