@@ -25,9 +25,8 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = { git = "https://github.com/gfx-rs/wgpu", branch = "trunk" }
-winit = { git = "https://github.com/rust-windowing/winit/", branch = "master", features = [
-    "android-native-activity",
-] }
+winit = { git = "https://github.com/rust-windowing/winit/", branch = "master", features = [ "android-native-activity" ] }
+# winit = { path = "../winit-fork/", features = [ "android-native-activity" ] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "*"

@@ -62,11 +62,6 @@ macos-app:
 	cd target/aarch64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
 	cd target/x86_64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
 
-ios-sim-app:
-	cargo install cargo-bundle
-	rustup target add aarch64-apple-ios-sim
-	cargo bundle --target aarch64-apple-ios-sim --release
-
 android-apk:
 	rustup target add x86_64-linux-android aarch64-linux-android
 	cargo install cargo-apk
@@ -75,6 +70,15 @@ android-apk:
 run-app:
 	@cargo bundle --release &> /dev/null
 	@open target/release/bundle/osx/"$(APP_NAME)".app
+
+run-ios-simulator:
+	cargo install cargo-bundle
+	rustup target add aarch64-apple-ios-sim
+	cargo bundle --target aarch64-apple-ios-sim
+	xcrun simctl boot "iPhone 14" || echo "Perhaps already running"
+	open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app
+	xcrun simctl install booted "target/aarch64-apple-ios-sim/debug/bundle/ios/Game of Life.app"
+	xcrun simctl launch --console booted "net.fornwall.wgpugameoflife"
 
 generate-wasm:
 	# --cfg=web_sys_unstable_apis is necessary for webgpu:
