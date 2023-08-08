@@ -85,8 +85,8 @@ impl RendererFactory {
                 module: &self.shader,
             },
             fragment: Some(wgpu::FragmentState {
-                module: &self.shader,
                 entry_point: "fragment_main",
+                module: &self.shader,
                 targets: &[Some(texture_format.into())],
             }),
             primitive: wgpu::PrimitiveState {
