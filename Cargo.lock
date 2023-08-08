@@ -1909,7 +1909,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7c6b85756237f77bfe8d6231dfc7a1412ff662b6"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1932,7 +1932,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7c6b85756237f77bfe8d6231dfc7a1412ff662b6"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1978,7 +1978,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7c6b85756237f77bfe8d6231dfc7a1412ff662b6"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2018,7 +2018,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7c6b85756237f77bfe8d6231dfc7a1412ff662b6"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
 dependencies = [
  "bitflags 2.3.3",
  "js-sys",
