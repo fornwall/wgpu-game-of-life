@@ -11,7 +11,13 @@ else
   WASM_OPT += -O0
 endif
 
-CLIPPY_PARAMS = --all-targets -- \
+CLIPPY_PARAMS = --all-targets \
+	--target aarch64-apple-darwin \
+	--target wasm32-unknown-unknown \
+	--target x86_64-linux-android \
+	--target x86_64-pc-windows-msvc \
+	--target x86_64-unknown-linux-gnu \
+	-- \
 	-W clippy::cargo \
 	-W clippy::cast_lossless \
 	-W clippy::dbg_macro \
@@ -40,9 +46,7 @@ CARGO_COMMAND = cargo
 
 check:
 	$(CARGO_COMMAND) fmt --all
-	$(CARGO_COMMAND) clippy $(CLIPPY_PARAMS)
-	RUSTFLAGS="--cfg=web_sys_unstable_apis" \
-		$(CARGO_COMMAND) clippy --target wasm32-unknown-unknown $(CLIPPY_PARAMS)
+	RUSTFLAGS="--cfg=web_sys_unstable_apis" $(CARGO_COMMAND) clippy $(CLIPPY_PARAMS)
 
 macos-app:
 	rustup target add aarch64-apple-darwin x86_64-apple-darwin

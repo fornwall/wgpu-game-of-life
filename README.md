@@ -18,5 +18,16 @@ See the online version in a WebGPU capable browser at https://wgpu-game-of-life.
 - Toggle controls: `Tab`/`C` (web version only)
 - Toggle fullscreen: `F`
 
+## Platform: Android
+Use [cargo-apk](https://crates.io/crates/cargo-apk) to build and run (release builds requires the `CARGO_APK_RELEASE_KEYSTORE` and `CARGO_APK_RELEASE_KEYSTORE_PASSWORD` environment variables to be set):
+
+- `cargo apk build`: Build debug apk at `target/debug/apk/wgpu-game-of-life.apk`
+- `cargo apk build --release`: Build release apk at `target/release/apk/wgpu-game-of-life.apk`
+- `cargo apk run`: Run a debug build.
+- `cargo apk run --release`: Run a release build.
+
+## Platform: Web
+Run `make web` to build the web version - this will open a browser against a port on localhost.
+
 ## Resources
 - [Game of Life: How a nerdsnipe led to a fast implementation of game of life](https://binary-banter.github.io/game-of-life/)

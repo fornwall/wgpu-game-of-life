@@ -1963,6 +1963,7 @@ dependencies = [
  "env_logger",
  "getrandom",
  "instant",
+ "jni",
  "js-sys",
  "log",
  "pollster",
