@@ -26,6 +26,9 @@ Use [cargo-apk](https://crates.io/crates/cargo-apk) to build and run (release bu
 - `cargo apk run`: Run a debug build.
 - `cargo apk run --release`: Run a release build.
 
+## Platform: iOS
+Run `make run-ios-simulator` to run inside the iOS simulator.
+
 ## Platform: Web
 Run `make web` to build the web version - this will open a browser against a port on localhost.
 
