@@ -1909,7 +1909,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#671988b2e80c82ba80656cd4bed130b38a4b7cdf"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1932,7 +1932,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#671988b2e80c82ba80656cd4bed130b38a4b7cdf"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1979,7 +1979,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#671988b2e80c82ba80656cd4bed130b38a4b7cdf"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2019,7 +2019,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#24ca8c9ca8c5c2d7d4fac998a69af348e52ed77d"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#671988b2e80c82ba80656cd4bed130b38a4b7cdf"
 dependencies = [
  "bitflags 2.3.3",
  "js-sys",
@@ -2216,7 +2216,7 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 [[package]]
 name = "winit"
 version = "0.29.0-beta.0"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#bd2f1e8312aab84a21ad1e3d2c0dbcb01379ef28"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#2233edb9a0d9a012d8e590e53d8b66036df0c5f5"
 dependencies = [
  "android-activity",
  "atomic-waker",
