@@ -5,7 +5,7 @@ fn main() {
         pub async fn run() {
             env_logger::init();
 
-            let event_loop = winit::event_loop::EventLoop::new();
+            let event_loop = winit::event_loop::EventLoop::new().unwrap();
 
             let window = winit::window::WindowBuilder::new()
                 .build(&event_loop)

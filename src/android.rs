@@ -13,7 +13,10 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
 
     enable_immersive(&app);
 
-    let event_loop = EventLoopBuilder::new().with_android_app(app).build();
+    let event_loop = EventLoopBuilder::new()
+        .with_android_app(app)
+        .build()
+        .unwrap();
 
     let _ = event_loop.run(move |event, event_loop, control_flow| match event {
         winit::event::Event::Resumed => {

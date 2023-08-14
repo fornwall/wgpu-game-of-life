@@ -137,7 +137,9 @@ pub async fn run(
     console_log::init_with_level(log::Level::Info)
         .map_err(|e| format!("Couldn't initialize logger: {e}"))?;
 
-    let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event().build();
+    let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event()
+        .build()
+        .unwrap();
 
     let event_loop_proxy = event_loop.create_proxy();
     EVENT_LOOP_PROXY.with(move |proxy| {
