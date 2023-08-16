@@ -1871,7 +1871,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#57874e5c540330c8183e19ee87654cf24bb5c250"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7b07f42beb3b4e430bafbf50e5c2ffc93cc5b78e"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1894,7 +1894,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#57874e5c540330c8183e19ee87654cf24bb5c250"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7b07f42beb3b4e430bafbf50e5c2ffc93cc5b78e"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1941,7 +1941,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#57874e5c540330c8183e19ee87654cf24bb5c250"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7b07f42beb3b4e430bafbf50e5c2ffc93cc5b78e"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1981,7 +1981,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#57874e5c540330c8183e19ee87654cf24bb5c250"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#7b07f42beb3b4e430bafbf50e5c2ffc93cc5b78e"
 dependencies = [
  "bitflags 2.4.0",
  "js-sys",
@@ -2177,8 +2177,8 @@ checksum = "d419259aba16b663966e29e6d7c6ecfa0bb8425818bb96f6f1f3c3eb71a6e7b9"
 
 [[package]]
 name = "winit"
-version = "0.29.0-beta.1"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#8b8556798ea1355964a4e15f8c97b0d246d42d5f"
+version = "0.29.1-beta"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#309e6aa85ae60104308d039763d28f42d6fe1595"
 dependencies = [
  "android-activity",
  "atomic-waker",
@@ -2223,9 +2223,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.5.11"
+version = "0.5.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e461589e194280efaa97236b73623445efa195aa633fd7004f39805707a9d53"
+checksum = "83817bbecf72c73bad717ee86820ebf286203d2e04c3951f3cd538869c897364"
 dependencies = [
  "memchr",
 ]
