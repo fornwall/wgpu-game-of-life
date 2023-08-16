@@ -79,6 +79,15 @@ jobs:
         toolchain: stable
     - run: make android-apk
 
+  build-ios-simulator-app:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - run: make build-ios-simulator-app
+
   build-macos-app:
     runs-on: macos-latest
     steps:

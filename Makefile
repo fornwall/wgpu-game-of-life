@@ -71,10 +71,12 @@ run-app:
 	@cargo bundle --release &> /dev/null
 	@open target/release/bundle/osx/"$(APP_NAME)".app
 
-run-ios-simulator:
+build-ios-simulator-app:
 	cargo install cargo-bundle
 	rustup target add aarch64-apple-ios-sim
 	cargo bundle --target aarch64-apple-ios-sim
+
+run-ios-simulator: build-ios-simulator-app
 	xcrun simctl boot "iPhone 14" || echo "Perhaps already running"
 	open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app
 	xcrun simctl install booted "target/aarch64-apple-ios-sim/debug/bundle/ios/Game of Life.app"
