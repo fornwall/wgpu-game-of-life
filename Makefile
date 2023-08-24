@@ -102,4 +102,4 @@ wasm-size: generate-wasm
 
 serve-site: --run-devserver --watch-and-build-wasm ;
 
-.PHONY: check macos-app run-app generate-wasm serve-wasm
+.PHONY: check macos-app android-apk run-app build-ios-simulator-app run-ios-simulator generate-wasm wasm-size --run-devserver --watch-and-build-wasm serve-site
