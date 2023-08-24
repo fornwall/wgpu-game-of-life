@@ -27,7 +27,7 @@ jobs:
       with:
         toolchain: stable
         targets: wasm32-unknown-unknown
-    - run: cargo install wasm-bindgen
+    - run: cargo install wasm-bindgen-cli
     - uses: Homebrew/actions/setup-homebrew@master
     - name: Install wasm-opt
       run: brew update && brew install binaryen
@@ -57,7 +57,7 @@ jobs:
     - uses: Homebrew/actions/setup-homebrew@master
     - name: Install wasm-opt
       run: brew update && brew install binaryen
-    - run: cargo install wasm-bindgen
+    - run: cargo install wasm-bindgen-cli
     - run: make WASM_RELEASE=1 generate-wasm
     - run: npm i && npm run webpack -- --mode=production
       working-directory: site
