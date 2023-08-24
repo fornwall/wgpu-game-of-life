@@ -334,18 +334,18 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.3.24"
+version = "4.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb690e81c7840c0d7aade59f242ea3b41b9bc27bcd5997890e7702ae4b32e487"
+checksum = "1d5f1946157a96594eb2d2c10eb7ad9a2b27518cb3000209dec700c35df9197d"
 dependencies = [
  "clap_builder",
 ]
 
 [[package]]
 name = "clap_builder"
-version = "4.3.24"
+version = "4.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ed2e96bc16d8d740f6f48d663eddf4b8a0983e79210fd55479b7bcd0a69860e"
+checksum = "78116e32a042dd73c2901f0dc30790d20ff3447f3e3472fad359e8c3d282bcd6"
 dependencies = [
  "anstyle",
  "clap_lex",
@@ -353,9 +353,9 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b"
+checksum = "cd7cc57abe963c6d3b9d8be5b06ba7c8957a930305ca90304f24ef040aa6f961"
 
 [[package]]
 name = "codespan-reporting"
@@ -1871,7 +1871,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#c7e262c5d6fc52e672e5f796d73215e34f683189"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#ac2075e164171427a146ccd5de57ff35491580e0"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1894,7 +1894,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#c7e262c5d6fc52e672e5f796d73215e34f683189"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#ac2075e164171427a146ccd5de57ff35491580e0"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1941,7 +1941,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#c7e262c5d6fc52e672e5f796d73215e34f683189"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#ac2075e164171427a146ccd5de57ff35491580e0"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1981,7 +1981,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#c7e262c5d6fc52e672e5f796d73215e34f683189"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#ac2075e164171427a146ccd5de57ff35491580e0"
 dependencies = [
  "bitflags 2.4.0",
  "js-sys",
@@ -2178,7 +2178,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 [[package]]
 name = "winit"
 version = "0.29.1-beta"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#309e6aa85ae60104308d039763d28f42d6fe1595"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#9979441c82dc645c41c40f6e7f51f791bca9915b"
 dependencies = [
  "android-activity",
  "atomic-waker",
@@ -2223,9 +2223,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.5.14"
+version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d09770118a7eb1ccaf4a594a221334119a44a814fcb0d31c5b85e83e97227a97"
+checksum = "7c2e3184b9c4e92ad5167ca73039d0c42476302ab603e2fec4487511f38ccefc"
 dependencies = [
  "memchr",
 ]
