@@ -178,17 +178,14 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
             WindowEvent::Resized(physical_size) => {
                 state.resize(*physical_size);
             }
-            _ => {}
-        },
-
-        &Event::RedrawRequested(window_id) if window_id == state.window.id() => {
-            match state.render() {
+            WindowEvent::RedrawRequested => match state.render() {
                 Ok(_) => {}
                 Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
                 Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
                 Err(e) => log::error!("{:?}", e),
-            }
-        }
+            },
+            _ => {}
+        },
         Event::AboutToWait => {
             state.window.request_redraw();
         }
