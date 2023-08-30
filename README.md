@@ -21,10 +21,8 @@ See the online version in a WebGPU capable browser at https://wgpu-game-of-life.
 ## Platform: Android
 Use [cargo-apk](https://crates.io/crates/cargo-apk) to build and run (release builds requires the `CARGO_APK_RELEASE_KEYSTORE` and `CARGO_APK_RELEASE_KEYSTORE_PASSWORD` environment variables to be set):
 
-- `cargo apk build`: Build debug apk at `target/debug/apk/wgpu-game-of-life.apk`
-- `cargo apk build --release`: Build release apk at `target/release/apk/wgpu-game-of-life.apk`
-- `cargo apk run`: Run a debug build.
-- `cargo apk run --release`: Run a release build.
+- `cargo apk build [--release]`: Build apk at `target/[debug/release]/apk/wgpu-game-of-life.apk`
+- `cargo apk run [--release]`: Run app on connected device or emulator.
 
 ## Platform: iOS
 Run `make run-ios-simulator` to run inside the iOS simulator.
