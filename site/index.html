@@ -1,188 +1,232 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <meta name="description" content="Life-like simulations using WebGPU." />
-    <meta property="og:description" content="Life-like simulations using WebGPU." />
+    <meta
+      property="og:description"
+      content="Life-like simulations using WebGPU."
+    />
     <meta property="og:url" content="https://wgpu-game-of-life.fornwall.net" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="wgpu-game-of-life" />
-    <meta property="og:image" content="https://wgpu-game-of-life.fornwall.net/static/screenshot.png" />
+    <meta
+      property="og:image"
+      content="https://wgpu-game-of-life.fornwall.net/static/screenshot.png"
+    />
     <title>wgpu-game-of-life</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
-        html {
-            width: 100%;
-            height: 100%;
-            user-select: none;
-            background: black;
-        }
+      html {
+        width: 100%;
+        height: 100%;
+        user-select: none;
+        background: black;
+      }
 
-        body {
-            overscroll-behavior-y: none;
-        }
+      body {
+        overscroll-behavior-y: none;
+      }
 
-        canvas {
-            display: block;
-            height: 100dvh;
-            width: 100dvw;
-        }
+      canvas {
+        display: block;
+        height: 100dvh;
+        width: 100dvw;
+      }
 
-        canvas:focus {
-            outline: none;
-        }
+      canvas:focus {
+        outline: none;
+      }
 
-        #about {
-            user-select: none;
-            color: white;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid white;
-            padding: 1em;
-            border-radius: 0.5em;
-            text-align: center;
-            line-height: 1.5;
-        }
+      #about {
+        user-select: none;
+        color: white;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid white;
+        padding: 1em;
+        border-radius: 0.5em;
+        text-align: center;
+        line-height: 1.5;
+      }
 
-        #about h1,
-        #about h2,
-        #about p {
-            margin-bottom: 0.5em;
-            max-width: 25em;
-        }
+      #about h1,
+      #about h2,
+      #about p {
+        margin-bottom: 0.5em;
+        max-width: 25em;
+      }
 
-        #about h1 {
-            margin-top: 0;
-        }
+      #about h1 {
+        margin-top: 0;
+      }
 
-        #about h2 {
-            margin-top: 1em;
-        }
+      #about h2 {
+        margin-top: 1em;
+      }
 
-        #about a {
-            color: white;
-        }
+      #about a {
+        color: white;
+      }
 
-        #about::backdrop {
-          backdrop-filter: blur(3px);
-        }
+      #about::backdrop {
+        backdrop-filter: blur(3px);
+      }
 
-        a:focus {
-            outline: none;
-        }
+      a:focus {
+        outline: none;
+      }
 
-        #overlay {
-            padding: 0.6em;
-            color: white;
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            background: black;
-            opacity: 0.9;
-            transition: opacity 0.5s ease-in-out;
-        }
+      #overlay {
+        padding: 0.6em;
+        color: white;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        background: black;
+        opacity: 0.9;
+        transition: opacity 0.5s ease-in-out;
+      }
 
-        #overlay a {
-            color: white;
-        }
+      #overlay a {
+        color: white;
+      }
 
-        #overlay p {
-            margin-block-end: 0;
-        }
+      #overlay p {
+        margin-block-end: 0;
+      }
 
-        #overlay.hidden {
-            display: block !important;
-            opacity: 0;
-        }
+      #overlay.hidden {
+        display: block !important;
+        opacity: 0;
+      }
 
-        .hidden {
-            display: none;
-        }
+      .hidden {
+        display: none;
+      }
 
-        .hidden-due-to-dialog {
-            display: none;
-        }
+      .hidden-due-to-dialog {
+        display: none;
+      }
 
-        .input-row {
-            display: flex;
-            align-items: center;
-        }
+      .input-row {
+        display: flex;
+        align-items: center;
+      }
 
-        .max-width {
-            width: 100%;
-        }
+      .max-width {
+        width: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <canvas id="webgpu-canvas" tabindex="0"></canvas>
 
     <dialog id="about">
-        <h1>wgpu-game-of-life</h1>
-        <p id="webgpu-not-working" style="display: none">⚠️ <strong>NOTE:️</strong> <a
-                href="https://caniuse.com/webgpu">WebGPU is not working in your
-                browser</a> ⚠️</p>
-        <p>These are Life-like simulations done using WebGPU.
-            See <a href="https://github.com/fornwall/wgpu-game-of-life">the source code</a> for details.</p>
-        <p><a href="https://conwaylife.com/wiki/Life-like_cellular_automaton">Life-like</a> simulations consists of a
-            grid of cells. Each cell is <strong>alive</strong> or
-            <strong>dead</strong> - initially at random.
-        </p>
-        <p>A new generation is computed from the current one using a <strong>rule</strong> -
-            a function that given the the current state of the cell and the number of alive neighbours
-            determines if the cell will be alive in the next generation.</p>
+      <h1>wgpu-game-of-life</h1>
+      <p id="webgpu-not-working" style="display: none">
+        ⚠️ <strong>NOTE:️</strong>
+        <a href="https://caniuse.com/webgpu"
+          >WebGPU is not working in your browser</a
+        >
+        ⚠️
+      </p>
+      <p>
+        These are Life-like simulations done using WebGPU. See
+        <a href="https://github.com/fornwall/wgpu-game-of-life"
+          >the source code</a
+        >
+        for details.
+      </p>
+      <p>
+        <a href="https://conwaylife.com/wiki/Life-like_cellular_automaton"
+          >Life-like</a
+        >
+        simulations consists of a grid of cells. Each cell is
+        <strong>alive</strong> or <strong>dead</strong> - initially at random.
+      </p>
+      <p>
+        A new generation is computed from the current one using a
+        <strong>rule</strong> - a function that given the the current state of
+        the cell and the number of alive neighbours determines if the cell will
+        be alive in the next generation.
+      </p>
 
-        <p>A rule of the form <strong>B3/S1234</strong> (<a
-                href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life</a>, which is the
-            most famous rule)
-            means that a dead cell is born if it has 3 live neighbors, while a live cell will survive if it has 1, 2, 3
-            or 4 live neighbors.
-        </p>
-        <form>
-            <button id="close-dialog" formmethod="dialog">Ok</button>
-        </form>
+      <p>
+        A rule of the form <strong>B3/S1234</strong> (<a
+          href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life"
+          >Conway's Game of Life</a
+        >, the most famous rule) means that a dead cell is born if it has 3 live
+        neighbors, while a live cell will survive if it has 1, 2, 3 or 4 live
+        neighbors.
+      </p>
+      <form>
+        <button id="close-dialog" formmethod="dialog">Ok</button>
+      </form>
     </dialog>
 
     <div id="overlay" open="true">
-        <span id="overlay-buttons">
-            <button id="resetButton">Reset</button>
-            <button id="fullscreenButton">Fullscreen</button>
-            <button id="hideControlsButton">Controls</button>
-        </span>
-        <span id="hideableControls">
-            <p><label for="rule">Rule:&nbsp;</label></p>
-            <select id="rule" class="max-width"></select>
-            <p><label for="size">Grid size:&nbsp;</label></p>
-            <select id="size" class="max-width">
-                <option value="64">64x64</option>
-                <option value="128">128x128</option>
-                <option value="256">256x256</option>
-                <option value="512">512x512</option>
-                <option value="1024">1024x1024</option>
-                <option value="2048">2048x2048</option>
-            </select>
-            <p><label for="density">Initial density:&nbsp;<span id="density-display"></span></label></p>
-            <input type="range" class="max-width" id="density" min="1" max="99"></input>
-            <p><label for="generations-per-second">Generations / second:&nbsp;<span
-                        id="generations-per-second-display"></span></label>
-            </p>
-            <input type="range" id="generations-per-second" class="max-width" min="1" max="30"></input>
-            <p></p>
-            <div style="text-align: center;">
-                <button id="downloadButton" style="float: right">Image</button>
-                <a id="about-link" href="https://github.com/fornwall/wgpu-game-of-life">About</a>
-                <button id="pauseButton" style="width: 4em; float: left;">Pause</button>
-            </div>
-        </span>
+      <span id="overlay-buttons">
+        <button id="resetButton">Reset</button>
+        <button id="fullscreenButton">Fullscreen</button>
+        <button id="hideControlsButton">Controls</button>
+      </span>
+      <span id="hideableControls">
+        <p><label for="rule">Rule:&nbsp;</label></p>
+        <select id="rule" class="max-width"></select>
+        <p><label for="size">Grid size:&nbsp;</label></p>
+        <select id="size" class="max-width">
+          <option value="64">64x64</option>
+          <option value="128">128x128</option>
+          <option value="256">256x256</option>
+          <option value="512">512x512</option>
+          <option value="1024">1024x1024</option>
+          <option value="2048">2048x2048</option>
+        </select>
+        <p>
+          <label for="density"
+            >Initial density:&nbsp;<span id="density-display"></span
+          ></label>
+        </p>
+        <input type="range" class="max-width" id="density" min="1" max="99" />
+        <p>
+          <label for="generations-per-second"
+            >Generations / second:&nbsp;<span
+              id="generations-per-second-display"
+            ></span
+          ></label>
+        </p>
+        <input
+          type="range"
+          id="generations-per-second"
+          class="max-width"
+          min="1"
+          max="30"
+        />
+        <p></p>
+        <div style="text-align: center">
+          <button id="downloadButton" style="float: right">Image</button>
+          <a
+            id="about-link"
+            href="https://github.com/fornwall/wgpu-game-of-life"
+            >About</a
+          >
+          <button id="pauseButton" style="width: 4em; float: left">
+            Pause
+          </button>
+        </div>
+      </span>
     </div>
-</body>
-
+  </body>
 </html>
