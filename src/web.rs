@@ -173,8 +173,8 @@ pub async fn run(
     )
     .await?;
 
-    event_loop.spawn(move |event, _, control_flow| {
-        crate::event_loop::handle_event_loop(&event, &mut state, control_flow);
+    event_loop.spawn(move |event, event_loop_window_target| {
+        crate::event_loop::handle_event_loop(&event, &mut state, event_loop_window_target);
     });
 
     Ok(())

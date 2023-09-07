@@ -17,11 +17,11 @@ fn main() {
                     .unwrap();
 
             event_loop
-                .run(move |event, _, control_flow| {
+                .run(move |event, event_loop_window_target| {
                     wgpu_game_of_life::event_loop::handle_event_loop(
                         &event,
                         &mut state,
-                        control_flow,
+                        event_loop_window_target,
                     );
                 })
                 .unwrap();

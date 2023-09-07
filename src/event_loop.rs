@@ -1,6 +1,6 @@
 use winit::{
     event::{ElementState, Event, KeyEvent, WindowEvent},
-    event_loop::ControlFlow,
+    event_loop::EventLoopWindowTarget,
 };
 
 #[cfg(target_arch = "wasm32")]
@@ -13,7 +13,14 @@ type EventTypeUsed = crate::web::EventTypeUsed;
 #[cfg(not(target_arch = "wasm32"))]
 type EventTypeUsed = winit::event::Event<()>;
 
-pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow: &mut ControlFlow) {
+pub fn handle_event_loop(
+    event: &EventTypeUsed,
+    state: &mut State,
+    #[cfg(target_arch = "wasm32")] event_loop_window_target: &EventLoopWindowTarget<
+        CustomWinitEvent,
+    >,
+    #[cfg(not(target_arch = "wasm32"))] event_loop_window_target: &EventLoopWindowTarget<()>,
+) {
     match event {
         #[cfg(target_arch = "wasm32")]
         Event::UserEvent(event) => match event {
@@ -151,7 +158,7 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
                         ..
                     },
                 ..
-            } => *control_flow = ControlFlow::Exit,
+            } => event_loop_window_target.exit(),
             #[cfg(target_arch = "wasm32")]
             WindowEvent::KeyboardInput {
                 event:
@@ -181,7 +188,7 @@ pub fn handle_event_loop(event: &EventTypeUsed, state: &mut State, control_flow:
             WindowEvent::RedrawRequested => match state.render() {
                 Ok(_) => {}
                 Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
-                Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                Err(wgpu::SurfaceError::OutOfMemory) => event_loop_window_target.exit(),
                 Err(e) => log::error!("{:?}", e),
             },
             _ => {}

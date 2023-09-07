@@ -18,11 +18,11 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
         .build()
         .unwrap();
 
-    let _ = event_loop.run(move |event, event_loop, control_flow| match event {
+    let _ = event_loop.run(move |event, event_loop_window_target| match event {
         winit::event::Event::Resumed => {
             let window = winit::window::WindowBuilder::new()
                 .with_fullscreen(None)
-                .build(event_loop)
+                .build(event_loop_window_target)
                 .unwrap();
 
             pollster::block_on(setup(window, &mut maybe_state));
@@ -32,7 +32,7 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
         }
         _ => {
             if let Some(ref mut state) = &mut maybe_state {
-                crate::event_loop::handle_event_loop(&event, state, control_flow);
+                crate::event_loop::handle_event_loop(&event, state, event_loop_window_target);
             }
         }
     });
