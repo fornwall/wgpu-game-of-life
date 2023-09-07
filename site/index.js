@@ -74,23 +74,27 @@ globalThis.toggleFullscreen = function () {
   canvas.focus();
 };
 
-document.documentElement.addEventListener(
-  "mousemove",
-  () => {
+function setOverlayVisibility(visible) {
+  if (visible) {
     overlayElement.classList.remove("hidden");
+    canvas.classList.remove("nocursor");
     setHideTimeout();
-  },
-  { passive: true },
-);
+  } else {
+    overlayElement.classList.add("hidden");
+    canvas.classList.add("nocursor");
+    canvas.focus();
+  }
+}
 
-document.documentElement.addEventListener(
-  "touchstart",
-  () => {
-    overlayElement.classList.remove("hidden");
-    setHideTimeout();
-  },
-  { passive: true },
-);
+for (const event_name of ["mousemove", "touchstart"]) {
+  document.documentElement.addEventListener(
+    event_name,
+    () => {
+      setOverlayVisibility(true);
+    },
+    { passive: true },
+  );
+}
 
 let currentHideTimeout = null;
 
@@ -102,8 +106,7 @@ function setHideTimeout() {
   if (controls.classList.contains("hidden")) {
     currentHideTimeout = setTimeout(() => {
       if (controls.classList.contains("hidden")) {
-        overlayElement.classList.add("hidden");
-        canvas.focus();
+        setOverlayVisibility(false);
       }
       currentHideTimeout = null;
     }, 1500);
@@ -112,13 +115,7 @@ function setHideTimeout() {
 
 globalThis.toggleControls = function () {
   controls.classList.toggle("hidden");
-  if (controls.classList.contains("hidden")) {
-    canvas.focus();
-  } else {
-    overlayElement.classList.remove("hidden");
-  }
-  setHideTimeout();
-  canvas.focus();
+  setOverlayVisibility(true);
 };
 
 try {

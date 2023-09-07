@@ -107,6 +107,7 @@
       }
 
       #overlay.hidden {
+        /* TODO: Use display animation to set display:none at end of animation, https://chromestatus.com/feature/5154958272364544 */
         display: block !important;
         opacity: 0;
       }
@@ -126,6 +127,10 @@
 
       .max-width {
         width: 100%;
+      }
+
+      .nocursor {
+        cursor: none;
       }
     </style>
   </head>
