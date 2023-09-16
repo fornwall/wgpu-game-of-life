@@ -33,7 +33,7 @@ Run `make run-ios-simulator` to run inside the iOS simulator.
 
 ## Platform: Web
 
-Run `make web` to build the web version - this will open a browser against a port on localhost.
+Run `make serve-site` to build, serve and open the web version in a browser.
 
 ## Resources
 
