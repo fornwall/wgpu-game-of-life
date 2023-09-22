@@ -5,7 +5,7 @@ edition = "2021"
 description = "Wgpu game of life"
 license = "MIT"
 repository = "https://github.com/fornwall/wgpu-game-of-life"
-keywords = ["advent-of-code"]
+keywords = ["wgpu", "webgpu", "wgsl"]
 categories = ["graphics"]
 
 [lib]
