@@ -174,7 +174,7 @@ impl Renderer {
                         b: 0.,
                         a: 1.,
                     }),
-                    store: true,
+                    store: wgpu::StoreOp::Store,
                 },
             })],
             ..Default::default()

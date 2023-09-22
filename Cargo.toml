@@ -24,7 +24,9 @@ instant = { version = "*", features = ["wasm-bindgen"] }
 pollster = "*"
 rand = "*"
 rand_chacha = "*"
-wgpu = { git = "https://github.com/gfx-rs/wgpu", branch = "trunk" }
+# wgpu = { git = "https://github.com/gfx-rs/wgpu", branch = "trunk" }
+# See https://github.com/gfx-rs/wgpu/pull/4164
+wgpu = { git = "https://github.com/fornwall/wgpu", branch = "fix-building-git-version-on-mac" }
 winit = { git = "https://github.com/rust-windowing/winit/", branch = "master", features = [ "android-native-activity" ] }
 
 [target.'cfg(target_os = "android")'.dependencies]
