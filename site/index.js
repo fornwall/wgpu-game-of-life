@@ -205,7 +205,7 @@ const registerServiceWorker = async () => {
         if (registration.installing) {
           registration.installing.addEventListener("statechange", () => {
             if (registration.waiting && navigator.serviceWorker.controller) {
-              //window.location.reload();
+              window.location.reload();
             }
           });
         }
