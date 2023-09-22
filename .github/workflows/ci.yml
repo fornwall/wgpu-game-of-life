@@ -34,7 +34,7 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
       - run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-      - run: cargo binstall wasm-bindgen-cli
+      - run: cargo binstall --no-confirm wasm-bindgen-cli
       - uses: Homebrew/actions/setup-homebrew@master
       - name: Install wasm-opt
         run: brew update && brew install binaryen
