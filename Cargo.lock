@@ -1854,7 +1854,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/fornwall/wgpu?branch=fix-building-git-version-on-mac#84609dd6ac6a6976711315a0a8bcd65f42924821"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#85e2141355adb37cd58f90a5fcd889e14a659a91"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1877,7 +1877,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/fornwall/wgpu?branch=fix-building-git-version-on-mac#84609dd6ac6a6976711315a0a8bcd65f42924821"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#85e2141355adb37cd58f90a5fcd889e14a659a91"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1924,7 +1924,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/fornwall/wgpu?branch=fix-building-git-version-on-mac#84609dd6ac6a6976711315a0a8bcd65f42924821"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#85e2141355adb37cd58f90a5fcd889e14a659a91"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1964,7 +1964,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/fornwall/wgpu?branch=fix-building-git-version-on-mac#84609dd6ac6a6976711315a0a8bcd65f42924821"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#85e2141355adb37cd58f90a5fcd889e14a659a91"
 dependencies = [
  "bitflags 2.4.0",
  "js-sys",
@@ -2161,7 +2161,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 [[package]]
 name = "winit"
 version = "0.29.1-beta"
-source = "git+https://github.com/rust-windowing/winit/?branch=master#c8b685ddbc0ac7d2a122ae47d6ecea968c1ecae5"
+source = "git+https://github.com/rust-windowing/winit/?branch=master#e2e01e1fc63a3d31bb391d87926c0acfe3ad846b"
 dependencies = [
  "android-activity",
  "atomic-waker",
