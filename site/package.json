@@ -1,13 +1,20 @@
 {
   "type": "module",
   "scripts": {
+    "check": "eslint . --ext .js && prettier --check .",
+    "fix": "eslint --fix **/*.js",
+    "format": "prettier --write .",
     "webpack": "webpack"
   },
   "devDependencies": {
     "copy-webpack-plugin": "*",
+    "eslint": "*",
+    "eslint-config-prettier": "*",
     "html-webpack-plugin": "*",
+    "prettier": "*",
     "webpack": "*",
     "webpack-cli": "*",
-    "webpack-dev-server": "*"
+    "webpack-dev-server": "*",
+    "workbox-webpack-plugin": "*"
   }
 }

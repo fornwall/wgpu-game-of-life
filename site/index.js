@@ -45,13 +45,13 @@ globalThis.setNewState = function (
   density,
   paused,
   generationsPerSecond,
-  frame,
+  _frame,
 ) {
   document.title = ruleSelect.options[ruleIdx].textContent;
   sizeSelect.value = size;
   ruleSelect.value = ruleIdx;
-  const queryString = `?rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}`;
-  window.history.replaceState({}, "", queryString);
+  const hash = `#rule=${ruleIdx}&size=${size}&seed=${seed}&density=${density}&gps=${generationsPerSecond}`;
+  window.history.replaceState({}, "", hash);
 
   pauseButton.textContent = paused ? "Play" : "Pause";
 
@@ -161,7 +161,7 @@ try {
     setGenerationsPerSecond(generationsPerSecondInput.value);
   });
 
-  const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(window.location.hash.substring(1));
   const rule = parseInt(urlParams.get("rule"));
   const size = parseInt(urlParams.get("size"));
   const seed = parseInt(urlParams.get("seed"));
@@ -179,3 +179,41 @@ try {
   aboutDialog.addEventListener("cancel", (e) => e.preventDefault());
   aboutDialog.showModal();
 }
+
+const registerServiceWorker = async () => {
+  const digestMessage = async (message) => {
+    const msgUint8 = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  };
+
+  if ("serviceWorker" in navigator) {
+    try {
+      const swResponse = await fetch("/service-worker.js?ts=" + Date.now());
+      const swText = await swResponse.text();
+      const swHash = digestMessage(swText);
+      const registration = await navigator.serviceWorker.register(
+        "/service-worker.js?hash=" + swHash,
+        {
+          scope: "/",
+        },
+      );
+
+      // https://whatwebcando.today/articles/handling-service-worker-updates/
+      registration.addEventListener("updatefound", () => {
+        if (registration.installing) {
+          registration.installing.addEventListener("statechange", () => {
+            if (registration.waiting && navigator.serviceWorker.controller) {
+              //window.location.reload();
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error(`Registration failed with ${error}`);
+    }
+  }
+};
+
+registerServiceWorker();

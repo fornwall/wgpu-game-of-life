@@ -19,6 +19,12 @@ jobs:
           targets: aarch64-apple-darwin, wasm32-unknown-unknown, x86_64-linux-android, x86_64-pc-windows-msvc, x86_64-unknown-linux-gnu
       - run: make
 
+  check-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make check-js
+
   generate-wasm:
     runs-on: ubuntu-latest
     steps:
@@ -58,9 +64,7 @@ jobs:
       - name: Install wasm-opt
         run: brew update && brew install binaryen
       - run: cargo install wasm-bindgen-cli
-      - run: make WASM_RELEASE=1 generate-wasm
-      - run: npm i && npm run webpack -- --mode=production
-        working-directory: site
+      - run: make WASM_RELEASE=1 build-site
       - name: Publish
         uses: cloudflare/pages-action@1
         with:

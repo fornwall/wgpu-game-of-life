@@ -51,8 +51,14 @@ endif
 CARGO_COMMAND = cargo
 
 check:
-	$(CARGO_COMMAND) fmt --all
+	$(CARGO_COMMAND) fmt --all --check
 	RUSTFLAGS="--cfg=web_sys_unstable_apis" $(CARGO_COMMAND) clippy $(CLIPPY_TARGETS) $(CLIPPY_PARAMS)
+
+check-js:
+	cd site && npm install && npm run check
+
+format-js:
+	cd site && npm install && npm run format
 
 macos-app:
 	rustup target add aarch64-apple-darwin x86_64-apple-darwin
@@ -101,5 +107,8 @@ wasm-size: generate-wasm
 	cargo watch --ignore crates/wasm/site --shell '$(MAKE) generate-wasm'
 
 serve-site: --run-devserver --watch-and-build-wasm ;
+
+build-site: generate-wasm
+	cd site && rm -Rf dist && npm install && NODE_ENV=production npm run webpack -- --mode=production
 
 .PHONY: check macos-app android-apk run-app build-ios-simulator-app run-ios-simulator generate-wasm wasm-size --run-devserver --watch-and-build-wasm serve-site
