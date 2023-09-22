@@ -216,4 +216,9 @@ const registerServiceWorker = async () => {
   }
 };
 
+console.log("About to register");
+globalThis.addEventListener("pageshow", () => {
+  console.log("pageshow event fired");
+  registerServiceWorker();
+});
 registerServiceWorker();
