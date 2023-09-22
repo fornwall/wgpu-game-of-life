@@ -205,6 +205,7 @@ const registerServiceWorker = async () => {
         if (registration.installing) {
           registration.installing.addEventListener("statechange", () => {
             if (registration.waiting && navigator.serviceWorker.controller) {
+              console.log("Reloading page due to service worker update");
               window.location.reload();
             }
           });
@@ -216,9 +217,4 @@ const registerServiceWorker = async () => {
   }
 };
 
-console.log("About to register - v2");
-globalThis.addEventListener("pageshow", () => {
-  console.log("pageshow event fired - v2");
-  registerServiceWorker();
-});
 registerServiceWorker();
