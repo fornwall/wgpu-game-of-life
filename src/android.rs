@@ -5,6 +5,8 @@ use winit::event_loop::EventLoopBuilder;
 fn android_main(app: winit::platform::android::activity::AndroidApp) {
     use winit::platform::android::EventLoopBuilderExtAndroid;
 
+    let mut gamepads = gamepads::Gamepads::new();
+
     android_logger::init_once(
         android_logger::Config::default().with_max_level(log::LevelFilter::Warn),
     );
@@ -15,10 +17,11 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
 
     let event_loop = EventLoopBuilder::new()
         .with_android_app(app)
+        //.with_input_event_listener(&mut gamepads)
         .build()
         .unwrap();
 
-    let _ = event_loop.run(move |event, event_loop_window_target| match event {
+    let _ = event_loop.run(|event, event_loop_window_target| match event {
         winit::event::Event::Resumed => {
             let window = winit::window::WindowBuilder::new()
                 .with_fullscreen(None)
@@ -32,6 +35,7 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
         }
         _ => {
             if let Some(ref mut state) = &mut maybe_state {
+                gamepads.on_event(&event);
                 crate::event_loop::handle_event_loop(&event, state, event_loop_window_target);
             }
         }

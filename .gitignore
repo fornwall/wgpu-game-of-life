@@ -18,6 +18,10 @@ node_modules/
 
 *.swp
 *.swo
+*.so
 .DS_Store
 
 **/package-lock.json
+
+.gradle/
+build/

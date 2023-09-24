@@ -3,11 +3,15 @@ WASM_BINDGEN = wasm-bindgen --target web --weak-refs --reference-types
 WASM_TARGET_FEATURES := "+bulk-memory,+mutable-globals,+nontrapping-fptoint,+sign-ext,+simd128,+reference-types"
 WASM_DIR = debug
 WASM_OPT = wasm-opt --all-features --disable-gc
-ifeq ($(WASM_RELEASE),1)
-  WASM_BUILD_PROFILE := --release
+ifeq ($(RELEASE),1)
+  CARGO_BUILD_PROFILE := --release
+  GRADLE_BUILD_TASK := assembleRelease
+  GRADLE_RUN_TASK := installRelease
   WASM_DIR=release
   WASM_OPT += -O3
 else
+  GRADLE_BUILD_TASK := assembleDebug
+  GRADLE_RUN_TASK := installDebug
   WASM_OPT += -O0
 endif
 
@@ -68,10 +72,15 @@ macos-app:
 	cd target/aarch64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
 	cd target/x86_64-apple-darwin/release/bundle/osx && tar cf "Game of Life.app.tar" "Game of Life.app"
 
-android-apk:
-	rustup target add x86_64-linux-android aarch64-linux-android
-	cargo install cargo-apk
-	cargo apk build
+build-android:
+	./gradlew $(GRADLE_BUILD_TASK)
+
+run-android:
+	./gradlew $(GRADLE_RUN_TASK)
+	adb shell am start -n net.fornwall.wgpugameoflife/android.app.NativeActivity
+
+uninstall-android:
+	adb uninstall net.fornwall.wgpugameoflife
 
 run-app:
 	@cargo bundle --release &> /dev/null
@@ -92,7 +101,7 @@ generate-wasm:
 	# --cfg=web_sys_unstable_apis is necessary for webgpu:
 	# https://rustwasm.github.io/wasm-bindgen/api/web_sys/enum.GpuTextureFormat.html
 	RUSTFLAGS="--cfg=web_sys_unstable_apis -C target-feature=$(WASM_TARGET_FEATURES)" \
-		cargo build $(WASM_BUILD_PROFILE) --target wasm32-unknown-unknown
+		cargo build $(CARGO_BUILD_PROFILE) --target wasm32-unknown-unknown
 	rm -Rf site/generated
 	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_game_of_life.wasm
 	$(WASM_OPT) -o site/generated/wgpu_game_of_life_bg.wasm site/generated/wgpu_game_of_life_bg.wasm

@@ -41,7 +41,7 @@ jobs:
       - run: make generate-wasm
       - run: test -f site/generated/wgpu_game_of_life_bg.wasm
       - run: rm site/generated/wgpu_game_of_life_bg.wasm
-      - run: make WASM_RELEASE=1 generate-wasm
+      - run: make RELEASE=1 generate-wasm
       - run: test -f site/generated/wgpu_game_of_life_bg.wasm
 
   deploy-site:
@@ -66,7 +66,7 @@ jobs:
         run: brew update && brew install binaryen
       - run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
       - run: cargo binstall --no-confirm wasm-bindgen-cli
-      - run: make WASM_RELEASE=1 build-site
+      - run: make RELEASE=1 build-site
       - name: Publish
         uses: cloudflare/pages-action@1
         with:
@@ -83,7 +83,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - run: make android-apk
+      - run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+      - run: cargo binstall --no-confirm cargo-ndk
+      - run: make build-android
 
   build-ios-simulator-app:
     runs-on: macos-latest
