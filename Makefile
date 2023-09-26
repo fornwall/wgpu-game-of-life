@@ -99,7 +99,7 @@ run-ios-simulator: build-ios-simulator-app
 	xcrun simctl install booted "target/aarch64-apple-ios-sim/debug/bundle/ios/Game of Life.app"
 	xcrun simctl launch --console booted "net.fornwall.wgpugameoflife"
 
-generate-wasm:
+build-wasm:
 	# --cfg=web_sys_unstable_apis is necessary for webgpu:
 	# https://rustwasm.github.io/wasm-bindgen/api/web_sys/enum.GpuTextureFormat.html
 	RUSTFLAGS="--cfg=web_sys_unstable_apis -C target-feature=$(WASM_TARGET_FEATURES)" \
@@ -108,18 +108,18 @@ generate-wasm:
 	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_game_of_life.wasm
 	$(WASM_OPT) -o site/generated/wgpu_game_of_life_bg.wasm site/generated/wgpu_game_of_life_bg.wasm
 
-wasm-size: generate-wasm
+wasm-size: build-wasm
 	ls -la site/generated/wgpu_game_of_life_bg.wasm
 
 --run-devserver:
 	cd site && npm run webpack serve -- --mode=development --open
 
 --watch-and-build-wasm:
-	cargo watch --ignore crates/wasm/site --shell '$(MAKE) generate-wasm'
+	cargo watch --ignore crates/wasm/site --shell '$(MAKE) build-wasm'
 
-serve-site: --run-devserver --watch-and-build-wasm ;
-
-build-site: generate-wasm
+build-web: build-wasm
 	cd site && rm -Rf dist && npm install && NODE_ENV=production npm run webpack -- --mode=production
+
+run-web: --run-devserver --watch-and-build-wasm ;
 
 .PHONY: check macos-app android-apk run-app build-ios-simulator-app run-ios-simulator generate-wasm wasm-size --run-devserver --watch-and-build-wasm serve-site
