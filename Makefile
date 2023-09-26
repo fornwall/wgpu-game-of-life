@@ -122,4 +122,4 @@ build-web: build-wasm
 
 run-web: --run-devserver --watch-and-build-wasm ;
 
-.PHONY: check macos-app android-apk run-app build-ios-simulator-app run-ios-simulator generate-wasm wasm-size --run-devserver --watch-and-build-wasm serve-site
+.PHONY: check check-js format-js macos-app build-android run-android uninstall-android run-app build-ios-simulator-app run-ios-simulator build-wasm wasm-size --run-devserver --watch-and-build-wasm build-web run-web

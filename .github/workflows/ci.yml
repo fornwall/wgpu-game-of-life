@@ -38,10 +38,10 @@ jobs:
       - uses: Homebrew/actions/setup-homebrew@master
       - name: Install wasm-opt
         run: brew update && brew install binaryen
-      - run: make generate-wasm
+      - run: make build-wasm
       - run: test -f site/generated/wgpu_game_of_life_bg.wasm
       - run: rm site/generated/wgpu_game_of_life_bg.wasm
-      - run: make RELEASE=1 generate-wasm
+      - run: make RELEASE=1 build-wasm
       - run: test -f site/generated/wgpu_game_of_life_bg.wasm
 
   deploy-site:
@@ -80,6 +80,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
