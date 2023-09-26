@@ -24,8 +24,8 @@ It's based on [WebGPU Samples](https://webgpu.github.io/webgpu-samples/samples/g
 
 Use [cargo-ndk](https://crates.io/crates/cargo-ndk) to build and run (release builds requires the `CARGO_APK_RELEASE_KEYSTORE` and `CARGO_APK_RELEASE_KEYSTORE_PASSWORD` environment variables to be set).
 
-- `cargo apk build [--release]`: Build apk at `target/[debug/release]/apk/wgpu-game-of-life.apk`
-- `cargo apk run [--release]`: Run app on connected device or emulator.
+- `make [RELEASE=1] build-android`: Build apk at `target/[debug/release]/apk/wgpu-game-of-life.apk`
+- `make [RELEASE=1] run-android`: Run app on connected device or emulator.
 
 ## Platform: iOS
 
