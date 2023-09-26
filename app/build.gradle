@@ -3,26 +3,26 @@ plugins {
 }
 
 android {
-    namespace "net.fornwall.wgpugameoflife"
-    ndkVersion "26.0.10792818"
-    compileSdk 34
+    namespace = "net.fornwall.wgpugameoflife"
+    ndkVersion = "26.0.10792818"
+    compileSdk = 34
 
     defaultConfig {
-        minSdk 28
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        minSdk = 28
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            minifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
-            minifyEnabled false
+            minifyEnabled = false
             //packagingOptions {
             //    doNotStrip "**/*.so"
             //}
@@ -30,25 +30,25 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
 task buildRustDebug(type:Exec){
-    workingDir ".."
-    commandLine "cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build"
+    workingDir = ".."
+    commandLine("cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build")
 }
 
 task buildRustRelease(type:Exec){
-    workingDir ".."
-    commandLine "cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build", "--release"
+    workingDir = ".."
+    commandLine("cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build", "--release")
 }
 
 tasks.whenTaskAdded { task ->
     if ((task.name == "assembleDebug") || (task.name == "installDebug")) {
-        task.dependsOn "buildRustDebug"
+        task.dependsOn("buildRustDebug")
     } else if ((task.name == "assembleRelease") || (task.name == "installRelease")) {
-        task.dependsOn "buildRustRelease"
+        task.dependsOn("buildRustRelease")
     }
 }
