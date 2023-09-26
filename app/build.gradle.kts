@@ -1,5 +1,5 @@
 plugins {
-    id "com.android.application"
+    id("com.android.application")
 }
 
 android {
@@ -18,11 +18,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled = false
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
-            minifyEnabled = false
+            isMinifyEnabled = false
             //packagingOptions {
             //    doNotStrip "**/*.so"
             //}
@@ -35,20 +35,27 @@ android {
     }
 }
 
-task buildRustDebug(type:Exec){
-    workingDir = ".."
-    commandLine("cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build")
+fun runCargo(release: Boolean): Array<String> {
+    var parameters = arrayOf("cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build")
+    if (release) parameters += "--release"
+    return parameters
 }
 
-task buildRustRelease(type:Exec){
-    workingDir = ".."
-    commandLine("cargo", "ndk", "-t", "arm64-v8a", "-t", "x86_64", "-o", "app/src/main/jniLibs/", "build", "--release")
+task<Exec>("buildRustDebug") {
+    workingDir = file("..")
+    commandLine(*runCargo(false))
 }
 
-tasks.whenTaskAdded { task ->
-    if ((task.name == "assembleDebug") || (task.name == "installDebug")) {
-        task.dependsOn("buildRustDebug")
-    } else if ((task.name == "assembleRelease") || (task.name == "installRelease")) {
-        task.dependsOn("buildRustRelease")
+task<Exec>("buildRustRelease") {
+    workingDir = file("..")
+    commandLine(*runCargo(true))
+}
+
+tasks.whenTaskAdded {
+    if (name == "packageDebug") {
+        dependsOn("buildRustDebug")
+    } else if (name == "packageRelease") {
+        dependsOn("buildRustRelease")
     }
 }
+

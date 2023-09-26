@@ -78,6 +78,8 @@ build-android:
 run-android:
 	./gradlew $(GRADLE_RUN_TASK)
 	adb shell am start -n net.fornwall.wgpugameoflife/android.app.NativeActivity
+	sleep 2
+	adb logcat -v color --pid=`adb shell pidof -s net.fornwall.wgpugameoflife`
 
 uninstall-android:
 	adb uninstall net.fornwall.wgpugameoflife
