@@ -55,7 +55,6 @@ pub fn set_new_rule(rule_idx: u32) {
     });
 }
 
-#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "setNewSize")]
 pub fn set_new_size(size: u32) {
     EVENT_LOOP_PROXY.with(|proxy| {

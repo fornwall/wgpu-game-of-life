@@ -4,7 +4,7 @@ pub mod computer;
 pub mod event_loop;
 mod renderer;
 pub mod rules;
-#[cfg(target_arch = "wasm32")]
+#[cfg(target_family = "wasm")]
 mod web;
 
 use computer::{Computer, ComputerFactory};
@@ -205,7 +205,7 @@ impl State {
     }
 
     fn inform_ui_about_state(&self) {
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(not(family = "wasm"))]
         self.window.set_title(&format!(
             "{} {}x{} 0.{} {} {}/s",
             rules::RULES[self.rule_idx as usize].name(),
@@ -216,7 +216,7 @@ impl State {
             self.generations_per_second,
         ));
 
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(target_family = "wasm")]
         web::set_new_state(
             self.rule_idx,
             self.cells_width,

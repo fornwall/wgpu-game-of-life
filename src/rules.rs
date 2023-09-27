@@ -1,8 +1,8 @@
-#[cfg(target_arch = "wasm32")]
+#[cfg(target_family = "wasm")]
 use wasm_bindgen::prelude::*;
 
 #[derive(Clone, Copy)]
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen)]
 pub struct Rule {
     pub born: u16,
     pub survives: u16,
@@ -10,7 +10,7 @@ pub struct Rule {
     name: &'static str,
 }
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen)]
 impl Rule {
     pub(crate) fn rule_array(&self) -> [u32; 2] {
         [u32::from(self.born), u32::from(self.survives)]
@@ -136,7 +136,7 @@ pub static RULES: [Rule; 17] = [
     },
 ];
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(target_family = "wasm")]
 #[wasm_bindgen(js_name = getRules)]
 pub fn get_rules() -> wasm_bindgen::prelude::JsValue {
     wasm_bindgen::prelude::JsValue::from(

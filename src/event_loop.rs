@@ -3,26 +3,26 @@ use winit::{
     event_loop::EventLoopWindowTarget,
 };
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(target_family = "wasm")]
 use crate::web::CustomWinitEvent;
 use crate::State;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(target_family = "wasm")]
 type EventTypeUsed = crate::web::EventTypeUsed;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(target_family = "wasm"))]
 type EventTypeUsed = winit::event::Event<()>;
 
 pub fn handle_event_loop(
     event: &EventTypeUsed,
     state: &mut State,
-    #[cfg(target_arch = "wasm32")] event_loop_window_target: &EventLoopWindowTarget<
+    #[cfg(target_family = "wasm")] event_loop_window_target: &EventLoopWindowTarget<
         CustomWinitEvent,
     >,
-    #[cfg(not(target_arch = "wasm32"))] event_loop_window_target: &EventLoopWindowTarget<()>,
+    #[cfg(not(target_family = "wasm"))] event_loop_window_target: &EventLoopWindowTarget<()>,
 ) {
     match event {
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(target_family = "wasm")]
         Event::UserEvent(event) => match event {
             &CustomWinitEvent::RuleChange(new_rule_idx) => {
                 state.set_rule_idx(new_rule_idx);
@@ -101,11 +101,11 @@ pub fn handle_event_loop(
                 ..
             } => {
                 if c == "f" || c == "F" {
-                    #[cfg(target_arch = "wasm32")]
+                    #[cfg(target_family = "wasm")]
                     {
                         crate::web::toggle_fullscreen();
                     }
-                    #[cfg(not(target_arch = "wasm32"))]
+                    #[cfg(not(target_family = "wasm"))]
                     {
                         if state.window.fullscreen().is_some() {
                             state.window.set_fullscreen(None);
@@ -116,10 +116,10 @@ pub fn handle_event_loop(
                         }
                     }
                 } else if c == "c" || c == "C" {
-                    #[cfg(target_arch = "wasm32")]
+                    #[cfg(target_family = "wasm")]
                     crate::web::toggle_controls();
                 } else if c == "i" || c == "I" {
-                    #[cfg(target_arch = "wasm32")]
+                    #[cfg(target_family = "wasm")]
                     crate::web::download_image();
                 } else if c == "r" || c == "R" {
                     state.reset();
@@ -147,7 +147,7 @@ pub fn handle_event_loop(
                     state.reset_with_cells_width(new_size, new_size);
                 }
             }
-            #[cfg(not(target_arch = "wasm32"))]
+            #[cfg(not(target_family = "wasm"))]
             #[cfg(not(target_arch = "android"))]
             WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
@@ -159,7 +159,7 @@ pub fn handle_event_loop(
                     },
                 ..
             } => event_loop_window_target.exit(),
-            #[cfg(target_arch = "wasm32")]
+            #[cfg(target_family = "wasm")]
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {

@@ -1,6 +1,5 @@
 fn main() {
-    #[cfg(not(target_arch = "android"))]
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
     {
         pub async fn run() {
             env_logger::init();
