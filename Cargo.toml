@@ -18,7 +18,6 @@ codegen-units = 1
 
 [dependencies]
 bytemuck = { version = "*", features = ["derive"] }
-env_logger = "*"
 log = "*"
 instant = { version = "*", features = ["wasm-bindgen"] }
 pollster = "*"
@@ -28,12 +27,15 @@ wgpu = { git = "https://github.com/gfx-rs/wgpu", branch = "trunk" }
 #winit = { git = "https://github.com/rust-windowing/winit/", branch = "master", features = [ "android-native-activity", ] }
 winit = { git = "https://github.com/fornwall/winit/", branch = "axis-update-on-android", features = [ "android-native-activity", ] }
 
+[target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies]
+env_logger = "*"
+
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "*"
 jni = "*"
 gamepads = { git = "https://github.com/fornwall/gamepads", features = ["android-winit"] }
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
+[target.'cfg(target_family = "wasm")'.dependencies]
 console_error_panic_hook = "*"
 console_log = "*"
 getrandom = { version = "*", features = ["js"] }

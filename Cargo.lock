@@ -62,7 +62,7 @@ checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
 [[package]]
 name = "android-activity"
 version = "0.5.0-beta.1"
-source = "git+https://github.com/fornwall/android-activity/?branch=pointer-away-from-ndk#9930b9bf90a9fd547aaf71e5f78a98e13c2a4439"
+source = "git+https://github.com/rust-mobile/android-activity/#219a14bda1745ff3a9983cf099d7822392cbb97c"
 dependencies = [
  "android-properties",
  "bitflags 2.4.0",
@@ -602,7 +602,7 @@ checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 [[package]]
 name = "gamepads"
 version = "0.1.6"
-source = "git+https://github.com/fornwall/gamepads#24498005ea6177f1497935a06d8bd78c9428341b"
+source = "git+https://github.com/fornwall/gamepads#434dc16a65defd7e74d36fd17841ce5dfafb1c05"
 dependencies = [
  "android_logger",
  "gilrs",
@@ -1627,18 +1627,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.48"
+version = "1.0.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d6d7a740b8a666a7e828dd00da9c0dc290dff53154ea77ac109281de90589b7"
+checksum = "1177e8c6d7ede7afde3585fd2513e611227efd6481bd78d2e82ba1ce16557ed4"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.48"
+version = "1.0.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35"
+checksum = "10712f02019e9288794769fba95cd6847df9874d49d871d062172f9dd41bc4cc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1938,7 +1938,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#21e20076a09cdefaed3baadfaf23836cc0c9c7af"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#8d32dc2b47f8fa3d9d568f3d1a8150d208895f30"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1961,7 +1961,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#21e20076a09cdefaed3baadfaf23836cc0c9c7af"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#8d32dc2b47f8fa3d9d568f3d1a8150d208895f30"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2009,7 +2009,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#21e20076a09cdefaed3baadfaf23836cc0c9c7af"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#8d32dc2b47f8fa3d9d568f3d1a8150d208895f30"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2049,7 +2049,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.17.0"
-source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#21e20076a09cdefaed3baadfaf23836cc0c9c7af"
+source = "git+https://github.com/gfx-rs/wgpu?branch=trunk#8d32dc2b47f8fa3d9d568f3d1a8150d208895f30"
 dependencies = [
  "bitflags 2.4.0",
  "js-sys",
@@ -2265,7 +2265,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 [[package]]
 name = "winit"
 version = "0.29.1-beta"
-source = "git+https://github.com/fornwall/winit/?branch=axis-update-on-android#0ce7e9f3ce8f10ab084b6d9fe39d2eb3f2815a2f"
+source = "git+https://github.com/fornwall/winit/?branch=axis-update-on-android#25a093a25a67481562eda8bb58454c891e193c70"
 dependencies = [
  "android-activity",
  "atomic-waker",
