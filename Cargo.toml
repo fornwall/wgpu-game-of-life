@@ -24,7 +24,8 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = { git = "https://github.com/gfx-rs/wgpu" }
-winit = { git = "https://github.com/rust-windowing/winit/", features = [ "android-native-activity" ] }
+# Need rwh_05 to use raw-window-handle 0.5 until wgpu updates
+winit = { git = "https://github.com/rust-windowing/winit/", features = [ "android-native-activity", "rwh_05" ] }
 
 [target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies]
 env_logger = "*"
