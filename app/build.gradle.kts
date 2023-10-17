@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "net.fornwall.wgpugameoflife"
-    ndkVersion = "26.0.10792818"
+    ndkVersion = "26.1.10909125"
     compileSdk = 34
 
     defaultConfig {
