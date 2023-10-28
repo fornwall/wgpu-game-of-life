@@ -50,7 +50,8 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowDown,
+                        logical_key:
+                            winit::keyboard::Key::Named(winit::keyboard::NamedKey::ArrowDown),
                         state: winit::event::ElementState::Pressed,
                         ..
                     },
@@ -61,7 +62,7 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowUp,
+                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::ArrowUp),
                         state: winit::event::ElementState::Pressed,
                         ..
                     },
@@ -72,7 +73,8 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowLeft,
+                        logical_key:
+                            winit::keyboard::Key::Named(winit::keyboard::NamedKey::ArrowLeft),
                         state: winit::event::ElementState::Pressed,
                         ..
                     },
@@ -83,7 +85,8 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     winit::event::KeyEvent {
-                        logical_key: winit::keyboard::Key::ArrowRight,
+                        logical_key:
+                            winit::keyboard::Key::Named(winit::keyboard::NamedKey::ArrowRight),
                         state: winit::event::ElementState::Pressed,
                         ..
                     },
@@ -154,7 +157,7 @@ pub fn handle_event_loop(
                 event:
                     KeyEvent {
                         state: ElementState::Pressed,
-                        physical_key: winit::keyboard::KeyCode::Escape,
+                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::Escape),
                         ..
                     },
                 ..
@@ -163,7 +166,6 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {
-                        physical_key: winit::keyboard::KeyCode::Tab,
                         state: ElementState::Pressed,
                         ..
                     },
@@ -174,7 +176,7 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {
-                        physical_key: winit::keyboard::KeyCode::Space,
+                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::Space),
                         state: ElementState::Pressed,
                         ..
                     },
