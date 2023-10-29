@@ -166,6 +166,7 @@ pub fn handle_event_loop(
             WindowEvent::KeyboardInput {
                 event:
                     KeyEvent {
+                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::Tab),
                         state: ElementState::Pressed,
                         ..
                     },
