@@ -524,7 +524,7 @@ checksum = "740bb192a8e2d1350119916954f4409ee7f62f149b536911eeb78ba5a20526bf"
 [[package]]
 name = "d3d12"
 version = "0.7.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "bitflags 2.4.1",
  "libloading 0.8.1",
@@ -1007,7 +1007,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.14.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "bit-set",
  "bitflags 2.4.1",
@@ -1235,9 +1235,9 @@ checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
 
 [[package]]
 name = "polling"
-version = "3.2.0"
+version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62a79e457c9898100b4298d57d69ec53d06f9a6ed352431ce5f377e082d2e846"
+checksum = "e53b6af1f60f36f8c2ac2aad5459d75a5a9b4be1e8cdd40264f315d78193e531"
 dependencies = [
  "cfg-if",
  "concurrent-queue",
@@ -1942,7 +1942,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1965,7 +1965,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2012,7 +2012,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2054,7 +2054,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#ad3094c126e191d879a6d8684d254e13d4f8cb09"
+source = "git+https://github.com/gfx-rs/wgpu#83c3fbc55c6a6be6d4e90c301a962095d005ac41"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
@@ -2388,18 +2388,18 @@ checksum = "0fcb9cbac069e033553e8bb871be2fbdffcab578eb25bd0f7c508cedc6dcd75a"
 
 [[package]]
 name = "zerocopy"
-version = "0.7.18"
+version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ede7d7c7970ca2215b8c1ccf4d4f354c4733201dfaaba72d44ae5b37472e4901"
+checksum = "dd66a62464e3ffd4e37bd09950c2b9dd6c4f8767380fabba0d523f9a775bc85a"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.7.18"
+version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b27b1bb92570f989aac0ab7e9cbfbacdd65973f7ee920d9f0e71ebac878fd0b"
+checksum = "255c4596d41e6916ced49cfafea18727b24d67878fa180ddfd69b9df34fd1726"
 dependencies = [
  "proc-macro2",
  "quote",
