@@ -9,9 +9,10 @@ mod web;
 
 use computer::{Computer, ComputerFactory};
 use renderer::{Renderer, RendererFactory};
+use std::sync::Arc;
 use winit::window::Window;
 
-pub struct State {
+pub struct State<'a> {
     cells_height: u32,
     cells_width: u32,
     computer: Computer,
@@ -30,11 +31,11 @@ pub struct State {
     rule_idx: u32,
     seed: u32,
     size: winit::dpi::PhysicalSize<u32>,
-    surface: wgpu::Surface,
+    surface: wgpu::Surface<'a>,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
-    window: Window,
+    window: Arc<Window>,
 }
-impl State {
+impl<'a> State<'a> {
     const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
 
     pub async fn new(
@@ -45,10 +46,12 @@ impl State {
         initial_density: Option<u8>,
         paused: bool,
         generations_per_second: Option<u8>,
-    ) -> Result<State, String> {
+    ) -> Result<State<'a>, String> {
+        let window = Arc::new(window);
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface =
-            unsafe { instance.create_surface(&window) }.map_err(|_| "create_surface failed")?;
+        let surface = instance
+            .create_surface(window.clone())
+            .map_err(|_| "create_surface failed")?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
