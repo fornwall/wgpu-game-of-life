@@ -535,7 +535,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.7.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "bitflags 2.4.1",
  "libloading 0.8.1",
@@ -1028,7 +1028,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.14.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "bit-set",
  "bitflags 2.4.1",
@@ -1967,7 +1967,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1990,7 +1990,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2037,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2079,7 +2079,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#77f6e66dc933f10ed5fa9b38ead2ee2368fd16b6"
+source = "git+https://github.com/gfx-rs/wgpu#fd53ea90e675d94f1d79a1c3c44b2f356cecd9c5"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
@@ -2286,7 +2286,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 [[package]]
 name = "winit"
 version = "0.29.3"
-source = "git+https://github.com/rust-windowing/winit/#14140607d120e6cd832ccb72305f18ad042bbc95"
+source = "git+https://github.com/rust-windowing/winit/#7bed5eecfdcbde16e5619fd137f0229e8e7e8ed4"
 dependencies = [
  "ahash",
  "android-activity",

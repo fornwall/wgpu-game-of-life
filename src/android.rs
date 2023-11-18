@@ -38,7 +38,7 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
     });
 }
 
-async fn setup(window: winit::window::Window, state: &mut Option<crate::State>) {
+async fn setup(window: winit::window::Window, state: &mut Option<crate::State<'_>>) {
     *state = Some(
         crate::State::new(window, None, None, None, None, false, None)
             .await
