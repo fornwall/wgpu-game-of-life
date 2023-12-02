@@ -416,9 +416,9 @@ dependencies = [
 
 [[package]]
 name = "concurrent-queue"
-version = "2.3.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f057a694a54f12365049b0958a1685bb52d567f5593b355fbf685838e873d400"
+checksum = "d16048cd947b08fa32c24458a22f5dc5e835264f689f4f5653210c69fd107363"
 dependencies = [
  "crossbeam-utils",
 ]
@@ -445,9 +445,9 @@ dependencies = [
 
 [[package]]
 name = "core-foundation"
-version = "0.9.3"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "194a7a9e6de53fa55116934067c844d9d749312f75c6f6d0980e8c252f8c2146"
+checksum = "91e195e091a93c46f7102ec7818a2aa394e1e1771c3ab4825963fa03e45afb8f"
 dependencies = [
  "core-foundation-sys",
  "libc",
@@ -455,9 +455,9 @@ dependencies = [
 
 [[package]]
 name = "core-foundation-sys"
-version = "0.8.4"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
+checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
 name = "core-graphics"
@@ -474,9 +474,9 @@ dependencies = [
 
 [[package]]
 name = "core-graphics-types"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2bb142d41022986c1d8ff29103a1411c8a3dfad3552f87a4f8dc50d61d4f4e33"
+checksum = "45390e6114f68f718cc7a830514a96f903cccd70d02a8f6d9f643ac4ba45afaf"
 dependencies = [
  "bitflags 1.3.2",
  "core-foundation",
@@ -535,7 +535,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.7.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "bitflags 2.4.1",
  "libloading 0.8.1",
@@ -942,9 +942,9 @@ dependencies = [
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.4.11"
+version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "969488b55f8ac402214f3f5fd243ebb7206cf82de60d3172994707a4bcc2b829"
+checksum = "c4cd1a83af159aa67994778be9070f0ae1bd732942279cabb14f86f986a21456"
 
 [[package]]
 name = "lock_api"
@@ -1028,7 +1028,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.14.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "bit-set",
  "bitflags 2.4.1",
@@ -1436,15 +1436,15 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustix"
-version = "0.38.25"
+version = "0.38.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc99bc2d4f1fed22595588a013687477aedf3cdcfb26558c559edb67b4d9b22e"
+checksum = "9470c4bf8246c8daf25f9598dca807fb6510347b1e1cfa55749113850c79d88a"
 dependencies = [
  "bitflags 2.4.1",
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1529,9 +1529,9 @@ dependencies = [
 
 [[package]]
 name = "slotmap"
-version = "1.0.6"
+version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1e08e261d0e8f5c43123b7adf3e4ca1690d655377ac93a03b2c9d3e98de1342"
+checksum = "dbff4acf519f630b3a3ddcfaea6c06b42174d9a44bc70c620e9ed1649d58b82a"
 dependencies = [
  "version_check",
 ]
@@ -1967,7 +1967,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1990,7 +1990,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2037,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2079,7 +2079,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#5a3887a49f9f8356a727efd422a1b93a64a65687"
+source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
@@ -2352,7 +2352,7 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 [[package]]
 name = "winit"
 version = "0.29.4"
-source = "git+https://github.com/rust-windowing/winit/#da947992ac92938d653fe7c68868b5a4575dc8df"
+source = "git+https://github.com/rust-windowing/winit/#f735f028a1a2333aeb06b7e6cf8acd065e8b8efe"
 dependencies = [
  "ahash",
  "android-activity",
@@ -2478,18 +2478,18 @@ checksum = "0fcb9cbac069e033553e8bb871be2fbdffcab578eb25bd0f7c508cedc6dcd75a"
 
 [[package]]
 name = "zerocopy"
-version = "0.7.26"
+version = "0.7.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e97e415490559a91254a2979b4829267a57d2fcd741a98eee8b722fb57289aa0"
+checksum = "7d6f15f7ade05d2a4935e34a457b936c23dc70a05cc1d97133dc99e7a3fe0f0e"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.7.26"
+version = "0.7.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd7e48ccf166952882ca8bd778a43502c64f33bf94c12ebe2a7f08e5a0f6689f"
+checksum = "dbbad221e3f78500350ecbd7dfa4e63ef945c05f4c61cb7f4d3f84cd0bba649b"
 dependencies = [
  "proc-macro2",
  "quote",
