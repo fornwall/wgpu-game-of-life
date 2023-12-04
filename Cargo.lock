@@ -535,7 +535,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.7.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "bitflags 2.4.1",
  "libloading 0.8.1",
@@ -1028,7 +1028,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.14.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "bit-set",
  "bitflags 2.4.1",
@@ -1651,9 +1651,9 @@ dependencies = [
 
 [[package]]
 name = "tiny-skia"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b72a92a05db376db09fe6d50b7948d106011761c05a6a45e23e17ee9b556222"
+checksum = "b6a067b809476893fce6a254cf285850ff69c847e6cfbade6a20b655b6c7e80d"
 dependencies = [
  "arrayref",
  "arrayvec",
@@ -1665,9 +1665,9 @@ dependencies = [
 
 [[package]]
 name = "tiny-skia-path"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ac3865b9708fc7e1961a65c3a4fa55e984272f33092d3c859929f887fceb647"
+checksum = "5de35e8a90052baaaf61f171680ac2f8e925a1e43ea9d2e3a00514772250e541"
 dependencies = [
  "arrayref",
  "bytemuck",
@@ -1967,7 +1967,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1990,7 +1990,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2037,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2079,7 +2079,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#1823f8bbdf8d67d61bcbca38a52eb64f6e211e5c"
+source = "git+https://github.com/gfx-rs/wgpu#33339e46ce170aaf93e109e129524ea593655d5f"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
@@ -2352,7 +2352,7 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 [[package]]
 name = "winit"
 version = "0.29.4"
-source = "git+https://github.com/rust-windowing/winit/#73718c9f2fbb051f20a706508b20d6c8f87965dd"
+source = "git+https://github.com/fornwall/winit/?branch=avoid-unwrap-in-video-modes#dbb061fd2fd39bd83f6c9dee6804a452be13b568"
 dependencies = [
  "ahash",
  "android-activity",
