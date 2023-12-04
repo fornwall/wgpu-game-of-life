@@ -24,8 +24,7 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = { git = "https://github.com/gfx-rs/wgpu" }
-# winit = { git = "https://github.com/rust-windowing/winit/", features = [ "android-native-activity" ] }
-winit = { git = "https://github.com/fornwall/winit/", branch = "avoid-unwrap-in-video-modes", features = [ "android-native-activity" ] }
+winit = { git = "https://github.com/rust-windowing/winit/", features = [ "android-native-activity" ] }
 
 [target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies]
 env_logger = "*"
