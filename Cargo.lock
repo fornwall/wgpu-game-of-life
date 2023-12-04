@@ -2352,7 +2352,7 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 [[package]]
 name = "winit"
 version = "0.29.4"
-source = "git+https://github.com/fornwall/winit/?branch=avoid-unwrap-in-video-modes#dbb061fd2fd39bd83f6c9dee6804a452be13b568"
+source = "git+https://github.com/fornwall/winit/?branch=avoid-unwrap-in-video-modes#048170ba370f2f3741ee030bce251ee19d41b7a2"
 dependencies = [
  "ahash",
  "android-activity",
