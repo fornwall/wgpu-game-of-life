@@ -535,7 +535,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.7.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "bitflags 2.4.1",
  "libloading 0.8.1",
@@ -1028,7 +1028,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.14.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "bit-set",
  "bitflags 2.4.1",
@@ -1967,7 +1967,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1990,7 +1990,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2037,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2079,7 +2079,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.18.0"
-source = "git+https://github.com/gfx-rs/wgpu#65512cf668ed517eb6c903f735ca7f20a23578d2"
+source = "git+https://github.com/gfx-rs/wgpu#2882735cb94b501a72eadfac0a5e6e1bf20e9174"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
@@ -2398,9 +2398,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.5.21"
+version = "0.5.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12b1ca33e6ddf286f444aca4f9e91152c681bf93c491687d43cd69bd5078fb4b"
+checksum = "b7e87b8dfbe3baffbe687eef2e164e32286eff31a5ee16463ce03d991643ec94"
 dependencies = [
  "memchr",
 ]
@@ -2478,18 +2478,18 @@ checksum = "0fcb9cbac069e033553e8bb871be2fbdffcab578eb25bd0f7c508cedc6dcd75a"
 
 [[package]]
 name = "zerocopy"
-version = "0.7.28"
+version = "0.7.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d6f15f7ade05d2a4935e34a457b936c23dc70a05cc1d97133dc99e7a3fe0f0e"
+checksum = "5d075cf85bbb114e933343e087b92f2146bac0d55b534cbb8188becf0039948e"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.7.28"
+version = "0.7.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbbad221e3f78500350ecbd7dfa4e63ef945c05f4c61cb7f4d3f84cd0bba649b"
+checksum = "86cd5ca076997b97ef09d3ad65efe811fa68c9e874cb636ccb211223a813b0c2"
 dependencies = [
  "proc-macro2",
  "quote",
