@@ -33,7 +33,7 @@ fn main(@builtin(global_invocation_id) grid: vec3<u32>) {
     let n = count_neighbors(x, y);
     let current_generation = get_cell(x, y);
     let cell_lives = current_generation >= 1u;
-    let will_be_born = u32(((1 << n) & rule.x) > 0);
-    let will_survive = u32(((1 << n) & rule.y) > 0) * (1u + current_generation);
+    let will_be_born = u32(((1u << n) & u32(rule.x)) > 0u);
+    let will_survive = u32(((1u << n) & u32(rule.y)) > 0u) * (1u + current_generation);
     next[get_index(x, y)] = select(will_be_born, will_survive, cell_lives);
 } 
