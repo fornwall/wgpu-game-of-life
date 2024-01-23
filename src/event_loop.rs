@@ -16,10 +16,7 @@ type EventTypeUsed = winit::event::Event<()>;
 pub fn handle_event_loop(
     event: &EventTypeUsed,
     state: &mut State,
-    #[cfg(target_family = "wasm")] event_loop_window_target: &EventLoopWindowTarget<
-        CustomWinitEvent,
-    >,
-    #[cfg(not(target_family = "wasm"))] event_loop_window_target: &EventLoopWindowTarget,
+    event_loop_window_target: &EventLoopWindowTarget,
 ) {
     match event {
         #[cfg(target_family = "wasm")]
