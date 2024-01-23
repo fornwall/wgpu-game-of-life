@@ -91,6 +91,7 @@ impl<'a> State<'a> {
             present_mode: wgpu::PresentMode::Fifo,
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
+            desired_maximum_frame_latency: 2,
         };
 
         if size.height > 0 && size.width > 0 {
