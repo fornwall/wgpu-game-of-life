@@ -325,9 +325,9 @@ checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
 name = "ciborium"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "effd91f6c78e5a4ace8a5d3c0b6bfaec9e2baaef55f3efc00e45fb2e477ee926"
+checksum = "42e69ffd6f0917f5c029256a24d0161db17cea3997d185db0d35926308770f0e"
 dependencies = [
  "ciborium-io",
  "ciborium-ll",
@@ -336,15 +336,15 @@ dependencies = [
 
 [[package]]
 name = "ciborium-io"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdf919175532b369853f5d5e20b26b43112613fd6fe7aee757e35f7a44642656"
+checksum = "05afea1e0a06c9be33d539b876f1ce3692f4afea2cb41f740e7743225ed1c757"
 
 [[package]]
 name = "ciborium-ll"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "defaa24ecc093c77630e6c15e17c51f5e187bf35ee514f4e2d67baaa96dae22b"
+checksum = "57663b653d948a338bfb3eeba9bb2fd5fcfaecb9e199e87e1eda4d9e8b240fd9"
 dependencies = [
  "ciborium-io",
  "half",
@@ -542,6 +542,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 
 [[package]]
+name = "crunchy"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
+
+[[package]]
 name = "cursor-icon"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -550,7 +556,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "bitflags 2.4.2",
  "libloading 0.8.1",
@@ -769,9 +775,13 @@ dependencies = [
 
 [[package]]
 name = "half"
-version = "1.8.2"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
+checksum = "bc52e53916c08643f1b56ec082790d1e86a32e58dc5268f897f313fbae7b4872"
+dependencies = [
+ "cfg-if",
+ "crunchy",
+]
 
 [[package]]
 name = "hashbrown"
@@ -1042,7 +1052,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -1973,7 +1983,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1997,7 +2007,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -2047,7 +2057,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2090,7 +2100,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#ac8756c2d3618dddb64afadb5d397ece634691de"
+source = "git+https://github.com/gfx-rs/wgpu#7d0f656dd9295365029ab2b2bf02a22e6a0c8f9b"
 dependencies = [
  "bitflags 2.4.2",
  "js-sys",
@@ -2354,7 +2364,7 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 [[package]]
 name = "winit"
 version = "0.29.10"
-source = "git+https://github.com/rust-windowing/winit/#10a785019c7706364077691e921a7772fc087d8c"
+source = "git+https://github.com/rust-windowing/winit/#a5b08fc48ce67c3b0a93bcc96b47fbfd4823ec85"
 dependencies = [
  "ahash",
  "android-activity",
