@@ -6,9 +6,7 @@ fn main() {
 
             let event_loop = winit::event_loop::EventLoop::new().unwrap();
 
-            let window = winit::window::Window::builder()
-                .build(&event_loop)
-                .unwrap();
+            let window = winit::window::Window::builder().build(&event_loop).unwrap();
 
             let mut state =
                 wgpu_game_of_life::State::new(window, None, None, None, None, false, None)

@@ -1,7 +1,8 @@
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
-use winit::event_loop::EventLoopProxy;
-use winit::{event::Event, window::WindowBuilder};
+use winit::event::Event;
+use winit::event_loop::{EventLoop, EventLoopProxy};
+use winit::window::Window;
 
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
@@ -129,14 +130,13 @@ pub async fn run(
     paused: bool,
     generations_per_second: Option<u8>,
 ) -> Result<(), String> {
-    use winit::event_loop::EventLoopBuilder;
     use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
 
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(log::Level::Info)
         .map_err(|e| format!("Couldn't initialize logger: {e}"))?;
 
-    let event_loop = EventLoopBuilder::<CustomWinitEvent>::with_user_event()
+    let event_loop = EventLoop::<CustomWinitEvent>::with_user_event()
         .build()
         .unwrap();
 
@@ -155,7 +155,7 @@ pub async fn run(
         })
         .ok_or("Could not get canvas element")?;
 
-    let window = WindowBuilder::new()
+    let window = Window::builder()
         .with_canvas(Some(canvas_element))
         .with_prevent_default(false)
         .build(&event_loop)

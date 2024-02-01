@@ -1,5 +1,5 @@
 use jni::{objects::JObject, sys::JNIInvokeInterface_, JavaVM};
-use winit::event_loop::EventLoopBuilder;
+use winit::event_loop::EventLoop;
 
 #[no_mangle]
 fn android_main(app: winit::platform::android::activity::AndroidApp) {
@@ -13,14 +13,11 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
 
     enable_immersive(&app);
 
-    let event_loop = EventLoopBuilder::new()
-        .with_android_app(app)
-        .build()
-        .unwrap();
+    let event_loop = EventLoop::builder().with_android_app(app).build().unwrap();
 
     let _ = event_loop.run(|event, event_loop_window_target| match event {
         winit::event::Event::Resumed => {
-            let window = winit::window::WindowBuilder::new()
+            let window = winit::window::Window::builder()
                 .with_fullscreen(None)
                 .build(event_loop_window_target)
                 .unwrap();
