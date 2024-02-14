@@ -39,7 +39,8 @@ console_log = "*"
 getrandom = { version = "*", features = ["js"] }
 wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
-web-sys = { version = "*", features = ["Document", "Element", "Window"] }
+# Version pinning - see https://github.com/gfx-rs/wgpu/pull/5224
+web-sys = { version = "=0.3.67", features = ["Document", "Element", "Window"] }
 js-sys = "*"
 
 [dev-dependencies]
