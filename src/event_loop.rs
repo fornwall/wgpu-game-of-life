@@ -1,6 +1,6 @@
 use winit::{
     event::{ElementState, Event, KeyEvent, WindowEvent},
-    event_loop::EventLoopWindowTarget,
+    event_loop::ActiveEventLoop,
 };
 
 #[cfg(target_family = "wasm")]
@@ -16,7 +16,7 @@ type EventTypeUsed = winit::event::Event<()>;
 pub fn handle_event_loop(
     event: &EventTypeUsed,
     state: &mut State,
-    event_loop_window_target: &EventLoopWindowTarget,
+    event_loop_window_target: &ActiveEventLoop,
 ) {
     match event {
         #[cfg(target_family = "wasm")]
