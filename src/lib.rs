@@ -12,7 +12,7 @@ use renderer::{Renderer, RendererFactory};
 use std::sync::Arc;
 use winit::window::Window;
 
-pub struct State<'a> {
+pub struct State {
     cells_height: u32,
     cells_width: u32,
     computer: Computer,
@@ -31,11 +31,11 @@ pub struct State<'a> {
     rule_idx: u32,
     seed: u32,
     size: winit::dpi::PhysicalSize<u32>,
-    surface: wgpu::Surface<'a>,
+    surface: wgpu::Surface<'static>,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
     window: Arc<Window>,
 }
-impl<'a> State<'a> {
+impl<'a> State {
     const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
 
     pub async fn new(
@@ -46,7 +46,7 @@ impl<'a> State<'a> {
         initial_density: Option<u8>,
         paused: bool,
         generations_per_second: Option<u8>,
-    ) -> Result<State<'a>, String> {
+    ) -> Result<State, String> {
         let window = Arc::new(window);
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = instance
