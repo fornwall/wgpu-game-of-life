@@ -35,7 +35,7 @@ pub struct State {
     texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
     window: Arc<Window>,
 }
-impl<'a> State {
+impl State {
     const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
 
     pub async fn new(
@@ -46,11 +46,11 @@ impl<'a> State {
         initial_density: Option<u8>,
         paused: bool,
         generations_per_second: Option<u8>,
-    ) -> Result<State, String> {
+    ) -> Result<Self, String> {
         let window = Arc::new(window);
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = instance
-            .create_surface(window.clone())
+            .create_surface(Arc::clone(&window))
             .map_err(|_| "create_surface failed")?;
 
         let adapter = instance

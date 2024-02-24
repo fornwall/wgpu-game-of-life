@@ -50,9 +50,12 @@ fn enable_immersive(app: &winit::platform::android::activity::AndroidApp) {
         | SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
     let vm =
-        unsafe { JavaVM::from_raw(app.vm_as_ptr() as *mut *const JNIInvokeInterface_) }.unwrap();
+        // SAFETY: Guaranteed by https://docs.rs/android-activity/latest/android_activity/struct.AndroidApp.html#method.vm_as_ptr
+        unsafe { JavaVM::from_raw(app.vm_as_ptr().cast::<*const JNIInvokeInterface_>()) }.unwrap();
     let mut env = vm.attach_current_thread().unwrap();
-    let activity = unsafe { JObject::from_raw(app.activity_as_ptr() as *mut jni::sys::_jobject) };
+    let activity =
+        // SAFETY: Guaranteed by https://docs.rs/android-activity/latest/android_activity/struct.AndroidApp.html#method.activity_as_ptr
+        unsafe { JObject::from_raw(app.activity_as_ptr().cast::<jni::sys::_jobject>()) };
     let window = env
         .call_method(activity, "getWindow", "()Landroid/view/Window;", &[])
         .unwrap()
