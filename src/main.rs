@@ -1,14 +1,13 @@
-use wgpu_game_of_life::State;
-use winit::event_loop::ActiveEventLoop;
-use winit::window::Window;
-
 fn main() {
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
     {
+        use wgpu_game_of_life::State;
+        use winit::event_loop::ActiveEventLoop;
+
         pub async fn create_state(event_loop: &ActiveEventLoop) -> State {
-            let window_attributes = Window::default_attributes();
+            let window_attributes = winit::window::Window::default_attributes();
             let window = event_loop.create_window(window_attributes).unwrap();
-            wgpu_game_of_life::State::new(window, None, None, None, None, false, None)
+            State::new(window, None, None, None, None, false, None)
                 .await
                 .unwrap()
         }

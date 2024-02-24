@@ -1,8 +1,9 @@
+use crate::State;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 use winit::event::Event;
 use winit::event_loop::{EventLoop, EventLoopProxy};
-use winit::window::Window;
+use winit::platform::web::WindowAttributesExtWebSys;
 
 #[derive(Debug, Clone, Copy)]
 pub enum CustomWinitEvent {
@@ -130,7 +131,7 @@ pub async fn run(
     paused: bool,
     generations_per_second: Option<u8>,
 ) -> Result<(), String> {
-    use winit::platform::web::{EventLoopExtWebSys, WindowBuilderExtWebSys};
+    use winit::platform::web::EventLoopExtWebSys;
 
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(log::Level::Info)
@@ -153,15 +154,13 @@ pub async fn run(
             let canvas = doc.get_element_by_id("webgpu-canvas")?;
             canvas.dyn_into::<web_sys::HtmlCanvasElement>().ok()
         })
-        .ok_or("Could not get canvas element")?;
-
-    let window = Window::builder()
-        .with_canvas(Some(canvas_element))
-        .with_prevent_default(false)
-        .build(&event_loop)
         .unwrap();
 
-    let mut state = crate::State::new(
+    let window_attributes =
+        winit::window::Window::default_attributes().with_canvas(Some(canvas_element));
+    #[allow(deprecated)]
+    let window = event_loop.create_window(window_attributes).unwrap();
+    let mut state = State::new(
         window,
         rule_idx,
         size,
@@ -170,10 +169,11 @@ pub async fn run(
         paused,
         generations_per_second,
     )
-    .await?;
+    .await
+    .unwrap();
 
-    event_loop.spawn(move |event, event_loop_window_target| {
-        crate::event_loop::handle_event_loop(&event, &mut state, event_loop_window_target);
+    event_loop.spawn(move |event, event_loop| {
+        crate::event_loop::handle_event_loop(&event, &mut state, event_loop);
     });
 
     Ok(())
