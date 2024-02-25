@@ -824,9 +824,9 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.3.6"
+version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd5256b483761cd23699d0da46cc6fd2ee3be420bbe6d020ae4a091e70b7e9fd"
+checksum = "379dada1584ad501b383485dd706b8afb7a70fcbc7f4da7d780638a5a6124a60"
 
 [[package]]
 name = "hexf-parse"
@@ -2356,7 +2356,7 @@ checksum = "0770833d60a970638e989b3fa9fd2bb1aaadcf88963d1659fd7d9990196ed2d6"
 [[package]]
 name = "winit"
 version = "0.29.10"
-source = "git+https://github.com/rust-windowing/winit/#97cfdd4b0972b3a743c1cfb0f085800a446f6324"
+source = "git+https://github.com/rust-windowing/winit/#990bbf178f9ddc52ec75026e357fe54853bf533f"
 dependencies = [
  "ahash",
  "android-activity",
