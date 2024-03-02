@@ -1,6 +1,7 @@
 use crate::State;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
+use wgpu::web_sys;
 use winit::event::Event;
 use winit::event_loop::{EventLoop, EventLoopProxy};
 use winit::platform::web::WindowAttributesExtWebSys;
