@@ -173,6 +173,7 @@ pub async fn run(
     .await
     .unwrap();
 
+    #[allow(deprecated)]
     event_loop.spawn(move |event, event_loop| {
         crate::event_loop::handle_event_loop(&event, &mut state, event_loop);
     });

@@ -15,6 +15,7 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
 
     let event_loop = EventLoop::builder().with_android_app(app).build().unwrap();
 
+    #[allow(deprecated)]
     let _ = event_loop.run(|event, event_loop| match event {
         winit::event::Event::Resumed => {
             let window_attributes = winit::window::Window::default_attributes();

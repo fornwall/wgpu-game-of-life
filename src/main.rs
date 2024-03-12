@@ -17,6 +17,7 @@ fn main() {
 
         let mut state: Option<State> = None;
 
+        #[allow(deprecated)]
         event_loop
             .run(move |event, event_loop| {
                 if matches!(event, winit::event::Event::Resumed) && state.is_none() {

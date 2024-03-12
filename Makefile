@@ -56,7 +56,7 @@ CARGO_COMMAND = cargo
 
 check:
 	$(CARGO_COMMAND) fmt --all --check
-	RUSTFLAGS="--cfg=web_sys_unstable_apis" $(CARGO_COMMAND) clippy $(CLIPPY_TARGETS) $(CLIPPY_PARAMS)
+	$(CARGO_COMMAND) clippy $(CLIPPY_TARGETS) $(CLIPPY_PARAMS)
 
 check-js:
 	cd site && npm install && npm run check
@@ -100,9 +100,7 @@ run-ios-simulator: build-ios-simulator-app
 	xcrun simctl launch --console booted "net.fornwall.wgpugameoflife"
 
 build-wasm:
-	# --cfg=web_sys_unstable_apis is necessary for webgpu:
-	# https://rustwasm.github.io/wasm-bindgen/api/web_sys/enum.GpuTextureFormat.html
-	RUSTFLAGS="--cfg=web_sys_unstable_apis -C target-feature=$(WASM_TARGET_FEATURES)" \
+	RUSTFLAGS="-C target-feature=$(WASM_TARGET_FEATURES)" \
 		cargo build $(CARGO_BUILD_PROFILE) --target wasm32-unknown-unknown
 	rm -Rf site/generated
 	$(WASM_BINDGEN) --out-dir site/generated target/wasm32-unknown-unknown/$(WASM_DIR)/wgpu_game_of_life.wasm
