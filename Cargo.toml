@@ -24,7 +24,11 @@ pollster = "*"
 rand = "*"
 rand_chacha = "*"
 wgpu = { git = "https://github.com/gfx-rs/wgpu" }
-winit = { git = "https://github.com/rust-windowing/winit/", features = [ "android-native-activity" ] }
+winit = { git = "https://github.com/rust-windowing/winit/", features = [
+    "android-native-activity",
+    "rwh_06",
+    "wayland"
+], default-features = false }
 
 [target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies]
 env_logger = "*"
