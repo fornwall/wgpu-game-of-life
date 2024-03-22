@@ -231,9 +231,9 @@ checksum = "5d6d68c57235a3a081186990eca2867354726650f42f7516ca50c28d6281fd15"
 
 [[package]]
 name = "bytes"
-version = "1.5.0"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2bd12c1caf447e69cd4528f47f94d203fd2582878ecb9e9465484c4148a8223"
+checksum = "514de17de45fdb8dc022b1a7975556c53c86f9f0aa5f534b98977b171857c2c9"
 
 [[package]]
 name = "calloop"
@@ -534,7 +534,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "bitflags 2.5.0",
  "libloading 0.8.3",
@@ -574,7 +574,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 [[package]]
 name = "dpi"
 version = "0.1.1"
-source = "git+https://github.com/rust-windowing/winit/#ba10c35240a91aed38f5c2c3a94d31233263bc5f"
+source = "git+https://github.com/rust-windowing/winit/#3efa6d855dc40b395c3ed5e9c86beee809564069"
 
 [[package]]
 name = "either"
@@ -1031,7 +1031,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -1488,9 +1488,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.13.1"
+version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
+checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "smithay-client-toolkit"
@@ -1885,7 +1885,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1910,7 +1910,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1960,7 +1960,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2004,7 +2004,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#152a94bc6c502226d9871f28e35db0b755ea35bf"
+source = "git+https://github.com/gfx-rs/wgpu#00e0e725965c899197153a29d44017973fa1a4e1"
 dependencies = [
  "bitflags 2.5.0",
  "js-sys",
@@ -2268,7 +2268,7 @@ checksum = "32b752e52a2da0ddfbdbcc6fceadfeede4c939ed16d13e648833a61dfb611ed8"
 [[package]]
 name = "winit"
 version = "0.29.15"
-source = "git+https://github.com/rust-windowing/winit/#ba10c35240a91aed38f5c2c3a94d31233263bc5f"
+source = "git+https://github.com/rust-windowing/winit/#3efa6d855dc40b395c3ed5e9c86beee809564069"
 dependencies = [
  "ahash",
  "android-activity",
