@@ -19,7 +19,7 @@ pub enum CustomWinitEvent {
 pub(crate) type EventTypeUsed = Event<CustomWinitEvent>;
 
 thread_local! {
-    pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = Mutex::new(None);
+    pub static EVENT_LOOP_PROXY: Mutex<Option<EventLoopProxy<CustomWinitEvent>>> = const { Mutex::new(None) };
 }
 
 #[wasm_bindgen]
