@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "check": "eslint . --ext .js && prettier --check .",
-    "fix": "eslint --fix **/*.js",
+    "check": "eslint . && prettier --check .",
+    "fix": "eslint --fix",
     "format": "prettier --write .",
     "webpack": "webpack"
   },
