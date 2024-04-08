@@ -219,9 +219,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.15.4"
+version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ff69b9dd49fd426c69a0db9fc04dd934cdb6645ff000864d98f7e2af8830eaa"
+checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 
 [[package]]
 name = "bytemuck"
@@ -269,9 +269,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cc"
-version = "1.0.91"
+version = "1.0.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fd97381a8cc6493395a5afc4c691c1084b3768db713b73aa215217aa245d153"
+checksum = "2678b2e3449475e95b0aa6f9b506a28e61b3dc8996592b983695e8ebb58a8b41"
 dependencies = [
  "jobserver",
  "libc",
@@ -534,7 +534,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "bitflags 2.5.0",
  "libloading 0.8.3",
@@ -660,9 +660,9 @@ checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 
 [[package]]
 name = "getrandom"
-version = "0.2.13"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a06fddc2749e0528d2813f95e050e87e52c8cbbae56223b9babf73b3e53b0cc6"
+checksum = "94b22e06ecb0110981051723910cbf0b5f5e09a2062dd7663334ee79a9d1286c"
 dependencies = [
  "cfg-if",
  "js-sys",
@@ -1030,7 +1030,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -1875,7 +1875,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1900,7 +1900,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1950,7 +1950,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -1994,7 +1994,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#911baf3e8cb9308a64392fcd810845532191f817"
+source = "git+https://github.com/gfx-rs/wgpu#17ef6cac9054163b450c2f89c8fcc183aada9db1"
 dependencies = [
  "bitflags 2.5.0",
  "js-sys",
