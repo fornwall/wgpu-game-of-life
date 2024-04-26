@@ -83,13 +83,13 @@ impl RendererFactory {
                 buffers: &[cells_stride.clone(), square_stride.clone()],
                 entry_point: "vertex_main",
                 module: &self.shader,
-                constants: &Default::default(),
+                compilation_options: Default::default(),
             },
             fragment: Some(wgpu::FragmentState {
                 entry_point: "fragment_main",
                 module: &self.shader,
                 targets: &[Some(texture_format.into())],
-                constants: &Default::default(),
+                compilation_options: Default::default(),
             }),
             primitive: wgpu::PrimitiveState {
                 conservative: false,

@@ -196,7 +196,7 @@ impl ComputerFactory {
             layout: Some(&compute_pipeline_layout),
             module: &self.shader,
             entry_point: "main",
-            constants: &Default::default(),
+            compilation_options: Default::default(),
         });
 
         Computer {
