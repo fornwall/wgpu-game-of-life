@@ -524,8 +524,8 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 
 [[package]]
 name = "d3d12"
-version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "bitflags 2.5.0",
  "libloading 0.8.3",
@@ -906,9 +906,9 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
 name = "libc"
-version = "0.2.153"
+version = "0.2.154"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
+checksum = "ae743338b92ff9146ce83992f766a31066a91a8c84a45e0e9f21e7cf6de6d346"
 
 [[package]]
 name = "libloading"
@@ -995,8 +995,9 @@ dependencies = [
 
 [[package]]
 name = "metal"
-version = "0.27.0"
-source = "git+https://github.com/gfx-rs/metal-rs?rev=ff8fd3d6dc7792852f8a015458d7e6d42d7fb352#ff8fd3d6dc7792852f8a015458d7e6d42d7fb352"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5637e166ea14be6063a3f8ba5ccb9a4159df7d8f6d61c02fc3d480b1f90dcfcb"
 dependencies = [
  "bitflags 2.5.0",
  "block",
@@ -1009,8 +1010,8 @@ dependencies = [
 
 [[package]]
 name = "naga"
-version = "0.19.2"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -1906,8 +1907,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu"
-version = "0.19.3"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1931,14 +1932,13 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core"
-version = "0.19.3"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "arrayvec",
  "bit-vec",
  "bitflags 2.5.0",
  "cfg_aliases 0.1.1",
- "codespan-reporting",
  "document-features",
  "indexmap",
  "log",
@@ -1981,8 +1981,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-hal"
-version = "0.19.3"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2025,8 +2025,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-types"
-version = "0.19.2"
-source = "git+https://github.com/gfx-rs/wgpu#05cfdececcbaa2ac22e60781e522508285c3313c"
+version = "0.20.0"
+source = "git+https://github.com/gfx-rs/wgpu#bdf30fa45aa86b827749f7ee45ed342ce27b0fbb"
 dependencies = [
  "bitflags 2.5.0",
  "js-sys",
