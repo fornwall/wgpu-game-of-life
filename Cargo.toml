@@ -70,9 +70,6 @@ Se https://github.com/fornwall/wgpu-game-of-life.
 future_incompatible = "warn"
 nonstandard_style = "warn"
 rust_2021_compatibility = "forbid"
-single_use_lifetimes = "warn"
-trivial_numeric_casts = "forbid"
-unused_lifetimes = "forbid"
 
 [lints.clippy]
 await_holding_lock = "deny"
