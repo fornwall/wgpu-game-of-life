@@ -526,7 +526,7 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 [[package]]
 name = "d3d12"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "bitflags 2.5.0",
  "libloading 0.8.3",
@@ -566,7 +566,7 @@ checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 [[package]]
 name = "dpi"
 version = "0.1.1"
-source = "git+https://github.com/rust-windowing/winit/#b0b64a9a15bbe23e777850f7e9455afa73cb49f5"
+source = "git+https://github.com/rust-windowing/winit/#ab33fb8eda45f9a23587465d787a70a309c67ec4"
 
 [[package]]
 name = "either"
@@ -615,9 +615,9 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "errno"
-version = "0.3.8"
+version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245"
+checksum = "534c5cf6194dfab3db3242765c03bbe257cf92f22b38f6bc0c58d59108a820ba"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
@@ -716,9 +716,9 @@ dependencies = [
 
 [[package]]
 name = "gpu-allocator"
-version = "0.25.0"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f56f6318968d03c18e1bcf4857ff88c61157e9da8e47c5f29055d60e1228884"
+checksum = "fdd4240fc91d3433d5e5b0fc5b67672d771850dc19bbee03c1381e19322803d7"
 dependencies = [
  "log",
  "presser",
@@ -1018,7 +1018,7 @@ dependencies = [
 [[package]]
 name = "naga"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -1469,18 +1469,18 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "serde"
-version = "1.0.200"
+version = "1.0.201"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddc6f9cc94d67c0e21aaf7eda3a010fd3af78ebf6e096aa6e2e13c79749cce4f"
+checksum = "780f1cebed1629e4753a1a38a3c72d30b97ec044f0aef68cb26650a3c5cf363c"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.200"
+version = "1.0.201"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "856f046b9400cee3c8c94ed572ecdb752444c24528c035cd35882aad6f492bcb"
+checksum = "c5e405930b9796f1c00bee880d03fc7e0bb4b9a11afc776885ffe84320da2865"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1489,9 +1489,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.116"
+version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e17db7126d17feb94eb3fad46bf1a96b034e8aacbc2e775fe81505f8b0b2813"
+checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
 dependencies = [
  "itoa",
  "ryu",
@@ -1915,7 +1915,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "arrayvec",
  "cfg-if",
@@ -1940,7 +1940,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -1989,7 +1989,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -2033,7 +2033,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.20.0"
-source = "git+https://github.com/gfx-rs/wgpu#3b6112d45de8da75e47270fe3b0329e5d5166585"
+source = "git+https://github.com/gfx-rs/wgpu#f4b8b15df388c83ee4c120d26b60a1ceedaa6cf5"
 dependencies = [
  "bitflags 2.5.0",
  "js-sys",
@@ -2238,7 +2238,7 @@ checksum = "bec47e5bfd1bff0eeaf6d8b485cc1074891a197ab4225d504cb7a1ab88b02bf0"
 [[package]]
 name = "winit"
 version = "0.30.0"
-source = "git+https://github.com/rust-windowing/winit/#b0b64a9a15bbe23e777850f7e9455afa73cb49f5"
+source = "git+https://github.com/rust-windowing/winit/#ab33fb8eda45f9a23587465d787a70a309c67ec4"
 dependencies = [
  "ahash",
  "android-activity",
