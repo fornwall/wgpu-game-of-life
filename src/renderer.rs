@@ -107,6 +107,7 @@ impl RendererFactory {
                 mask: !0,
             },
             multiview: None,
+            cache: Default::default(),
         });
 
         let size_bind_group = device.create_bind_group({

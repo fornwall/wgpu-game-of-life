@@ -197,6 +197,7 @@ impl ComputerFactory {
             module: &self.shader,
             entry_point: "main",
             compilation_options: Default::default(),
+            cache: Default::default(),
         });
 
         Computer {
