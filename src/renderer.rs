@@ -81,12 +81,12 @@ impl RendererFactory {
             layout: Some(&self.pipeline_layout),
             vertex: wgpu::VertexState {
                 buffers: &[cells_stride.clone(), square_stride.clone()],
-                entry_point: "vertex_main",
+                entry_point: Some("vertex_main"),
                 module: &self.shader,
                 compilation_options: Default::default(),
             },
             fragment: Some(wgpu::FragmentState {
-                entry_point: "fragment_main",
+                entry_point: Some("fragment_main"),
                 module: &self.shader,
                 targets: &[Some(texture_format.into())],
                 compilation_options: Default::default(),
