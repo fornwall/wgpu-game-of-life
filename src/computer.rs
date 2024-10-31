@@ -195,7 +195,7 @@ impl ComputerFactory {
             label: Some("compute_pipeline"),
             layout: Some(&compute_pipeline_layout),
             module: &self.shader,
-            entry_point: "main",
+            entry_point: Some("main"),
             compilation_options: Default::default(),
             cache: Default::default(),
         });
@@ -322,6 +322,7 @@ mod tests {
                         required_features: wgpu::Features::empty(),
                         required_limits: wgpu::Limits::default(),
                         label: None,
+                        memory_hints: Default::default(),
                     },
                     None,
                 )
