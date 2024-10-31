@@ -210,7 +210,7 @@ impl State {
     }
 
     fn inform_ui_about_state(&self) {
-        #[cfg(not(family = "wasm"))]
+        #[cfg(not(target_family = "wasm"))]
         self.window.set_title(&format!(
             "{} {}x{} 0.{} {} {}/s",
             rules::RULES[self.rule_idx as usize].name(),

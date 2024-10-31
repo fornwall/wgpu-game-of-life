@@ -148,7 +148,7 @@ pub fn handle_event_loop(
                 }
             }
             #[cfg(not(target_family = "wasm"))]
-            #[cfg(not(target_arch = "android"))]
+            #[cfg(not(target_os = "android"))]
             WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
                 event:
