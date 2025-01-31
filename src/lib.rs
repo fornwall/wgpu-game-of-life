@@ -48,7 +48,7 @@ impl State {
         generations_per_second: Option<u8>,
     ) -> Result<Self, String> {
         let window = Arc::new(window);
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
         let surface = instance
             .create_surface(Arc::clone(&window))
             .map_err(|_| "create_surface failed")?;

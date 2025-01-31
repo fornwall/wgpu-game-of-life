@@ -245,8 +245,8 @@ impl Computer {
         let workgroup_width = 8;
         assert_eq!(self.cells_width % workgroup_width, 0);
         assert_eq!(self.cells_height % workgroup_width, 0);
-        let workgroup_count_x = (self.cells_width + workgroup_width - 1) / workgroup_width;
-        let workgroup_count_y = (self.cells_height + workgroup_width - 1) / workgroup_width;
+        let workgroup_count_x = self.cells_width.div_ceil(workgroup_width);
+        let workgroup_count_y = self.cells_height.div_ceil(workgroup_width);
         let workgroup_count_z = 1;
         pass_encoder.dispatch_workgroups(workgroup_count_x, workgroup_count_y, workgroup_count_z);
     }
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn test_computer() {
         async fn async_test_computer() {
-            let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+            let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
 
             let adapter = instance
                 .request_adapter(&wgpu::RequestAdapterOptions {

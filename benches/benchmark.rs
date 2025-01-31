@@ -54,7 +54,7 @@ fn test_computer(
 }
 
 async fn setup_device() -> (Instance, Device, Queue) {
-    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
 
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
