@@ -5,7 +5,6 @@ use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::window::WindowId;
 
 struct AndroidApp {
-    app: winit::platform::android::activity::AndroidApp,
     state: Option<crate::State>,
 }
 
@@ -43,7 +42,7 @@ impl ApplicationHandler for AndroidApp {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 fn android_main(app: winit::platform::android::activity::AndroidApp) {
     use winit::platform::android::EventLoopBuilderExtAndroid;
 
@@ -53,50 +52,68 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
 
     enable_immersive(&app);
 
-    let event_loop = EventLoop::builder()
-        .with_android_app(app.clone())
-        .build()
-        .unwrap();
-    let mut android_app = AndroidApp { app, state: None };
+    let event_loop = EventLoop::builder().with_android_app(app).build().unwrap();
+    let mut android_app = AndroidApp { state: None };
     let _ = event_loop.run_app(&mut android_app);
 }
 
 fn enable_immersive(app: &winit::platform::android::activity::AndroidApp) {
-    const SYSTEM_UI_FLAG_FULLSCREEN: i32 = 4; // https://developer.android.com/reference/android/view/View#SYSTEM_UI_FLAG_FULLSCREEN
-    const SYSTEM_UI_FLAG_HIDE_NAVIGATION: i32 = 2; // https://developer.android.com/reference/android/view/View#SYSTEM_UI_FLAG_HIDE_NAVIGATION
-    const SYSTEM_UI_FLAG_IMMERSIVE_STICKY: i32 = 4096; // https://developer.android.com/reference/android/view/View#SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    use jni::signature::RuntimeMethodSignature;
+    use jni::strings::JNIString;
+
+    const SYSTEM_UI_FLAG_FULLSCREEN: i32 = 4;
+    const SYSTEM_UI_FLAG_HIDE_NAVIGATION: i32 = 2;
+    const SYSTEM_UI_FLAG_IMMERSIVE_STICKY: i32 = 4096;
     const SYSTEM_UI_VISIBILITY: i32 = SYSTEM_UI_FLAG_FULLSCREEN
         | SYSTEM_UI_FLAG_HIDE_NAVIGATION
         | SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
     let vm =
         // SAFETY: Guaranteed by https://docs.rs/android-activity/latest/android_activity/struct.AndroidApp.html#method.vm_as_ptr
-        unsafe { JavaVM::from_raw(app.vm_as_ptr().cast::<*const JNIInvokeInterface_>()) }.unwrap();
-    let mut env = vm.attach_current_thread().unwrap();
-    let activity =
-        // SAFETY: Guaranteed by https://docs.rs/android-activity/latest/android_activity/struct.AndroidApp.html#method.activity_as_ptr
-        unsafe { JObject::from_raw(app.activity_as_ptr().cast::<jni::sys::_jobject>()) };
-    let window = env
-        .call_method(activity, "getWindow", "()Landroid/view/Window;", &[])
-        .unwrap()
-        .l()
-        .unwrap();
-    let view = env
-        .call_method(window, "getDecorView", "()Landroid/view/View;", &[])
-        .unwrap()
-        .l()
-        .unwrap();
-    if let Err(e) = env.call_method(
-        view,
-        "setSystemUiVisibility",
-        "(I)V",
-        &[jni::objects::JValue::Int(SYSTEM_UI_VISIBILITY)],
-    ) {
-        log::error!("Failed setting immersive mode: {}", e);
-        if let Err(e) = env.exception_clear() {
-            log::error!("Error in exception_clear(): {}", e);
-        }
-    } else {
+        unsafe { JavaVM::from_raw(app.vm_as_ptr().cast::<*const JNIInvokeInterface_>()) };
+
+    let get_window_name = JNIString::from("getWindow");
+    let get_window_sig = RuntimeMethodSignature::from_str("()Landroid/view/Window;").unwrap();
+
+    let get_decor_view_name = JNIString::from("getDecorView");
+    let get_decor_view_sig = RuntimeMethodSignature::from_str("()Landroid/view/View;").unwrap();
+
+    let set_ui_vis_name = JNIString::from("setSystemUiVisibility");
+    let set_ui_vis_sig = RuntimeMethodSignature::from_str("(I)V").unwrap();
+
+    let result: Result<(), jni::errors::Error> = vm.attach_current_thread(|env| {
+        let activity =
+            // SAFETY: Guaranteed by https://docs.rs/android-activity/latest/android_activity/struct.AndroidApp.html#method.activity_as_ptr
+            unsafe {
+                JObject::from_raw(env, app.activity_as_ptr().cast::<jni::sys::_jobject>())
+            };
+        let window = env
+            .call_method(
+                &activity,
+                &get_window_name,
+                &get_window_sig.method_signature(),
+                &[],
+            )?
+            .l()?;
+        let view = env
+            .call_method(
+                &window,
+                &get_decor_view_name,
+                &get_decor_view_sig.method_signature(),
+                &[],
+            )?
+            .l()?;
+        env.call_method(
+            &view,
+            &set_ui_vis_name,
+            &set_ui_vis_sig.method_signature(),
+            &[jni::objects::JValue::Int(SYSTEM_UI_VISIBILITY)],
+        )?;
         log::warn!("Managed to set immersive mode");
+        Ok(())
+    });
+
+    if let Err(e) = result {
+        log::error!("Failed setting immersive mode: {}", e);
     }
 }
