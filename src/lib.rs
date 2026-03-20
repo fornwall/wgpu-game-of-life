@@ -12,31 +12,37 @@ use renderer::{Renderer, RendererFactory};
 use std::sync::Arc;
 use winit::window::Window;
 
+pub enum RenderResult {
+    Ok,
+    Lost,
+    Other,
+}
+
 pub struct State {
-    cells_height: u32,
-    cells_width: u32,
+    pub(crate) cells_height: u32,
+    pub(crate) cells_width: u32,
     computer: Computer,
     computer_factory: ComputerFactory,
     config: wgpu::SurfaceConfiguration,
     device: wgpu::Device,
     elapsed_time: f32,
     frame_count: u64,
-    generations_per_second: u8,
-    initial_density: u8,
-    last_time: instant::Instant,
-    paused: bool,
+    pub(crate) generations_per_second: u8,
+    pub(crate) initial_density: u8,
+    pub last_time: web_time::Instant,
+    pub(crate) paused: bool,
     queue: wgpu::Queue,
     renderer: Renderer,
     renderer_factory: RendererFactory,
-    rule_idx: u32,
-    seed: u32,
-    size: winit::dpi::PhysicalSize<u32>,
+    pub(crate) rule_idx: u32,
+    pub(crate) seed: u32,
+    pub(crate) size: winit::dpi::PhysicalSize<u32>,
     surface: wgpu::Surface<'static>,
     texture_view_descriptor: wgpu::TextureViewDescriptor<'static>,
-    window: Arc<Window>,
+    pub window: Arc<Window>,
 }
 impl State {
-    const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
+    pub const ELIGIBLE_SIZES: [u32; 6] = [64, 128, 256, 512, 1024, 2048];
 
     pub async fn new(
         window: Window,
@@ -48,7 +54,7 @@ impl State {
         generations_per_second: Option<u8>,
     ) -> Result<Self, String> {
         let window = Arc::new(window);
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
         let surface = instance
             .create_surface(Arc::clone(&window))
             .map_err(|_| "create_surface failed")?;
@@ -60,20 +66,19 @@ impl State {
                 force_fallback_adapter: false,
             })
             .await
-            .ok_or("request_adapter failed")?;
+            .map_err(|e| format!("request_adapter failed: {e}"))?;
 
         let (device, queue) = adapter
-            .request_device(
-                &wgpu::DeviceDescriptor {
-                    required_features: wgpu::Features::empty(),
-                    required_limits: wgpu::Limits::default(),
-                    label: None,
-                    memory_hints: Default::default(),
-                },
-                None,
-            )
+            .request_device(&wgpu::DeviceDescriptor {
+                required_features: wgpu::Features::empty(),
+                required_limits: adapter.limits(),
+                label: None,
+                memory_hints: Default::default(),
+                trace: Default::default(),
+                experimental_features: Default::default(),
+            })
             .await
-            .map_err(|e| format!("request_device failed: {}", e))?;
+            .map_err(|e| format!("request_device failed: {e}"))?;
 
         let size = window.inner_size();
         let surface_caps = surface.get_capabilities(&adapter);
@@ -145,7 +150,7 @@ impl State {
             surface_format,
         );
 
-        let last_time = instant::Instant::now();
+        let last_time = web_time::Instant::now();
         let elapsed_time = 0.;
 
         let state = Self {
@@ -175,7 +180,7 @@ impl State {
         Ok(state)
     }
 
-    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+    pub(crate) fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
             self.size = new_size;
             self.config.width = new_size.width;
@@ -198,7 +203,7 @@ impl State {
         self.on_state_change();
     }
 
-    fn change_rule(&mut self, next: bool) {
+    pub(crate) fn change_rule(&mut self, next: bool) {
         let new_rule_idx = if next {
             (self.rule_idx + 1) % (rules::RULES.len() as u32)
         } else if self.rule_idx == 0 {
@@ -233,24 +238,24 @@ impl State {
         );
     }
 
-    fn reset_with_cells_width(&mut self, new_cells_width: u32, new_cells_height: u32) {
+    pub(crate) fn reset_with_cells_width(&mut self, new_cells_width: u32, new_cells_height: u32) {
         self.cells_width = new_cells_width;
         self.cells_height = new_cells_height;
         self.on_state_change();
     }
 
-    fn reset(&mut self) {
-        use rand::prelude::RngCore;
-        self.seed = rand::thread_rng().next_u32();
+    pub(crate) fn reset(&mut self) {
+        use rand::Rng;
+        self.seed = rand::rng().next_u32();
         self.on_state_change();
     }
 
-    fn toggle_pause(&mut self) {
+    pub(crate) fn toggle_pause(&mut self) {
         self.paused = !self.paused;
         self.inform_ui_about_state();
     }
 
-    fn set_generations_per_second(&mut self, new_value: u8) {
+    pub(crate) fn set_generations_per_second(&mut self, new_value: u8) {
         if new_value > 0 && new_value <= 100 {
             self.generations_per_second = new_value;
             self.inform_ui_about_state();
@@ -284,9 +289,9 @@ impl State {
         );
     }
 
-    fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub(crate) fn render(&mut self) -> RenderResult {
         if self.window.inner_size().height < 10 {
-            return Ok(());
+            return RenderResult::Ok;
         }
 
         let mut encoder = self
@@ -303,7 +308,7 @@ impl State {
                 self.elapsed_time += self.last_time.elapsed().as_secs_f32();
                 self.elapsed_time > frequency
             };
-            self.last_time = instant::Instant::now();
+            self.last_time = web_time::Instant::now();
 
             if advance_state {
                 self.elapsed_time -= frequency;
@@ -318,7 +323,17 @@ impl State {
             }
         }
 
-        let output: wgpu::SurfaceTexture = self.surface.get_current_texture()?;
+        let current = self.surface.get_current_texture();
+        let output = match current {
+            wgpu::CurrentSurfaceTexture::Success(texture)
+            | wgpu::CurrentSurfaceTexture::Suboptimal(texture) => texture,
+            wgpu::CurrentSurfaceTexture::Lost | wgpu::CurrentSurfaceTexture::Outdated => {
+                return RenderResult::Lost;
+            }
+            _ => {
+                return RenderResult::Other;
+            }
+        };
 
         self.renderer.enqueue(
             self.computer.currently_computed_is_0,
@@ -331,6 +346,6 @@ impl State {
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
 
-        Ok(())
+        RenderResult::Ok
     }
 }

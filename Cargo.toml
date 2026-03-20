@@ -1,7 +1,7 @@
 [package]
 name = "wgpu-game-of-life"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Wgpu game of life"
 license = "MIT"
 repository = "https://github.com/fornwall/wgpu-game-of-life"
@@ -19,17 +19,14 @@ codegen-units = 1
 [dependencies]
 bytemuck = { version = "*" }
 log = "*"
-instant = { version = "*", features = ["wasm-bindgen"] }
 pollster = "*"
 rand = "*"
 rand_chacha = "*"
-wgpu = { git = "https://github.com/gfx-rs/wgpu" }
-winit = { git = "https://github.com/rust-windowing/winit/", features = [
+web-time = "*"
+wgpu = "*"
+winit = { version = "*", features = [
     "android-native-activity",
-    "rwh_06",
-    "wayland",
-    "wayland-dlopen",
-], default-features = false }
+] }
 
 [target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies]
 env_logger = "*"
@@ -41,7 +38,7 @@ jni = "*"
 [target.'cfg(target_family = "wasm")'.dependencies]
 console_error_panic_hook = "*"
 console_log = "*"
-getrandom = { version = "*", features = ["js"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
 js-sys = "*"

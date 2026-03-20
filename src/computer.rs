@@ -89,7 +89,8 @@ impl ComputerFactory {
         initial_density: u8,
         queue: &wgpu::Queue,
     ) -> Computer {
-        use rand::prelude::{Rng, SeedableRng};
+        use rand::RngExt as _;
+        use rand::prelude::SeedableRng;
         use wgpu::util::DeviceExt;
 
         let size_array = [cells_width, cells_height];
@@ -105,7 +106,7 @@ impl ComputerFactory {
         let mut cells_vec = vec![0_u32; cells_width as usize * cells_height as usize];
         let initial_density = f32::from(initial_density) * 0.01;
         for cell in cells_vec.iter_mut() {
-            if rng.gen::<f32>() < initial_density {
+            if rng.random::<f32>() < initial_density {
                 *cell = 1;
             }
         }
@@ -137,46 +138,46 @@ impl ComputerFactory {
         });
 
         let create_bind_group = |from_buffer, to_buffer, bind_group_name| {
-            device.create_bind_group({
-                &wgpu::BindGroupDescriptor {
-                    layout: &self.bind_group_layout,
-                    entries: &[
-                        wgpu::BindGroupEntry {
-                            binding: 0,
-                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: from_buffer,
-                                offset: 0,
-                                size: None,
-                            }),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 1,
-                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: to_buffer,
-                                offset: 0,
-                                size: None,
-                            }),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 2,
-                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: &self.size_buffer,
-                                offset: 0,
-                                size: None,
-                            }),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 3,
-                            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                                buffer: &self.rule_buffer,
-                                offset: 0,
-                                size: None,
-                            }),
-                        },
-                    ],
-                    label: Some(bind_group_name),
-                }
-            })
+            let entries = [
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                        buffer: from_buffer,
+                        offset: 0,
+                        size: None,
+                    }),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                        buffer: to_buffer,
+                        offset: 0,
+                        size: None,
+                    }),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                        buffer: &self.size_buffer,
+                        offset: 0,
+                        size: None,
+                    }),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 3,
+                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                        buffer: &self.rule_buffer,
+                        offset: 0,
+                        size: None,
+                    }),
+                },
+            ];
+            let desc = wgpu::BindGroupDescriptor {
+                layout: &self.bind_group_layout,
+                entries: &entries,
+                label: Some(bind_group_name),
+            };
+            device.create_bind_group(&desc)
         };
 
         let compute_bind_group_from_0_to_1 =
@@ -187,8 +188,8 @@ impl ComputerFactory {
         let compute_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("compute_pipeline_layout"),
-                bind_group_layouts: &[&self.bind_group_layout],
-                push_constant_ranges: &[],
+                bind_group_layouts: &[Some(&self.bind_group_layout)],
+                immediate_size: 0,
             });
 
         let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
@@ -305,7 +306,8 @@ mod tests {
     #[test]
     fn test_computer() {
         async fn async_test_computer() {
-            let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+            let instance =
+                wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
 
             let adapter = instance
                 .request_adapter(&wgpu::RequestAdapterOptions {
@@ -317,17 +319,16 @@ mod tests {
                 .unwrap();
 
             let (device, queue) = adapter
-                .request_device(
-                    &wgpu::DeviceDescriptor {
-                        required_features: wgpu::Features::empty(),
-                        required_limits: wgpu::Limits::default(),
-                        label: None,
-                        memory_hints: Default::default(),
-                    },
-                    None,
-                )
+                .request_device(&wgpu::DeviceDescriptor {
+                    required_features: wgpu::Features::empty(),
+                    required_limits: wgpu::Limits::default(),
+                    label: None,
+                    memory_hints: Default::default(),
+                    trace: Default::default(),
+                    experimental_features: Default::default(),
+                })
                 .await
-                .map_err(|e| format!("request_device failed: {}", e))
+                .map_err(|e| format!("request_device failed: {e}"))
                 .unwrap();
 
             for cells_width in [64, 128] {

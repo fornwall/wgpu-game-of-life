@@ -28,8 +28,8 @@ impl RendererFactory {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("render_pipeline_layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
+            bind_group_layouts: &[Some(&bind_group_layout)],
+            immediate_size: 0,
         });
 
         let square_vertices = [0, 0, 0, 1, 1, 0, 1, 1];
@@ -106,23 +106,22 @@ impl RendererFactory {
                 count: 1,
                 mask: !0,
             },
-            multiview: None,
+            multiview_mask: None,
             cache: Default::default(),
         });
 
-        let size_bind_group = device.create_bind_group({
-            &wgpu::BindGroupDescriptor {
-                layout: &self.bind_group_layout,
-                entries: &[wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                        buffer: size_buffer,
-                        offset: 0,
-                        size: None,
-                    }),
-                }],
-                label: Some("size_bind_group"),
-            }
+        let entries = [wgpu::BindGroupEntry {
+            binding: 0,
+            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                buffer: size_buffer,
+                offset: 0,
+                size: None,
+            }),
+        }];
+        let size_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &self.bind_group_layout,
+            entries: &entries,
+            label: Some("size_bind_group"),
         });
 
         let create_render_bundle = |cells_buffer: &wgpu::Buffer| {
@@ -179,6 +178,7 @@ impl Renderer {
                     }),
                     store: wgpu::StoreOp::Store,
                 },
+                depth_slice: None,
             })],
             ..Default::default()
         });

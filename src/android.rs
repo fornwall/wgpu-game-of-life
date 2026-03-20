@@ -1,5 +1,47 @@
-use jni::{objects::JObject, sys::JNIInvokeInterface_, JavaVM};
-use winit::event_loop::EventLoop;
+use jni::{JavaVM, objects::JObject, sys::JNIInvokeInterface_};
+use winit::application::ApplicationHandler;
+use winit::event::WindowEvent;
+use winit::event_loop::{ActiveEventLoop, EventLoop};
+use winit::window::WindowId;
+
+struct AndroidApp {
+    app: winit::platform::android::activity::AndroidApp,
+    state: Option<crate::State>,
+}
+
+impl ApplicationHandler for AndroidApp {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        let window_attributes = winit::window::Window::default_attributes();
+        let window = event_loop.create_window(window_attributes).unwrap();
+        self.state = Some(
+            pollster::block_on(crate::State::new(
+                window, None, None, None, None, false, None,
+            ))
+            .unwrap(),
+        );
+    }
+
+    fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
+        self.state = None;
+    }
+
+    fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
+        if let Some(state) = &self.state {
+            state.window.request_redraw();
+        }
+    }
+
+    fn window_event(
+        &mut self,
+        event_loop: &ActiveEventLoop,
+        _window_id: WindowId,
+        event: WindowEvent,
+    ) {
+        if let Some(state) = &mut self.state {
+            crate::event_loop::handle_window_event(&event, state, event_loop);
+        }
+    }
+}
 
 #[no_mangle]
 fn android_main(app: winit::platform::android::activity::AndroidApp) {
@@ -9,37 +51,14 @@ fn android_main(app: winit::platform::android::activity::AndroidApp) {
         android_logger::Config::default().with_max_level(log::LevelFilter::Warn),
     );
 
-    let mut maybe_state: Option<crate::State> = None;
-
     enable_immersive(&app);
 
-    let event_loop = EventLoop::builder().with_android_app(app).build().unwrap();
-
-    #[allow(deprecated)]
-    let _ = event_loop.run(|event, event_loop| match event {
-        winit::event::Event::Resumed => {
-            let window_attributes = winit::window::Window::default_attributes();
-            let window = event_loop.create_window(window_attributes).unwrap();
-
-            pollster::block_on(setup(window, &mut maybe_state));
-        }
-        winit::event::Event::Suspended => {
-            maybe_state = None;
-        }
-        _ => {
-            if let Some(ref mut state) = &mut maybe_state {
-                crate::event_loop::handle_event_loop(&event, state, event_loop);
-            }
-        }
-    });
-}
-
-async fn setup(window: winit::window::Window, state: &mut Option<crate::State>) {
-    *state = Some(
-        crate::State::new(window, None, None, None, None, false, None)
-            .await
-            .unwrap(),
-    );
+    let event_loop = EventLoop::builder()
+        .with_android_app(app.clone())
+        .build()
+        .unwrap();
+    let mut android_app = AndroidApp { app, state: None };
+    let _ = event_loop.run_app(&mut android_app);
 }
 
 fn enable_immersive(app: &winit::platform::android::activity::AndroidApp) {
