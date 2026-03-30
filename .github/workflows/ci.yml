@@ -17,6 +17,9 @@ jobs:
         with:
           toolchain: stable
           targets: aarch64-apple-darwin, wasm32-unknown-unknown, x86_64-linux-android, x86_64-pc-windows-msvc, x86_64-unknown-linux-gnu
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r29
       - run: make
 
   check-js:
@@ -141,12 +144,12 @@ jobs:
           toolchain: stable
       - run: |
           set -e
-          sudo apt-get update -y -qq
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/keyrings/lunarg-signing-key.asc > /dev/null
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
+          sudo sed -i 's|^deb |deb [signed-by=/etc/apt/keyrings/lunarg-signing-key.asc] |' /etc/apt/sources.list.d/lunarg-vulkan-noble.list
+          sudo apt-get update -y -qq
+          sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
       - run: cargo build --release
       - uses: actions/upload-artifact@v7
         with:
@@ -193,12 +196,12 @@ jobs:
         shell: bash
         run: |
           set -e
-          sudo apt-get update -y -qq
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/keyrings/lunarg-signing-key.asc > /dev/null
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
+          sudo sed -i 's|^deb |deb [signed-by=/etc/apt/keyrings/lunarg-signing-key.asc] |' /etc/apt/sources.list.d/lunarg-vulkan-noble.list
+          sudo apt-get update -y -qq
+          sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
       - run: cargo test
       - run: cargo bench
 
