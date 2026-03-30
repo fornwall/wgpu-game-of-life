@@ -54,7 +54,7 @@ fn test_computer(
 }
 
 async fn setup_device() -> (Instance, Device, Queue) {
-    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
 
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
@@ -66,14 +66,11 @@ async fn setup_device() -> (Instance, Device, Queue) {
         .unwrap();
 
     let (device, queue) = adapter
-        .request_device(
-            &wgpu::DeviceDescriptor {
-                required_features: wgpu::Features::empty(),
-                required_limits: wgpu::Limits::default(),
-                ..Default::default()
-            },
-            None,
-        )
+        .request_device(&wgpu::DeviceDescriptor {
+            required_features: wgpu::Features::empty(),
+            required_limits: wgpu::Limits::default(),
+            ..Default::default()
+        })
         .await
         .unwrap();
     (instance, device, queue)
