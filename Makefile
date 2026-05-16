@@ -15,24 +15,20 @@ else
   WASM_OPT += -O0
 endif
 
-CLIPPY_TARGETS = --all-targets \
-	--target wasm32-unknown-unknown \
-	--target x86_64-linux-android \
-	--target x86_64-pc-windows-msvc \
-	--target x86_64-unknown-linux-gnu
-
-ifneq ($(OS),Windows_NT)
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Darwin)
-        CLIPPY_TARGETS += --target aarch64-apple-darwin
-    endif
-endif
+CROSS_TARGETS = wasm32-unknown-unknown \
+	x86_64-linux-android \
+	x86_64-pc-windows-msvc \
+	x86_64-unknown-linux-gnu
 
 CARGO_COMMAND = cargo
 
 check:
 	$(CARGO_COMMAND) fmt --all --check
-	$(CARGO_COMMAND) clippy $(CLIPPY_TARGETS) $(CLIPPY_PARAMS)
+	$(CARGO_COMMAND) clippy --all-targets $(CLIPPY_PARAMS)
+	@for target in $(CROSS_TARGETS); do \
+		echo "$(CARGO_COMMAND) clippy --lib --target $$target $(CLIPPY_PARAMS)"; \
+		$(CARGO_COMMAND) clippy --lib --target $$target $(CLIPPY_PARAMS) || exit 1; \
+	done
 
 check-js:
 	cd site && npm install && npm run check
