@@ -38,7 +38,7 @@ jni = "*"
 [target.'cfg(target_family = "wasm")'.dependencies]
 console_error_panic_hook = "*"
 console_log = "*"
-getrandom = { version = "0.4", features = ["wasm_js"] }
+getrandom = { version = "*", features = ["wasm_js"] }
 wasm-bindgen = "*"
 wasm-bindgen-futures = "*"
 js-sys = "*"
