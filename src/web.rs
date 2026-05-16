@@ -48,12 +48,12 @@ extern "C" {
 #[wasm_bindgen(js_name = "setNewRule")]
 pub fn set_new_rule(rule_idx: u32) {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::RuleChange(rule_idx))
-                    .ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::RuleChange(rule_idx))
+                .ok();
         }
     });
 }
@@ -61,12 +61,12 @@ pub fn set_new_rule(rule_idx: u32) {
 #[wasm_bindgen(js_name = "setNewSize")]
 pub fn set_new_size(size: u32) {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SizeChange(size))
-                    .ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::SizeChange(size))
+                .ok();
         }
     });
 }
@@ -74,10 +74,10 @@ pub fn set_new_size(size: u32) {
 #[wasm_bindgen(js_name = "resetGame")]
 pub fn reset_game() {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy.send_event(CustomWinitEvent::Reset).ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy.send_event(CustomWinitEvent::Reset).ok();
         }
     });
 }
@@ -85,12 +85,12 @@ pub fn reset_game() {
 #[wasm_bindgen(js_name = "togglePause")]
 pub fn toggle_pause() {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::TogglePause)
-                    .ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::TogglePause)
+                .ok();
         }
     });
 }
@@ -98,12 +98,12 @@ pub fn toggle_pause() {
 #[wasm_bindgen(js_name = "setDensity")]
 pub fn set_density(density: u8) {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SetDensity(density))
-                    .ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::SetDensity(density))
+                .ok();
         }
     });
 }
@@ -111,14 +111,14 @@ pub fn set_density(density: u8) {
 #[wasm_bindgen(js_name = "setGenerationsPerSecond")]
 pub fn set_generations_per_second(generations_per_second: u8) {
     EVENT_LOOP_PROXY.with(|proxy| {
-        if let Ok(unlocked) = proxy.lock() {
-            if let Some(event_loop_proxy) = &*unlocked {
-                event_loop_proxy
-                    .send_event(CustomWinitEvent::SetGenerationsPerSecond(
-                        generations_per_second,
-                    ))
-                    .ok();
-            }
+        if let Ok(unlocked) = proxy.lock()
+            && let Some(event_loop_proxy) = &*unlocked
+        {
+            event_loop_proxy
+                .send_event(CustomWinitEvent::SetGenerationsPerSecond(
+                    generations_per_second,
+                ))
+                .ok();
         }
     });
 }

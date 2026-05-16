@@ -91,7 +91,7 @@ fn enable_immersive(app: &winit::platform::android::activity::AndroidApp) {
             .call_method(
                 &activity,
                 &get_window_name,
-                &get_window_sig.method_signature(),
+                get_window_sig.method_signature(),
                 &[],
             )?
             .l()?;
@@ -99,14 +99,14 @@ fn enable_immersive(app: &winit::platform::android::activity::AndroidApp) {
             .call_method(
                 &window,
                 &get_decor_view_name,
-                &get_decor_view_sig.method_signature(),
+                get_decor_view_sig.method_signature(),
                 &[],
             )?
             .l()?;
         env.call_method(
             &view,
             &set_ui_vis_name,
-            &set_ui_vis_sig.method_signature(),
+            set_ui_vis_sig.method_signature(),
             &[jni::objects::JValue::Int(SYSTEM_UI_VISIBILITY)],
         )?;
         log::warn!("Managed to set immersive mode");

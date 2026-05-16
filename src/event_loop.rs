@@ -7,13 +7,14 @@ use winit::{
 
 use crate::State;
 
+#[derive(Default)]
 pub struct App {
     state: Option<State>,
 }
 
 impl App {
     pub fn new() -> Self {
-        Self { state: None }
+        Self::default()
     }
 }
 
@@ -193,9 +194,8 @@ pub fn handle_window_event(event: &WindowEvent, state: &mut State, event_loop: &
             state.resize(*physical_size);
         }
         WindowEvent::RedrawRequested => match state.render() {
-            crate::RenderResult::Ok => {}
+            crate::RenderResult::Ok | crate::RenderResult::Other => {}
             crate::RenderResult::Lost => state.resize(state.size),
-            crate::RenderResult::Other => {}
         },
         _ => {}
     }

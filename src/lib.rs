@@ -106,7 +106,7 @@ impl State {
         }
 
         let cells_width = match grid_size {
-            Some(v) if Self::ELIGIBLE_SIZES.iter().any(|&e| e == v) => v,
+            Some(v) if Self::ELIGIBLE_SIZES.contains(&v) => v,
             _ => 512,
         };
         let cells_height = cells_width;
