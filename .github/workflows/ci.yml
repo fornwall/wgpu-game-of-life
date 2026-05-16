@@ -142,15 +142,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - run: |
-          set -e
-          sudo rm -f /etc/apt/sources.list.d/lunarg-vulkan*.list /etc/apt/sources.list.d/lunarg-vulkan*.sources
-          sudo grep -rlE 'packages\.lunarg\.com' /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null | sudo xargs -r rm -f
-          sudo mkdir -p /etc/apt/keyrings
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/keyrings/lunarg-signing-key.asc > /dev/null
-          printf 'Types: deb\nURIs: https://packages.lunarg.com/vulkan\nSuites: noble\nComponents: main\nSigned-By: /etc/apt/keyrings/lunarg-signing-key.asc\n' | sudo tee /etc/apt/sources.list.d/lunarg-vulkan-noble.sources > /dev/null
-          sudo apt-get update -y -qq
-          sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
+      - run: sudo apt-get update -y -qq && sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
       - run: cargo build --release
       - uses: actions/upload-artifact@v7
         with:
@@ -195,15 +187,7 @@ jobs:
       - name: Install Vulkan SDK
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: |
-          set -e
-          sudo rm -f /etc/apt/sources.list.d/lunarg-vulkan*.list /etc/apt/sources.list.d/lunarg-vulkan*.sources
-          sudo grep -rlE 'packages\.lunarg\.com' /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null | sudo xargs -r rm -f
-          sudo mkdir -p /etc/apt/keyrings
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/keyrings/lunarg-signing-key.asc > /dev/null
-          printf 'Types: deb\nURIs: https://packages.lunarg.com/vulkan\nSuites: noble\nComponents: main\nSigned-By: /etc/apt/keyrings/lunarg-signing-key.asc\n' | sudo tee /etc/apt/sources.list.d/lunarg-vulkan-noble.sources > /dev/null
-          sudo apt-get update -y -qq
-          sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
+        run: sudo apt-get update -y -qq && sudo apt-get install -y libegl1-mesa-dev libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
       - run: cargo test
       - run: cargo bench
 
